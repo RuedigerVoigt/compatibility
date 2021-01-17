@@ -14,27 +14,41 @@ For these tasks it does not need any dependencies outside the Python standard li
 
 # Installation
 
-```python
+```bash
 sudo pip3 install compatibility
 ```
 
-# Example Usage
+# Usage
 
-A basic example of code placed in the `__init__.py` file:
+As an example: the call to `compatibility` in the `__init__.py` file of the [salted](https://github.com/RuedigerVoigt/salted) package:
 
 ```python
+
 from datetime import date
 
-
-```
-
-
-```python
-import logging
-
 import compatibility
+from salted.__main__ import Salted
 
+NAME = "salted"
+__version__ = "0.6.1"
+__author__ = "Rüdiger Voigt"
+
+compatibility.Check(
+    package_name=NAME,
+    package_version=__version__,
+    release_date=date(2021, 1, 17),
+    python_version_support={
+        'min_version': '3.8',
+        'incompatible_versions': ['3.7'],
+        'max_tested_version': '3.9'},
+    nag_over_update={
+            'nag_days_after_release': 30,
+            'nag_in_hundred': 50},
+    language_messages='en'
+)
 ```
+The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.
+Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
 
 # Parameters
 
