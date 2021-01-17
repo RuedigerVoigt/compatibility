@@ -18,5 +18,6 @@ Check(
         'incompatible_versions': [],
         'max_tested_version': '3.9'
     },
+    nag_over_update=None,
     language_messages='en'
     )
