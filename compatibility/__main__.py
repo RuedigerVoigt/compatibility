@@ -124,7 +124,7 @@ class Check():
             self.python_version_support['max_tested_version'])
         major_h = int(match_h.group('major'))
         minor_h = int(match_h.group('minor'))
-        if major_h > major or (major_h == major and minor_h > minor):
+        if major_h > major or (major == major_h and minor > minor_h):
             logging.warning(
                 self.MSG['untested_interpreter'][self.language_messages],
                 self.package_name)
