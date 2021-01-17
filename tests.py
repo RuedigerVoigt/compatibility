@@ -4,9 +4,15 @@
 """
 Automatic Tests for the Compatibility library
 
+To run these tests with coverage:
+coverage run --source compatibility -m pytest tests.py
+To generate a report afterwards.
+coverage html
+
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021: Released under the Apache License 2.0
+(c) 2021 Rüdiger Voigt
+Released under the Apache License 2.0
 """
 
 from datetime import date, timedelta

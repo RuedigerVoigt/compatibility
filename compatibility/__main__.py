@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Compatibility library
+Compatibility
+
+A Python library that checks whether the running version is compatible and
+tested. Remind the user to check for updates.
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021: Released under the Apache License 2.0
+(c) 2021 Rüdiger Voigt
+Released under the Apache License 2.0
 """
 
 from datetime import date
