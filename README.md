@@ -20,32 +20,45 @@ sudo pip3 install compatibility
 
 # Usage
 
-As an example: the call to `compatibility` in the `__init__.py` file of the [salted](https://github.com/RuedigerVoigt/salted) package:
+It is important, that you **do NOT call `compatibility` in the `__init__.py` file of your package, but in the constructor (`def __init__()`) of your class instead.** If you start the check in the `__init__.py` file, then it will run once you *import* the package. This goes well *if* the user already set the level for `logging`. If that is not the case, the user will see all messages including those on the `DEBUG` level. This is not a problem if the check is done in the constructor.
+
+As an example the relevant parts of the constructor of the [salted](https://github.com/RuedigerVoigt/salted) package:
 
 ```python
-
-from datetime import date
+# [...]
+import logging
+# [...]
 
 import compatibility
-from salted.__main__ import Salted
+# [...]
 
-NAME = "salted"
-__version__ = "0.6.1"
-__author__ = "Rüdiger Voigt"
 
-compatibility.Check(
-    package_name=NAME,
-    package_version=__version__,
-    release_date=date(2021, 1, 17),
-    python_version_support={
-        'min_version': '3.8',
-        'incompatible_versions': ['3.7'],
-        'max_tested_version': '3.9'},
-    nag_over_update={
-            'nag_days_after_release': 30,
-            'nag_in_hundred': 50},
-    language_messages='en'
-)
+class Salted:
+    """Main class. Creates the other Objects, starts workers,
+       collects results and starts the report of results. """
+
+    VERSION = '0.6.1'
+
+    def __init__(self,
+                 cache_file: Union[pathlib.Path, str],
+                 workers: Union[int, str] = 'automatic',
+                 timeout_sec: int = 5,
+                 dont_check_again_within_hours: int = 24,
+                 raise_for_dead_links: bool = False,
+                 user_agent: str = f"salted/{VERSION}") -> None:
+
+        compatibility.Check(
+            package_name='salted',
+            package_version=self.VERSION,
+            release_date=date(2021, 1, 17),
+            python_version_support={
+                'min_version': '3.8',
+                'incompatible_versions': ['3.7'],
+                'max_tested_version': '3.9'},
+            nag_over_update={
+                    'nag_days_after_release': 30,
+                    'nag_in_hundred': 50},
+            language_messages='en')
 ```
 The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
@@ -80,5 +93,5 @@ However, `min_version` and `max_tested_version` ignore the release level part.
 
 In the `setup.py` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade, that installs an incompatible version with the systems package manager.
 
-If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError`exception once the user tries to run your package.
+If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError` exception once the user tries to run your package.
  

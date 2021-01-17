@@ -15,12 +15,15 @@ Released under the Apache License 2.0
 
 from datetime import date
 import logging
+from logging import NullHandler
 import random
 import re
 import sys
 from typing import Optional
 
 from compatibility import messages
+
+logging.getLogger('compatibility').addHandler(NullHandler())
 
 
 class Check():
@@ -131,11 +134,13 @@ class Check():
 
     def log_version_info(self):
         "Log a message with package name, version, and release date."
-        logging.info(
-            self.MSG['version_info'][self.language_messages],
-            self.package_name,
-            self.package_version,
-            self.release_date)
+        # avoid logging info about itself in every package using it:
+        if self.package_name != 'compatibility':
+            logging.info(
+                self.MSG['version_info'][self.language_messages],
+                self.package_name,
+                self.package_version,
+                self.release_date)
 
     def check_version_age(self,
                           nag_over_update: dict):
