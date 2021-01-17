@@ -57,7 +57,7 @@ Salted in that specific version is a relatively young package that will receive 
 * `release_date` (required): requires a `datetime` object (like `date(2021,1,1)`), *not* a list nor a string. This is to avoid confusion how the date is ordered.
 * `python_version_support` (optional): requires a dictionary with the three following keys:
     * `min_version`: a string with the number of the oldest supported version (like `'3.6'`).
-    * `incompatible_versions`: a list of incompatible versions
+    * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError`exception if they try to run your package.
     * `max_tested_version`: the latest version of the interpreter you successfully tested your code with.
 * `nag_over_update` (optional): requires a dictionary with the three following keys:
     * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
@@ -75,3 +75,10 @@ If you provide all three elements (for example `'3.10.alpha'`) only this very sp
 So assume your code would have issues with Python 3.5.beta and you list that exact string as an incompatible version. If you are running the script under 3.5.alpha nothing will happen. If you listed it by using the string `'3.5'` running the script with 3.5.alpha (or any other release level of 3.5) will raise the `RuntimeError` exception.
 
 However, `min_version` and `max_tested_version` ignore the release level part.
+
+# Avoid running your package with an incompatible version of Python
+
+In the `setup.py` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade, that installs an incompatible version with the systems package manager.
+
+If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError`exception once the user tries to run your package.
+ 
