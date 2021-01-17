@@ -241,7 +241,7 @@ def test_check_version_age():
         package_name='test',
         package_version='1',
         release_date=date(2021, 1, 1),
-        nag_days_after_release=None)
+        nag_over_update=None)
 
     # negative value
     with pytest.raises(ValueError) as excinfo:
@@ -249,8 +249,11 @@ def test_check_version_age():
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            nag_days_after_release=-42)
-    assert 'Use value None to switch off' in str(excinfo.value)
+            nag_over_update={
+                'nag_days_after_release': -42,
+                'nag_in_hundred': 100
+            })
+    assert 'nag_days_after_release must not be negative.' in str(excinfo.value)
 
     # non integer value
     with pytest.raises(ValueError) as excinfo:
@@ -258,8 +261,11 @@ def test_check_version_age():
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            nag_days_after_release='foo')
-    assert 'must be int or None' in str(excinfo.value)
+            nag_over_update={
+                'nag_days_after_release': 'foo',
+                'nag_in_hundred': 100
+            })
+    assert 'Some key im nag_over_update has wrong type!' in str(excinfo.value)
 
     # Note: Directly mocking datetime will fail, because it is C-Code !
     # Solution could be partial mocking, see.
@@ -272,11 +278,41 @@ def test_check_version_age():
         package_name='test',
         package_version='1',
         release_date=a_week_ago,
-        nag_days_after_release=100)
+        nag_over_update={
+                'nag_days_after_release': 100,
+                'nag_in_hundred': 100
+            })
 
     # days since release above threshold
     compatibility.Check(
         package_name='test',
         package_version='1',
         release_date=a_week_ago,
-        nag_days_after_release=3)
+        nag_over_update={
+                'nag_days_after_release': 3,
+                'nag_in_hundred': 100
+            })
+
+    # nag_in_hundred negative
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=a_week_ago,
+            nag_over_update={
+                    'nag_days_after_release': 3,
+                    'nag_in_hundred': -100
+                })
+    assert 'must be int between 0 and 100' in str(excinfo.value)
+
+    # nag_in_hundred above 100
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=a_week_ago,
+            nag_over_update={
+                    'nag_days_after_release': 3,
+                    'nag_in_hundred': 101
+                })
+    assert 'must be int between 0 and 100' in str(excinfo.value)

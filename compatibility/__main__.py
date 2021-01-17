@@ -11,6 +11,7 @@ Source: https://github.com/RuedigerVoigt/compatibility
 
 from datetime import date
 import logging
+import random
 import re
 import sys
 from typing import Optional
@@ -32,7 +33,7 @@ class Check():
                  package_version: str,
                  release_date: date,
                  python_version_support: Optional[dict] = None,
-                 nag_days_after_release: Optional[int] = None,
+                 nag_over_update: Optional[dict] = None,
                  language_messages: str = 'en'):
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
@@ -42,8 +43,8 @@ class Check():
         self.check_params()
         self.check_python_version()
         self.log_version_info()
-        if nag_days_after_release:
-            self.check_version_age(nag_days_after_release)
+        if nag_over_update:
+            self.check_version_age(nag_over_update)
 
     def check_params(self):
         "Check parameters used to initialize this class for completeness"
@@ -89,7 +90,8 @@ class Check():
             raise ValueError('Value for key max_tested_version incorrect.')
         for version_string in self.python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
-                raise ValueError('Some version string in incompatible_versions cannot be parsed.')
+                raise ValueError(
+                    'Some string in incompatible_versions cannot be parsed.')
         major = sys.version_info.major
         minor = sys.version_info.minor
         releaselevel = sys.version_info.releaselevel
@@ -131,25 +133,31 @@ class Check():
             self.package_version,
             self.release_date)
 
-    def check_version_age(self, nag_days_after_release: int):
+    def check_version_age(self,
+                          nag_over_update: dict):
         """Check how many days have passed since the release of this package
            version. If the number of those days is above the defined treshold,
            nag the user to check for an update."""
-        if nag_days_after_release is None:
+        if nag_over_update is None:
             return
-        # Is nag_days_after_release an integer or can be casted into one?
+
         try:
-            nag_days_after_release = int(nag_days_after_release)
+            nag_days_after_release = int(nag_over_update['nag_days_after_release'])
+            nag_in_hundred = int(nag_over_update['nag_in_hundred'])
         except ValueError:
-            raise ValueError('nag_days_after_release must be int or None!')
+            raise ValueError('Some key im nag_over_update has wrong type!')
         if nag_days_after_release < 0:
-            raise ValueError(
-                'Parameter nag_days-after-release must not be negative. ' +
-                'Use value None to switch off.')
+            raise ValueError('nag_days_after_release must not be negative.')
+        if nag_in_hundred < 0 or nag_in_hundred > 100:
+            raise ValueError('nag_in_hundred must be int between 0 and 100.')
+        if nag_in_hundred == 0:
+            return
         date_delta = date.today() - self.release_date
         days_since_release = date_delta.days
         if (days_since_release >= nag_days_after_release):
-            logging.info(
-                self.MSG['check_for_updates'][self.language_messages],
-                self.package_name,
-                days_since_release)
+            probability = nag_in_hundred / 100
+            if probability == 1.0 or random.random() < probability:
+                logging.info(
+                    self.MSG['check_for_updates'][self.language_messages],
+                    self.package_name,
+                    days_since_release)

@@ -45,7 +45,9 @@ import compatibility
     * `min_version`: a string with the number of the oldest supported version (like `'3.6'`).
     * `incompatible_versions`: a list of incompatible versions
     * `max_tested_version`: the latest version of the interpreter you successfully tested your code with.
-* `nag_days_after_release` (optional): wait this number of days (`int`) since the release, then start reminding users to check for an update.
+* `nag_over_update` (optional): requires a dictionary with the three following keys:
+    * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
+    * `nag_in_hundred`: Whether to nag over a possible update is random, but this sets the probability in the form how many times (int) out of hundred starts the message is logged. Accordingly 100 means every time.
 * `language_messages` (optional): the language (`en` for English or `de` for German) of the messages logged by this. Defaults to English log messages.
 
 ## Version strings
