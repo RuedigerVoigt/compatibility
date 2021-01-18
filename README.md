@@ -26,6 +26,7 @@ As an example the relevant parts of the constructor of the [salted](https://gith
 
 ```python
 # [...]
+from datetime import date
 import logging
 # [...]
 
@@ -40,12 +41,7 @@ class Salted:
     VERSION = '0.6.1'
 
     def __init__(self,
-                 cache_file: Union[pathlib.Path, str],
-                 workers: Union[int, str] = 'automatic',
-                 timeout_sec: int = 5,
-                 dont_check_again_within_hours: int = 24,
-                 raise_for_dead_links: bool = False,
-                 user_agent: str = f"salted/{VERSION}") -> None:
+                 [...]) -> None:
 
         compatibility.Check(
             package_name='salted',
