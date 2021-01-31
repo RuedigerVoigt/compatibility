@@ -1,6 +1,7 @@
 ![Supported Python Versions](https://img.shields.io/pypi/pyversions/compatibility)
 ![pypi version](https://img.shields.io/pypi/v/compatibility)
 ![Last commit](https://img.shields.io/github/last-commit/RuedigerVoigt/compatibility)
+[![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
 
 Compatibility is a simple tool designed to be used by package authors. It does four things:
 * Check whether the running Python interpreter version is supported, i.e. equal or higher than the minimum version and not in a list of incompatible versions. Raises a `RuntimeError` exception if the interpreter version is marked as incompatible.
