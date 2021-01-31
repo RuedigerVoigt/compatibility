@@ -199,6 +199,17 @@ def test_running_wrong_python():
     running_version_long = f"{major}.{minor}.{releaselevel}"
     version_minor_above = f"{major}.{minor + 1}"
     version_major_above = f"{major + 1}.{minor}"
+    # running version is above max tested version
+    # TO Do : check if logging is called
+    # Minimal test version is 3.6, so 3.0
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date(2021, 1, 1),
+        python_version_support={
+            'min_version': '3.0',
+            'incompatible_versions': [],
+            'max_tested_version': '3.0'})
     # major version required is larger than version running
     with pytest.raises(RuntimeError) as excinfo:
         compatibility.Check(
@@ -242,12 +253,24 @@ def test_running_wrong_python():
 
 
 def test_check_version_age():
-    # value is None
-    compatibility.Check(
+    # value of nag_over_update is None
+    my_check = compatibility.Check(
         package_name='test',
         package_version='1',
         release_date=date(2021, 1, 1),
         nag_over_update=None)
+    my_check.check_version_age(None)
+
+    # nag_in_hundred is 0
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date(2021, 1, 1),
+        nag_over_update={
+            'nag_days_after_release': 1,
+            'nag_in_hundred': 0
+        })
+
 
     # negative value
     with pytest.raises(ValueError) as excinfo:
