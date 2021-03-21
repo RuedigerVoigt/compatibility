@@ -28,6 +28,10 @@ logging.getLogger('compatibility').addHandler(NullHandler())
 
 
 class Check():
+    """Main Class of the compatibility package: check Python version
+       and time since release."""
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
 
     # Regular expression to parse a version string provided by the user
     VERSION_REGEX = re.compile(
@@ -173,8 +177,9 @@ class Check():
         try:
             nag_days_after_release = int(nag_over_update['nag_days_after_release'])
             nag_in_hundred = int(nag_over_update['nag_in_hundred'])
-        except ValueError:
-            raise ValueError('Some key im nag_over_update has wrong type!')
+        except ValueError as wrong_type:
+            raise ValueError(
+                'Some key im nag_over_update has wrong type!') from wrong_type
         if nag_days_after_release < 0:
             raise ValueError('nag_days_after_release must not be negative.')
         if nag_in_hundred < 0 or nag_in_hundred > 100:
@@ -183,7 +188,7 @@ class Check():
             return
         date_delta = datetime.date.today() - self.release_date
         days_since_release = date_delta.days
-        if (days_since_release >= nag_days_after_release):
+        if days_since_release >= nag_days_after_release:
             probability = nag_in_hundred / 100
             if probability == 1.0 or random.random() < probability:
                 logging.info(
