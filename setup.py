@@ -3,12 +3,14 @@
 
 import setuptools
 
+from compatibility import _version
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="compatibility",
-    version="0.8",
+    version=f"{_version.__version__}",
     author="Rüdiger Voigt",
     author_email="projects@ruediger-voigt.eu",
     description="""A library that checks whether the running version of Python is compatible and tested.

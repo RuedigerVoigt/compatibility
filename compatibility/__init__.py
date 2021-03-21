@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from compatibility.__main__ import Check
+from compatibility import _version
 
 NAME = "compatibility"
-__version__ = "0.8"
+__version__ = _version.__version__
 __author__ = "Rüdiger Voigt"
