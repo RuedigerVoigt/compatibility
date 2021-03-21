@@ -4,8 +4,8 @@
 """
 Compatibility
 
-A Python library that checks whether the running version is compatible and
-tested. Remind the user to check for updates.
+A Python library that checks whether the running version of Python is compatible and
+tested. Remind the user to check for updates of the package.
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility

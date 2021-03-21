@@ -11,7 +11,8 @@ setuptools.setup(
     version="0.8",
     author="Rüdiger Voigt",
     author_email="projects@ruediger-voigt.eu",
-    description="A library that checks whether the running version is compatible and tested. Remind the user to check for updates.",
+    description="""A library that checks whether the running version of Python is compatible and tested.
+                   Remind the user to check for updates of the library.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/RuedigerVoigt/compatibility",
@@ -29,7 +30,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "Topic :: Software Development",
