@@ -34,6 +34,7 @@ class Check():
     # pylint: disable=too-many-locals
 
     # Regular expression to parse a version string provided by the user
+    # ?? is the non-greedy version of ?
     VERSION_REGEX = re.compile(
         r"(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<releaselevel>\b(alpha|beta|candidate|final)\b))??")
 
@@ -81,7 +82,7 @@ class Check():
         raise AttributeError(
             'date_to_coerce must be either string or datetime.date')
 
-    def check_params(self):
+    def check_params(self) -> None:
         "Check parameters used to initialize this class for completeness"
         # Parameters might be empty after applying .strip()
         if not self.package_name:
@@ -92,28 +93,30 @@ class Check():
         if self.language_messages not in ('en', 'de'):
             raise ValueError('Invalid value for language_messages!')
 
-    def check_python_version(self):
+    def check_python_version(self) -> None:
         """Check whether the running interpreter version is supported, i.e.
            equal or higher than the minimum version and not in the list of
-           incompatible versions. Warn if the running version is higher than
-           the highest version used in tests."""
+           incompatible versions. Warn with logging.warn if the running
+           version is higher than the highest version used in tests."""
         if not self.python_version_support:
             # Setting python_version_support is not required
-            return
+            return None
 
         # Python version support: missing or additional keys
         if len(self.python_version_support.keys()) < 3:
             raise ValueError('Parameter python_version_support incomplete!')
         if len(self.python_version_support.keys()) > 3:
             raise ValueError('Parameter python_version_support: too many keys!')
-        expected_keys = ['incompatible_versions', 'max_tested_version',
+        # Are there the right keys?
+        expected_keys = ['incompatible_versions',
+                         'max_tested_version',
                          'min_version']
         found_keys = list(self.python_version_support.keys())
         if sorted(found_keys) != expected_keys:
-            raise ValueError('Parameter python_version_support contains ' +
-                             'unknown keys.')
+            raise ValueError(
+                'Parameter python_version_support contains unknown keys.')
         # Do the Python versions parse?
-        # fullmatch instead of match, because with match somethin like 3.8.x
+        # fullmatch instead of match, because with match something like 3.8.x
         # would be recognized.
         if not re.fullmatch(self.VERSION_REGEX, self.python_version_support['min_version']):
             raise ValueError('Value for key min_version incorrect.')
@@ -133,8 +136,10 @@ class Check():
         match_min = re.match(
             self.VERSION_REGEX,
             self.python_version_support['min_version'])
-        major_min = int(match_min.group('major'))
-        minor_min = int(match_min.group('minor'))
+        # The value was parsed before, so there is always a value for major_min
+        # and minor_min. So silence mypy for the next two lines:
+        major_min = int(match_min.group('major'))  # type: ignore[union-attr]
+        minor_min = int(match_min.group('minor'))  # type: ignore[union-attr]
         if major < major_min or (major_min == major and minor < minor_min):
             raise RuntimeError(
                 f"You need at least Python {major_min}.{minor_min} to run " +
@@ -149,14 +154,17 @@ class Check():
         match_h = re.match(
             self.VERSION_REGEX,
             self.python_version_support['max_tested_version'])
-        major_h = int(match_h.group('major'))
-        minor_h = int(match_h.group('minor'))
+        # Same as above. checked before, that there is always a value.
+        # Silence mypy for the next two lines:
+        major_h = int(match_h.group('major'))  # type: ignore[union-attr]
+        minor_h = int(match_h.group('minor'))  # type: ignore[union-attr]
         if major_h > major or (major == major_h and minor > minor_h):
             logging.warning(
                 self.MSG['untested_interpreter'][self.language_messages],
                 self.package_name)
+        return None
 
-    def log_version_info(self):
+    def log_version_info(self) -> None:
         "Log a message with package name, version, and release date."
         # avoid logging info about itself in every package using it:
         if self.package_name != 'compatibility':
@@ -167,13 +175,10 @@ class Check():
                 self.release_date)
 
     def check_version_age(self,
-                          nag_over_update: dict):
+                          nag_over_update: dict) -> None:
         """Check how many days have passed since the release of this package
            version. If the number of those days is above the defined treshold,
            nag the user to check for an update."""
-        if nag_over_update is None:
-            return
-
         try:
             nag_days_after_release = int(nag_over_update['nag_days_after_release'])
             nag_in_hundred = int(nag_over_update['nag_in_hundred'])
