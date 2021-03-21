@@ -4,8 +4,9 @@
 """
 Compatibility
 
-A Python library that checks whether the running version of Python is compatible and
-tested. Remind the user to check for updates of the package.
+A Python library that checks whether the running version of Python is
+compatible and tested.
+Remind the user to check for updates of the package.
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
@@ -13,13 +14,13 @@ Source: https://github.com/RuedigerVoigt/compatibility
 Released under the Apache License 2.0
 """
 
-from datetime import date
+import datetime
 import logging
 from logging import NullHandler
 import random
 import re
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 from compatibility import messages
 
@@ -38,13 +39,13 @@ class Check():
     def __init__(self,
                  package_name: str,
                  package_version: str,
-                 release_date: date,
+                 release_date: Union[datetime.date, str],
                  python_version_support: Optional[dict] = None,
                  nag_over_update: Optional[dict] = None,
                  language_messages: str = 'en'):
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
-        self.release_date = release_date
+        self.release_date = self.__coerce_date(release_date)
         self.python_version_support = python_version_support
         self.language_messages = language_messages.strip()
         self.check_params()
@@ -53,6 +54,29 @@ class Check():
         if nag_over_update:
             self.check_version_age(nag_over_update)
 
+    @staticmethod
+    def __coerce_date(date_to_coerce: Union[str, datetime.date]) -> datetime.date:
+        """Convert a string in the format YYYY-MM-DD to datetime.date.
+           This doubles as a check if the date is valid.
+           If the object is already of type datetime.date, just return it.
+           Raise ValueError if invalid string or non-existent date.
+           Raise AtributeError if neither string nor datetime.date"""
+        if type(date_to_coerce) == datetime.date:  # pylint: disable=unidiomatic-typecheck
+            # Mypy does not recognize the type check directly before:
+            return date_to_coerce  # type: ignore
+
+        if type(date_to_coerce) == str:  # pylint: disable=unidiomatic-typecheck
+            try:
+                # Mypy does not recognize the type check directly before:
+                return datetime.datetime.strptime(date_to_coerce, '%Y-%m-%d').date()  # type: ignore
+            except ValueError as bad_date:
+                # standard error message is not useful
+                raise ValueError(
+                    'Non-existing or incomplete date!') from bad_date
+
+        raise AttributeError(
+            'date_to_coerce must be either string or datetime.date')
+
     def check_params(self):
         "Check parameters used to initialize this class for completeness"
         # Parameters might be empty after applying .strip()
@@ -60,10 +84,6 @@ class Check():
             raise ValueError('Missing package name!')
         if not self.package_version:
             raise ValueError('Missing package version!')
-        if not self.release_date:
-            raise ValueError('Missing release date!')
-        if not isinstance(self.release_date, date):
-            raise ValueError('Parameter release_date must be a date object!')
         # Is the message language supported?
         if self.language_messages not in ('en', 'de'):
             raise ValueError('Invalid value for language_messages!')
@@ -161,7 +181,7 @@ class Check():
             raise ValueError('nag_in_hundred must be int between 0 and 100.')
         if nag_in_hundred == 0:
             return
-        date_delta = date.today() - self.release_date
+        date_delta = datetime.date.today() - self.release_date
         days_since_release = date_delta.days
         if (days_since_release >= nag_days_after_release):
             probability = nag_in_hundred / 100

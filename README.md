@@ -64,7 +64,7 @@ Salted in that specific version is a relatively young package that will receive 
 
 * `package_name` (required): the name of your package.
 * `package_version` (required): the version number of your package as a string.
-* `release_date` (required): requires a `datetime` object (like `date(2021,1,1)`), *not* a list nor a string. This is to avoid confusion how the date is ordered.
+* `release_date` (required): requires a `datetime` object (like `date(2021,1,1)`), or a string in the exact format `YYYY-MM-DD`.
 * `python_version_support` (optional): requires a dictionary with the three following keys:
     * `min_version`: a string with the number of the oldest supported version (like `'3.6'`).
     * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError`exception if they try to run your package.

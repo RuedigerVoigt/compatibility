@@ -55,7 +55,6 @@ def test_missing_or_empty_paramameters():
             package_name='test',
             package_version='1',
             release_date='')
-    assert 'Missing release date!' in str(excinfo.value)
 
 
 def test_languages():
@@ -84,13 +83,34 @@ def test_languages():
 
 
 def test_release_date():
-    # not a date object
-    with pytest.raises(ValueError) as excinfo:
+    # Neither a date object nor a string
+    with pytest.raises(AttributeError):
         compatibility.Check(
             package_name='test',
             package_version='0.1',
             release_date=(2021, 1, 1))
-    assert 'Parameter release_date must be a date object!' in str(excinfo.value)
+    # valid date object
+    assert compatibility.Check(
+        package_name='test',
+        package_version='0.1',
+        release_date=date(2021, 1, 1))
+    # valid string
+    assert compatibility.Check(
+        package_name='test',
+        package_version='0.1',
+        release_date='2021-01-01')
+    # malformed date string
+    with pytest.raises(ValueError):
+        compatibility.Check(
+            package_name='test',
+            package_version='0.1',
+            release_date='2021-Jan-10')
+    # valid string format, but invalid date
+    with pytest.raises(ValueError):
+        compatibility.Check(
+            package_name='test',
+            package_version='0.1',
+            release_date='2021-13-01')
 
 
 def test_python_versions_regex():
