@@ -1,5 +1,9 @@
 # Changelog compatibility Python library
 
+## Upcoming
+
+* Tests now also run with the third beta version of Python 3.10.
+
 ## Version 0.9.0 stable (2021-03-21)
 
 * Change development status from `beta` to `stable`.
