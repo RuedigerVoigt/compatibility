@@ -16,8 +16,11 @@ Released under the Apache License 2.0
 """
 
 from datetime import date, timedelta
+import logging
+import platform
 import re
 import sys
+from unittest.mock import patch
 
 import compatibility
 import pytest
@@ -261,7 +264,7 @@ def test_running_wrong_python():
                 'incompatible_versions': [running_version_short],
                 'max_tested_version': '9.100'})
     # long form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError):
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -270,6 +273,66 @@ def test_running_wrong_python():
                 'min_version': '0.0',
                 'incompatible_versions': [running_version_long],
                 'max_tested_version': '9.100'})
+
+
+def test_check_system_exceptions():
+    # not a dictionary
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support='Linux')
+    assert 'must be a dictionary' in str(excinfo.value)
+    # unknown key in dict
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'typo': 'foo'})
+    assert 'Unknown key' in str(excinfo.value)
+    # Unknown system
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': {'foo'}})
+    assert 'Invalid system' in str(excinfo.value)
+    # Contradiction: working and causing problems
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': {'Linux'},
+                            'problems': {'Linux', 'MacOS'}
+                            })
+    assert 'AND be known to cause problems' in str(excinfo.value)
+    # Contradiction: working and not working
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': {'Linux'},
+                            'incompatible': {'Linux', 'MacOS'}
+                            })
+    assert 'not work at the same time' in str(excinfo.value)
+
+
+def test_check_system_incompatible_systems():
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        with pytest.raises(RuntimeError) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'incompatible': {'Linux'}}
+                )
+        assert 'is incompatible' in str(excinfo.value)
 
 
 def test_check_version_age():
@@ -293,7 +356,6 @@ def test_check_version_age():
             'nag_days_after_release': 1,
             'nag_in_hundred': 0
         })
-
 
     # negative value
     with pytest.raises(ValueError) as excinfo:
@@ -368,3 +430,17 @@ def test_check_version_age():
                     'nag_in_hundred': 101
                 })
     assert 'must be int between 0 and 100' in str(excinfo.value)
+
+
+def test_check_version_age_logging(caplog):
+    caplog.set_level(logging.INFO)
+    # always nag
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date(2021, 1, 1),
+        nag_over_update={
+                'nag_days_after_release': 3,
+                'nag_in_hundred': 100
+            })
+    assert 'There could be updates and security fixes' in caplog.text

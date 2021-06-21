@@ -17,6 +17,7 @@ Released under the Apache License 2.0
 import datetime
 import logging
 from logging import NullHandler
+import platform
 import random
 import re
 import sys
@@ -47,7 +48,8 @@ class Check():
                  release_date: Union[datetime.date, str],
                  python_version_support: Optional[dict] = None,
                  nag_over_update: Optional[dict] = None,
-                 language_messages: str = 'en'):
+                 language_messages: str = 'en',
+                 system_support: Optional[dict] = None):
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.release_date = self.__coerce_date(release_date)
@@ -55,6 +57,7 @@ class Check():
         self.language_messages = language_messages.strip()
         self.check_params()
         self.check_python_version()
+        self.check_system(system_support)
         self.log_version_info()
         if nag_over_update:
             self.check_version_age(nag_over_update)
@@ -162,6 +165,68 @@ class Check():
             logging.warning(
                 self.MSG['untested_interpreter'][self.language_messages],
                 self.package_name)
+        return None
+
+    def check_system(self,
+                     system_support: Optional[dict]) -> None:
+        """Check the operating system running this code: is it known to be
+        working, known to be causing problems, or known not to work?
+
+        If the OS is known to cause problems => logging.warning.
+        If the OS is known to be not working => RuntimeError exception.
+
+        system_support is a dictionary with three allowed keys:
+        'working', 'problems', 'incompatible'.
+        The value for each key has to be a set containing any of these strings:
+        'Linux', 'MacOS', or 'Windows'
+        """
+        if not system_support:
+            return None
+        if not isinstance(system_support, dict):
+            raise ValueError('Parameter system_support must be a dictionary')
+
+        # Are there only allowed categories and allowed values?
+        for key, systems in system_support.items():
+            valid_keys = {'working', 'problems', 'incompatible'}
+            valid_systems = {'Linux', 'Windows', 'MacOS'}
+            if key not in valid_keys:
+                raise ValueError('Unknown key in dictionary system_support')
+            if not isinstance(systems, set):
+                raise ValueError(f"Use a set to hold values for {key}")
+            for system in systems:
+                if system not in valid_systems:
+                    raise ValueError(
+                        f"Invalid system in {key}. Allowed: {valid_systems}")
+
+        if 'working' in system_support and 'problems' in system_support:
+            for system in system_support['working']:
+                if system in system_support['problems']:
+                    raise ValueError("Contradiction: system cannot be known " +
+                                     "to work AND be known to cause problems.")
+
+        if 'working' in system_support and 'incompatible' in system_support:
+            if system in system_support['incompatible']:
+                raise ValueError("Contradiction: system cannot work AND " +
+                                 "not work at the same time!")
+
+        running = platform.system()
+        if 'working' in system_support and running in system_support['working']:
+            logging.debug(
+                "%s is tested with %s.", self.package_name, running)
+            return None
+        if 'problems' in system_support and running in system_support['problems']:
+            logging.warning(
+                "%s might run in problems on %s.", self.package_name, running)
+            return None
+        if 'incompatible' in system_support and running in system_support['incompatible']:
+            msg = (f"This version of {self.package_name} is incompatible " +
+                   f"with {running}!")
+            logging.exception(msg)
+            raise RuntimeError(msg)
+
+        # the running system does not appear
+        logging.info("%s's support for %s unknown!",
+                     self.package_name, running)
         return None
 
     def log_version_info(self) -> None:
