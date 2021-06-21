@@ -335,6 +335,31 @@ def test_check_system_incompatible_systems():
         assert 'is incompatible' in str(excinfo.value)
 
 
+def test_check_system_CONTRADICTIONS():
+    with patch('platform.system') as system:
+        system.return_value = 'Windows'
+        # Cannot be incompatible and working
+        with pytest.raises(ValueError) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'working': {'Windows'},
+                                'incompatible': {'Windows'}}
+                )
+        assert 'cannot work AND not work at the same time' in str(excinfo.value)
+        # cannot work and cause problems
+        with pytest.raises(ValueError) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'working': {'Windows'},
+                                'problems': {'Windows'}}
+                )
+        assert 'AND be known to cause problems' in str(excinfo.value)
+
+
 def test_check_version_age():
 
 # Test *temporarily* disabled because if the guard clause is there, the mypy unreachable
