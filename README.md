@@ -4,11 +4,12 @@
 [![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
 [![Downloads](https://pepy.tech/badge/compatibility/month)](https://pepy.tech/project/compatibility)
 
-Compatibility is a simple tool designed to be used by package authors. It does four things:
+Compatibility is a simple tool designed to be used by package authors. It does five things:
 * Check whether the running Python interpreter version is supported, i.e. equal or higher than the minimum version and not in a list of incompatible versions. Raises a `RuntimeError` exception if the interpreter version is marked as incompatible.
 * Log a warning if the running interpreter version is higher than the highest version used in tests.
 * Log an info message with package name, version, and release date.
 * Log an info message asking the user to check for updates if a defined number of days has passed since release. (For privacy reason it is not checked whether a new version is actually available.)
+* Check whether the operating system group (i.e. Linux, MacOS, or Windows) is fully supported, partially supported or marked as incompatible. Partial supports logs an info message, while incompatibility yields an exception.
 
 The prepared messages are available in English and German.
 
@@ -58,7 +59,7 @@ class Salted:
                     'nag_in_hundred': 50},
             language_messages='en',
             system_support={
-                'full':{'Linux', 'MacOS', 'Windows'}
+                'full': {'Linux', 'MacOS', 'Windows'}
             })
 ```
 The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.

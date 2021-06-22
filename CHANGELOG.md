@@ -6,7 +6,8 @@
     * `full`: The set of operating systems that are tested on production level.
     * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system running found here logs a warning.
     * `incompatible`: The set of systems of which you know they will fail to run the code properly. If an OS in this set tries to run the code, this will yield a `RuntimeError` exception.
-* Tests now also run with the third beta version of Python 3.10.
+* Tests now also run with the third beta version of the upcoming Python 3.10.
+* Although the code should be completely platform independent, tests are now also run on MacOS and Windows.
 
 ## Version 0.9.0 stable (2021-03-21)
 
