@@ -275,6 +275,45 @@ def test_running_wrong_python():
                 'max_tested_version': '9.100'})
 
 
+def test_check_system(caplog):
+    caplog.set_level(logging.DEBUG)
+    # supported platform
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': {'Linux'},
+                            'problems': set(),
+                            'incompatible': {'MacOS', 'Windows'}}
+            )
+    assert 'is tested with Linux' in caplog.text
+    # platform support unknown
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': {'Windows'}}
+            )
+    assert 'support for Linux unknown' in caplog.text
+
+
+def test_check_system_PROBLEMS(caplog):
+    # platform is listed under problems
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'problems': {'Linux'}}
+            )
+    assert 'might run into problems' in caplog.text
+
+
 def test_check_system_exceptions():
     # not a dictionary
     with pytest.raises(ValueError) as excinfo:
@@ -290,8 +329,16 @@ def test_check_system_exceptions():
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'typo': 'foo'})
+            system_support={'typo': {'foo'}})
     assert 'Unknown key' in str(excinfo.value)
+    # value for key is not a set
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'working': ['Linux']})
+    assert 'Use a set to hold values' in str(excinfo.value)
     # Unknown system
     with pytest.raises(ValueError) as excinfo:
         compatibility.Check(
