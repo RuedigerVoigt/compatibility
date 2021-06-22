@@ -69,13 +69,11 @@ class Check():
            Raise ValueError if invalid string or non-existent date.
            Raise AtributeError if neither string nor datetime.date"""
         if type(date_to_coerce) == datetime.date:  # pylint: disable=unidiomatic-typecheck
-            # Mypy does not recognize the type check directly before:
-            return date_to_coerce  # type: ignore
+            return date_to_coerce
 
         if type(date_to_coerce) == str:  # pylint: disable=unidiomatic-typecheck
             try:
-                # Mypy does not recognize the type check directly before:
-                return datetime.datetime.strptime(date_to_coerce, '%Y-%m-%d').date()  # type: ignore
+                return datetime.datetime.strptime(date_to_coerce, '%Y-%m-%d').date()
             except ValueError as bad_date:
                 # standard error message is not useful
                 raise ValueError(
