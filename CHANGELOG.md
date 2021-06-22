@@ -2,6 +2,10 @@
 
 ## Upcoming
 
+* New feature: the parameter `system_support` can be used to signal which operating systems groups ('Linux', 'MacOS', or 'Windows') are supported. It accepts a dictionary with three possible keys:
+  * `working`: tested systems ready for production
+  * `problems`: operating systems that may cause problems. Yields a `logging.warning`
+  * `incompatible`: operating systems of which you now your application will fail to run on. Yields a `RuntimeError` exception.
 * Tests now also run with the third beta version of Python 3.10.
 
 ## Version 0.9.0 stable (2021-03-21)
