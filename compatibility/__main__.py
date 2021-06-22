@@ -216,7 +216,7 @@ class Check():
             return None
         if 'problems' in system_support and running in system_support['problems']:
             logging.warning(
-                "%s might run in problems on %s.", self.package_name, running)
+                "%s might run into problems on %s.", self.package_name, running)
             return None
         if 'incompatible' in system_support and running in system_support['incompatible']:
             msg = (f"This version of {self.package_name} is incompatible " +
