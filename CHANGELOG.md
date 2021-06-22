@@ -1,6 +1,6 @@
 # Changelog compatibility Python library
 
-## Upcoming
+## Version 1.0 stable (2021-06-22)
 
 * New feature: the parameter `system_support` allows you to state the level of compatibility between your code and different Operating System groups. This is purposefully done on a very high level: valid inputs are only 'Linux', 'MacOS', and 'Windows' and not specific versions and distributions. The dictionary allows three keys with a set as value each:
     * `full`: The set of operating systems that are tested on production level.
