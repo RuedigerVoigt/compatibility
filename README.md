@@ -1,7 +1,7 @@
 ![Supported Python Versions](https://img.shields.io/pypi/pyversions/compatibility)
 ![pypi version](https://img.shields.io/pypi/v/compatibility)
 ![Last commit](https://img.shields.io/github/last-commit/RuedigerVoigt/compatibility)
-[![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
+[![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
 [![Downloads](https://pepy.tech/badge/compatibility/month)](https://pepy.tech/project/compatibility)
 
 Compatibility is a simple tool designed to be used by package authors. It does four things:
@@ -56,7 +56,10 @@ class Salted:
             nag_over_update={
                     'nag_days_after_release': 30,
                     'nag_in_hundred': 50},
-            language_messages='en')
+            language_messages='en',
+            system_support={
+                'full':{'Linux', 'MacOS', 'Windows'}
+            })
 ```
 The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
@@ -74,6 +77,10 @@ Salted in that specific version is a relatively young package that will receive 
     * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
     * `nag_in_hundred`: Whether to nag over a possible update is random, but this sets the probability in the form how many times (int) out of hundred starts the message is logged. Accordingly 100 means every time.
 * `language_messages` (optional): the language (`en` for English or `de` for German) of the messages logged by this. Defaults to English log messages.
+* `system_support` (optional): allows you to state the level of compatibility between your code and different Operating System groups. This is purposefully done on a very high level: valid inputs are only 'Linux', 'MacOS', and 'Windows' and not specific versions and distributions. The dictionary allows three keys with a set as value each:
+    * `full`: The set of operating systems that are tested on production level.
+    * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system running found here logs a warning.
+    * `incompatible`: The set of systems of which you know they will fail to run the code properly. If an OS in this set tries to run the code, this will yield a `RuntimeError` exception.
 
 ## Version strings
 

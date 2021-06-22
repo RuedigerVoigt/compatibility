@@ -284,11 +284,15 @@ def test_check_system(caplog):
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'working': {'Linux'},
-                            'problems': set(),
+            system_support={'full': {'Linux'},
+                            'partial': set(),
                             'incompatible': {'MacOS', 'Windows'}}
             )
-    assert 'is tested with Linux' in caplog.text
+    assert 'fully supports Linux' in caplog.text
+
+
+def test_check_system_UNKNOWN_SUPPORT(caplog):
+    caplog.set_level(logging.DEBUG)
     # platform support unknown
     with patch('platform.system') as system:
         system.return_value = 'Linux'
@@ -296,22 +300,22 @@ def test_check_system(caplog):
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'working': {'Windows'}}
+            system_support={'full': {'Windows'}}
             )
-    assert 'support for Linux unknown' in caplog.text
+    assert 'support for Linux is unknown' in caplog.text
 
 
-def test_check_system_PROBLEMS(caplog):
-    # platform is listed under problems
+def test_check_system_partial(caplog):
+    # platform is listed under partial
     with patch('platform.system') as system:
         system.return_value = 'Linux'
         compatibility.Check(
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'problems': {'Linux'}}
+            system_support={'partial': {'Linux'}}
             )
-    assert 'might run into problems' in caplog.text
+    assert 'has only partial support' in caplog.text
 
 
 def test_check_system_exceptions():
@@ -337,7 +341,7 @@ def test_check_system_exceptions():
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'working': ['Linux']})
+            system_support={'full': ['Linux']})
     assert 'Use a set to hold values' in str(excinfo.value)
     # Unknown system
     with pytest.raises(ValueError) as excinfo:
@@ -345,28 +349,8 @@ def test_check_system_exceptions():
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
-            system_support={'working': {'foo'}})
+            system_support={'full': {'foo'}})
     assert 'Invalid system' in str(excinfo.value)
-    # Contradiction: working and causing problems
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            system_support={'working': {'Linux'},
-                            'problems': {'Linux', 'MacOS'}
-                            })
-    assert 'AND be known to cause problems' in str(excinfo.value)
-    # Contradiction: working and not working
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            system_support={'working': {'Linux'},
-                            'incompatible': {'Linux', 'MacOS'}
-                            })
-    assert 'not work at the same time' in str(excinfo.value)
 
 
 def test_check_system_incompatible_systems():
@@ -385,26 +369,26 @@ def test_check_system_incompatible_systems():
 def test_check_system_CONTRADICTIONS():
     with patch('platform.system') as system:
         system.return_value = 'Windows'
-        # Cannot be incompatible and working
+        # Cannot be incompatible and have full support
         with pytest.raises(ValueError) as excinfo:
             compatibility.Check(
                 package_name='test',
                 package_version='1',
                 release_date=date(2021, 1, 1),
-                system_support={'working': {'Windows'},
+                system_support={'full': {'Windows'},
                                 'incompatible': {'Windows'}}
                 )
-        assert 'cannot work AND not work at the same time' in str(excinfo.value)
-        # cannot work and cause problems
+        assert 'support AND be incompatible' in str(excinfo.value)
+        # cannot be fully and partialy supported
         with pytest.raises(ValueError) as excinfo:
             compatibility.Check(
                 package_name='test',
                 package_version='1',
                 release_date=date(2021, 1, 1),
-                system_support={'working': {'Windows'},
-                                'problems': {'Windows'}}
+                system_support={'full': {'Windows'},
+                                'partial': {'Windows'}}
                 )
-        assert 'AND be known to cause problems' in str(excinfo.value)
+        assert 'fully AND only partially supported' in str(excinfo.value)
 
 
 def test_check_version_age():

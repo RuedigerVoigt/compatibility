@@ -169,14 +169,14 @@ class Check():
 
     def check_system(self,
                      system_support: Optional[dict]) -> None:
-        """Check the operating system running this code: is it known to be
-        working, known to be causing problems, or known not to work?
+        """Check the operating system running this code: is it fully supported,
+           only partially or is it known to be incompatible?
 
-        If the OS is known to cause problems => logging.warning.
-        If the OS is known to be not working => RuntimeError exception.
+        If the OS has only partial support => logging.warning
+        If the OS is incompatible => RuntimeError exception
 
         system_support is a dictionary with three allowed keys:
-        'working', 'problems', 'incompatible'.
+        'full', 'partial', 'incompatible'.
         The value for each key has to be a set containing any of these strings:
         'Linux', 'MacOS', or 'Windows'
         """
@@ -187,7 +187,7 @@ class Check():
 
         # Are there only allowed categories and allowed values?
         for key, systems in system_support.items():
-            valid_keys = {'working', 'problems', 'incompatible'}
+            valid_keys = {'full', 'partial', 'incompatible'}
             valid_systems = {'Linux', 'Windows', 'MacOS'}
             if key not in valid_keys:
                 raise ValueError('Unknown key in dictionary system_support')
@@ -198,25 +198,26 @@ class Check():
                     raise ValueError(
                         f"Invalid system in {key}. Allowed: {valid_systems}")
 
-        if 'working' in system_support and 'problems' in system_support:
-            for system in system_support['working']:
-                if system in system_support['problems']:
-                    raise ValueError("Contradiction: system cannot be known " +
-                                     "to work AND be known to cause problems.")
+        if 'full' in system_support and 'partial' in system_support:
+            for system in system_support['full']:
+                if system in system_support['partial']:
+                    raise ValueError(
+                        "Contradiction: system cannot simultaneously be " +
+                        "fully AND only partially supported.")
 
-        if 'working' in system_support and 'incompatible' in system_support:
+        if 'full' in system_support and 'incompatible' in system_support:
             if system in system_support['incompatible']:
-                raise ValueError("Contradiction: system cannot work AND " +
-                                 "not work at the same time!")
+                raise ValueError("Contradiction: system cannot have full " +
+                                 "support AND be incompatible!")
 
         running = platform.system()
-        if 'working' in system_support and running in system_support['working']:
+        if 'full' in system_support and running in system_support['full']:
             logging.debug(
-                "%s is tested with %s.", self.package_name, running)
+                "%s fully supports %s.", self.package_name, running)
             return None
-        if 'problems' in system_support and running in system_support['problems']:
+        if 'partial' in system_support and running in system_support['partial']:
             logging.warning(
-                "%s might run into problems on %s.", self.package_name, running)
+                "%s has only partial support on %s.", self.package_name, running)
             return None
         if 'incompatible' in system_support and running in system_support['incompatible']:
             msg = (f"This version of {self.package_name} is incompatible " +
@@ -225,7 +226,7 @@ class Check():
             raise RuntimeError(msg)
 
         # the running system does not appear
-        logging.info("%s's support for %s unknown!",
+        logging.info("%s's support for %s is unknown!",
                      self.package_name, running)
         return None
 
