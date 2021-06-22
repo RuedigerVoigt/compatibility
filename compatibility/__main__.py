@@ -53,10 +53,9 @@ class Check():
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.release_date = self.__coerce_date(release_date)
-        self.python_version_support = python_version_support
         self.language_messages = language_messages.strip()
         self.check_params()
-        self.check_python_version()
+        self.check_python_version(python_version_support)
         self.check_system(system_support)
         self.log_version_info()
         if nag_over_update:
@@ -96,36 +95,38 @@ class Check():
         if self.language_messages not in ('en', 'de'):
             raise ValueError('Invalid value for language_messages!')
 
-    def check_python_version(self) -> None:
+    def check_python_version(self,
+                             python_version_support: Optional[dict] = None
+                             ) -> None:
         """Check whether the running interpreter version is supported, i.e.
            equal or higher than the minimum version and not in the list of
            incompatible versions. Warn with logging.warn if the running
            version is higher than the highest version used in tests."""
-        if not self.python_version_support:
+        if not python_version_support:
             # Setting python_version_support is not required
             return None
 
         # Python version support: missing or additional keys
-        if len(self.python_version_support.keys()) < 3:
+        if len(python_version_support.keys()) < 3:
             raise ValueError('Parameter python_version_support incomplete!')
-        if len(self.python_version_support.keys()) > 3:
+        if len(python_version_support.keys()) > 3:
             raise ValueError('Parameter python_version_support: too many keys!')
         # Are there the right keys?
         expected_keys = ['incompatible_versions',
                          'max_tested_version',
                          'min_version']
-        found_keys = list(self.python_version_support.keys())
+        found_keys = list(python_version_support.keys())
         if sorted(found_keys) != expected_keys:
             raise ValueError(
                 'Parameter python_version_support contains unknown keys.')
         # Do the Python versions parse?
         # fullmatch instead of match, because with match something like 3.8.x
         # would be recognized.
-        if not re.fullmatch(self.VERSION_REGEX, self.python_version_support['min_version']):
+        if not re.fullmatch(self.VERSION_REGEX, python_version_support['min_version']):
             raise ValueError('Value for key min_version incorrect.')
-        if not re.fullmatch(self.VERSION_REGEX, self.python_version_support['max_tested_version']):
+        if not re.fullmatch(self.VERSION_REGEX, python_version_support['max_tested_version']):
             raise ValueError('Value for key max_tested_version incorrect.')
-        for version_string in self.python_version_support['incompatible_versions']:
+        for version_string in python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
                 raise ValueError(
                     'Some string in incompatible_versions cannot be parsed.')
@@ -138,7 +139,7 @@ class Check():
         # Is the running version equal or higher than the minimum required?
         match_min = re.match(
             self.VERSION_REGEX,
-            self.python_version_support['min_version'])
+            python_version_support['min_version'])
         # The value was parsed before, so there is always a value for major_min
         # and minor_min. So silence mypy for the next two lines:
         major_min = int(match_min.group('major'))  # type: ignore[union-attr]
@@ -148,7 +149,7 @@ class Check():
                 f"You need at least Python {major_min}.{minor_min} to run " +
                 f"{self.package_name}, but you are using {full_version}.")
         # Check if the running version is in the list of incompatible versions
-        incompatible = self.python_version_support['incompatible_versions']
+        incompatible = python_version_support['incompatible_versions']
         if short_version in incompatible or full_version in incompatible:
             raise RuntimeError(
                 self.MSG['incompatible_version'][self.language_messages],
@@ -156,7 +157,7 @@ class Check():
         # Check if the running version is higher than the highest tested
         match_h = re.match(
             self.VERSION_REGEX,
-            self.python_version_support['max_tested_version'])
+            python_version_support['max_tested_version'])
         # Same as above. checked before, that there is always a value.
         # Silence mypy for the next two lines:
         major_h = int(match_h.group('major'))  # type: ignore[union-attr]
