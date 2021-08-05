@@ -65,7 +65,7 @@ class Salted:
 The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
 
-# Parameters
+## Parameters
 
 * `package_name` (required): the name of your package.
 * `package_version` (required): the version number of your package as a string.
@@ -95,9 +95,8 @@ So assume your code would have issues with Python 3.5.beta and you list that exa
 
 However, `min_version` and `max_tested_version` ignore the release level part.
 
-# Avoid running your package with an incompatible version of Python
+## Avoid running your package with an incompatible version of Python
 
 In the `setup.py` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade, that installs an incompatible version with the systems package manager.
 
 If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError` exception once the user tries to run your package.
- 
