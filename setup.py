@@ -13,7 +13,8 @@ setuptools.setup(
     version=f"{_version.__version__}",
     author="Rüdiger Voigt",
     author_email="projects@ruediger-voigt.eu",
-    description="""A library that checks whether the running version of Python is compatible and tested.
+    description="""A library that checks whether the running version of Python
+                   is compatible and tested.
                    Remind the user to check for updates of the library.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -30,6 +31,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Operating System :: POSIX :: Linux",
