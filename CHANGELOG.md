@@ -1,5 +1,11 @@
 # Changelog compatibility Python library
 
+
+## Upcoming
+
+* Use custom exceptions (`ParameterContradition` and `BadDate`).
+
+
 ## Version 1.0.1 stable (2021-08-05)
 
 * Marked as compatible with Python 3.10 as tests with release candidate 1 run flawlessly on Linux, MacOS, and Windows.

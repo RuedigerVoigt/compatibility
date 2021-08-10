@@ -23,6 +23,7 @@ import re
 import sys
 from typing import Optional, Union
 
+from compatibility import err
 from compatibility import messages
 
 logging.getLogger('compatibility').addHandler(NullHandler())
@@ -77,7 +78,7 @@ class Check():
                 return datetime.datetime.strptime(date_to_coerce, '%Y-%m-%d').date()
             except ValueError as bad_date:
                 # standard error message is not useful
-                raise ValueError(
+                raise err.BadDate(
                     'Non-existing or incomplete date!') from bad_date
 
         raise AttributeError(
@@ -205,14 +206,15 @@ class Check():
         if 'full' in system_support and 'partial' in system_support:
             for system in system_support['full']:
                 if system in system_support['partial']:
-                    raise ValueError(
-                        "Contradiction: system cannot simultaneously be " +
+                    raise err.ParameterContradition(
+                        "Contradiction: System cannot simultaneously be " +
                         "fully AND only partially supported.")
 
         if 'full' in system_support and 'incompatible' in system_support:
             if system in system_support['incompatible']:
-                raise ValueError("Contradiction: system cannot have full " +
-                                 "support AND be incompatible!")
+                raise err.ParameterContradition(
+                    "Contradiction: System cannot have full support AND " +
+                    "be incompatible!")
 
         running = platform.system()
         if 'full' in system_support and running in system_support['full']:
