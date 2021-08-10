@@ -62,7 +62,8 @@ class Check():
             self.check_version_age(nag_over_update)
 
     @staticmethod
-    def __coerce_date(date_to_coerce: Union[str, datetime.date]) -> datetime.date:
+    def __coerce_date(
+            date_to_coerce: Union[str, datetime.date]) -> datetime.date:
         """Convert a string in the format YYYY-MM-DD to datetime.date.
            This doubles as a check if the date is valid.
            If the object is already of type datetime.date, just return it.
@@ -108,7 +109,8 @@ class Check():
         if len(python_version_support.keys()) < 3:
             raise ValueError('Parameter python_version_support incomplete!')
         if len(python_version_support.keys()) > 3:
-            raise ValueError('Parameter python_version_support: too many keys!')
+            raise ValueError(
+                'Parameter python_version_support: too many keys!')
         # Are there the right keys?
         expected_keys = ['incompatible_versions',
                          'max_tested_version',
@@ -120,9 +122,11 @@ class Check():
         # Do the Python versions parse?
         # fullmatch instead of match, because with match something like 3.8.x
         # would be recognized.
-        if not re.fullmatch(self.VERSION_REGEX, python_version_support['min_version']):
+        if not re.fullmatch(self.VERSION_REGEX,
+                            python_version_support['min_version']):
             raise ValueError('Value for key min_version incorrect.')
-        if not re.fullmatch(self.VERSION_REGEX, python_version_support['max_tested_version']):
+        if not re.fullmatch(self.VERSION_REGEX,
+                            python_version_support['max_tested_version']):
             raise ValueError('Value for key max_tested_version incorrect.')
         for version_string in python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
@@ -179,6 +183,7 @@ class Check():
         The value for each key has to be a set containing any of these strings:
         'Linux', 'MacOS', or 'Windows'
         """
+        # pylint: disable=too-many-branches
         if not system_support:
             return None
         if not isinstance(system_support, dict):
