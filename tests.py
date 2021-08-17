@@ -185,7 +185,7 @@ def test_python_versions_as_parameters():
                 'incompatible_versions': [],
                 'max_tested_version': '3.9'
             })
-    assert 'Value for key min_version incorrect.' in str(excinfo.value)
+    assert 'Value for key min_version is incorrect.' in str(excinfo.value)
 
     # python_version_support: wrong value for max_tested_version
     with pytest.raises(ValueError) as excinfo:
@@ -501,4 +501,4 @@ def test_check_version_age_logging(caplog):
                 'nag_days_after_release': 3,
                 'nag_in_hundred': 100
             })
-    assert 'There could be updates and security fixes' in caplog.text
+    assert 'Please check for updates' in caplog.text
