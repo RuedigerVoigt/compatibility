@@ -1,9 +1,13 @@
 # Changelog compatibility Python library
 
 
-## Upcoming
+## UPCOMING
 
+* Messages were improved.
+* Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
+* All messages are now available in English and German.
 * Use custom exceptions (`ParameterContradition` and `BadDate`).
+* Tests run with Python 3.10.
 
 
 ## Version 1.0.1 stable (2021-08-05)
