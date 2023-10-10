@@ -10,7 +10,7 @@ Remind the user to check for updates of the package.
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021 Rüdiger Voigt
+(c) 2021-2023 Rüdiger Voigt
 Released under the Apache License 2.0
 """
 
