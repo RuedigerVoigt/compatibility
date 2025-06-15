@@ -49,11 +49,11 @@ class Salted:
         compatibility.Check(
             package_name='salted',
             package_version=self.VERSION,
-            release_date=date(2021, 1, 17),
+            release_date=date(2025, 6, 18),
             python_version_support={
-                'min_version': '3.8',
+                'min_version': '3.9',
                 'incompatible_versions': ['3.7'],
-                'max_tested_version': '3.9'},
+                'max_tested_version': '3.13'},
             nag_over_update={
                     'nag_days_after_release': 30,
                     'nag_in_hundred': 50},

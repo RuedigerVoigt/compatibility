@@ -11,7 +11,7 @@ coverage html
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021 Rüdiger Voigt
+(c) 2021-2025 Rüdiger Voigt
 Released under the Apache License 2.0
 """
 
@@ -437,7 +437,7 @@ def test_check_version_age():
                 'nag_days_after_release': 'foo',
                 'nag_in_hundred': 100
             })
-    assert 'Some key im nag_over_update has wrong type!' in str(excinfo.value)
+    assert 'Some key in nag_over_update has wrong type!' in str(excinfo.value)
 
     # Note: Directly mocking datetime will fail, because it is C-Code !
     # Solution could be partial mocking, see.
