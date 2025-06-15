@@ -271,7 +271,7 @@ class Check():
             nag_in_hundred = int(nag_over_update['nag_in_hundred'])
         except ValueError as wrong_type:
             raise ValueError(
-                _('Some key im nag_over_update has wrong type!')) from wrong_type
+                _('Some key in nag_over_update has wrong type!')) from wrong_type
         if nag_days_after_release < 0:
             raise ValueError(_('nag_days_after_release must not be negative.'))
         if nag_in_hundred < 0 or nag_in_hundred > 100:
