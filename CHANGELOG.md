@@ -1,10 +1,10 @@
 # Changelog compatibility Python library
 
 
-## UPCOMING
+## UPCOMING (2025)
 
-* Dropped support for Python 3.6, 3.7 and 3.8 due to EOL of these versions.
-* Add support for Python 3.10, 3.11, 3.12, and 3.13.
+* Dropped support for old Python versions including 3.9 due to EOL of these versions.
+* Add support for Python 3.10 to 3.14.
 * Messages were improved.
 * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
 * All messages are now available in English and German.

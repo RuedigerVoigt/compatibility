@@ -1,9 +1,6 @@
 # This workflow runs Unit-Tests for compatibility on MacOS
-# with the two latest Python versions.
-#
-# Flake8 will be run with the Ubuntu Workflow.
-# Mypy runs separately.
-# => There is no need to repeat these here.
+# with the oldest and latest supported Python version.
+
 
 name: MacOS Test
 
@@ -15,17 +12,17 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: ['3.12', '3.13']
+        python-version: ['3.10', '3.14']
 
     steps:
 
     - name: System Update
       run: softwareupdate -i -a
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
