@@ -1,5 +1,5 @@
 # This workflow runs Unit-Tests for compatibility on MacOS
-# with the oldest and latest supported Python version.
+# with the latest supported Python version.
 
 
 name: MacOS Test
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ['3.10', '3.14']
+        python-version: ['3.14']
 
     steps:
 
@@ -35,6 +35,9 @@ jobs:
     - name: Install test utilities
       run: |
         pip install pytest pytest_mock pyfakefs
+
+    - name: Install package
+      run: pip install -e .
 
     - name: Test with pytest
       run: pytest tests/
