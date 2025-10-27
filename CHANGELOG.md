@@ -3,12 +3,16 @@
 
 ## UPCOMING (2025)
 
-* Dropped support for old Python versions including 3.9 due to EOL of these versions.
-* Add support for Python 3.10 to 3.14.
+* Supported Python versions:
+     Dropped support for old Python versions including 3.9 due to EOL of these versions.
+    * Add support for Python 3.10 to 3.14.
+* Quality:
+  * Ensure with an automatic workflow that coverage is 97% or higher.
 * Messages were improved.
 * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
 * All messages are now available in English and German.
 * Use custom exceptions (`ParameterContradition` and `BadDate`).
+
 
 
 ## Version 1.0.1 stable (2021-08-05)
