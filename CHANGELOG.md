@@ -4,10 +4,12 @@
 ## UPCOMING (2025)
 
 * Supported Python versions:
-     Dropped support for old Python versions including 3.9 due to EOL of these versions.
+    * Dropped support for old Python versions including 3.9 due to EOL of these versions.
     * Add support for Python 3.10 to 3.14.
 * Quality:
   * Ensure with an automatic workflow that coverage is 97% or higher.
+* Security:
+  * Publish to PyPI with a [Trusted Publisher / OIDC](https://docs.pypi.org/trusted-publishers/).
 * Messages were improved.
 * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
 * All messages are now available in English and German.
