@@ -148,8 +148,8 @@ def compile_po_to_mo(po_file, mo_file):
 
 
 if __name__ == '__main__':
-    po_file = 'locales/de/LC_MESSAGES/compatibility.po'
-    mo_file = 'locales/de/LC_MESSAGES/compatibility.mo'
+    po_file = 'compatibility/locales/de/LC_MESSAGES/compatibility.po'
+    mo_file = 'compatibility/locales/de/LC_MESSAGES/compatibility.mo'
 
     print(f"Compiling {po_file} to {mo_file}...")
     compile_po_to_mo(po_file, mo_file)
