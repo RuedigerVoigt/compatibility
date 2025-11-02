@@ -38,8 +38,6 @@ logger.addHandler(NullHandler())
 class Check():
     """Main Class of the compatibility package: check Python version
        and time since release."""
-    # pylint: disable=too-many-arguments
-    # pylint: disable=too-many-locals
 
     # Regular expression to parse a version string provided by the user
     # ?? is the non-greedy version of ?
@@ -73,7 +71,6 @@ class Check():
            If the object is already of type datetime.date, just return it.
            Raise ValueError if invalid string or non-existent date.
            Raise AttributeError if neither string nor datetime.date"""
-        # pylint: disable=unidiomatic-typecheck
         if type(date_to_coerce) == datetime.date:
             return date_to_coerce
 
@@ -199,7 +196,6 @@ class Check():
         The value for each key has to be a set containing any of these strings:
         'Linux', 'MacOS', or 'Windows'
         """
-        # pylint: disable=too-many-branches
         if not system_support:
             return None
         if not isinstance(system_support, dict):
