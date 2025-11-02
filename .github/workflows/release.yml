@@ -29,6 +29,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
 
+      - name: Compile translations
+        run: python compile_translations.py
+
       - name: Build package
         run: poetry build
 
