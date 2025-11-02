@@ -10,13 +10,17 @@
   * Ensure with an automatic workflow that coverage is 97% or higher.
 * Security:
   * Publish to PyPI with a [Trusted Publisher / OIDC](https://docs.pypi.org/trusted-publishers/).
-* Messages were improved.
-* Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
-* All messages are now available in English and German.
-* Use custom exceptions (`ParameterContradiction` and `BadDate`).
+* New:
+  * Use package-specific logger (`logging.getLogger('compatibility')`) instead of root logger. This allows users to selectively control compatibility's log verbosity independently from their application's logging.
+  * Use custom exceptions (`ParameterContradiction` and `BadDate`).
+  * Improved messages
+  * Translations:
+    * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
+    * All messages are now available in English and German.
 * Bugfixes:
   * Fixed inverted comparison logic in `max_tested_version` check. Previously warned when running an older Python version than tested; now correctly warns when running a newer version than tested.
   * Map `Darwin` to `MacOS` for proper macOS detection (platform.system() returns 'Darwin' on macOS).
+
 
 
 

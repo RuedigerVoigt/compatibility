@@ -31,7 +31,8 @@ _translation = gettext.translation('compatibility',
                                    fallback=True)
 _ = _translation.gettext
 
-logging.getLogger('compatibility').addHandler(NullHandler())
+logger = logging.getLogger('compatibility')
+logger.addHandler(NullHandler())
 
 
 class Check():
@@ -176,7 +177,7 @@ class Check():
         major_h = int(match_h.group('major'))
         minor_h = int(match_h.group('minor'))
         if major > major_h or (major == major_h and minor > minor_h):
-            logging.warning(
+            logger.warning(
                 _("You are running Python %s, but your version of %s is only tested up to %s.")
                 % (full_version,
                    self.package_name,
@@ -237,22 +238,22 @@ class Check():
             running = 'MacOS'
 
         if 'full' in system_support and running in system_support['full']:
-            logging.debug(
+            logger.debug(
                 _("%s fully supports %s."), self.package_name, running)
             return None
         if 'partial' in system_support and running in system_support['partial']:
-            logging.warning(
+            logger.warning(
                 _("%s has only partial support on %s."),
                 self.package_name, running)
             return None
         if 'incompatible' in system_support and running in system_support['incompatible']:
             msg = (_("This version of %s is incompatible with %s!")
                    % (self.package_name, running))
-            logging.exception(msg)
+            logger.exception(msg)
             raise RuntimeError(msg)
 
         # the running system does not appear
-        logging.info(_("%s's support for %s is unknown!"),
+        logger.info(_("%s's support for %s is unknown!"),
                      self.package_name, running)
         return None
 
@@ -264,7 +265,7 @@ class Check():
                    % {'package': self.package_name,
                       'version': self.package_version,
                       'date': self.release_date})
-            logging.info(msg)
+            logger.info(msg)
 
     def check_version_age(self,
                           nag_over_update: dict) -> None:
@@ -288,7 +289,7 @@ class Check():
         if days_since_release >= nag_days_after_release:
             probability = nag_in_hundred / 100
             if probability == 1.0 or random.random() < probability:  # nosec
-                logging.info(
+                logger.info(
                     _("Your version of %s was released %s days ago. ")
                     % (self.package_name, days_since_release) +
                     _("Please check for updates.")

@@ -101,6 +101,46 @@ In the `pyproject.toml` file of your package you can use the [python_requires](h
 
 If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError` exception once the user tries to run your package.
 
+## Logging
+
+The `compatibility` package uses Python's standard logging module with a dedicated logger named `'compatibility'`. This allows you to control the verbosity of compatibility messages independently from your application's logging.
+
+### Basic Usage
+
+By default, compatibility messages propagate to the root logger, so they will appear if you have configured logging in your application:
+
+```python
+import logging
+logging.basicConfig(level=logging.INFO)
+
+# You will see compatibility's INFO, WARNING, and ERROR messages
+```
+
+### Fine-Grained Control
+
+You can selectively control compatibility's log level:
+
+```python
+import logging
+
+# Configure your application's logging
+logging.basicConfig(level=logging.INFO)
+
+# Silence compatibility warnings (only show errors)
+logging.getLogger('compatibility').setLevel(logging.ERROR)
+
+# Or make compatibility more verbose (show debug messages)
+logging.getLogger('compatibility').setLevel(logging.DEBUG)
+```
+
+### Message Levels
+
+The compatibility package logs at different levels:
+* **DEBUG**: Informational messages about full platform support
+* **INFO**: Package version information and update reminders
+* **WARNING**: Running newer Python than tested, or partial platform support
+* **ERROR**: Incompatible Python version or operating system (also raises exceptions)
+
 ## Exceptions
 
 The `compatibility` package may raise the following exceptions:
