@@ -26,5 +26,8 @@ jobs:
     - name: Install package
       run: pip install -e .
 
+    - name: Compile translations
+      run: python compile_translations.py
+
     - name: Run tests with coverage check (minimum 97%)
       run: pytest --cov=compatibility --cov-fail-under=97 tests/
