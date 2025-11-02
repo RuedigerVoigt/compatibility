@@ -420,7 +420,8 @@ def test_check_system_exceptions():
     assert 'Invalid system' in str(excinfo.value)
 
 
-def test_check_system_incompatible_systems():
+def test_check_system_incompatible_systems(caplog):
+    caplog.set_level(logging.ERROR)
     with patch('platform.system') as system:
         system.return_value = 'Linux'
         with pytest.raises(RuntimeError) as excinfo:
@@ -431,6 +432,8 @@ def test_check_system_incompatible_systems():
                 system_support={'incompatible': {'Linux'}}
                 )
         assert 'is incompatible' in str(excinfo.value)
+        # Verify error was logged before exception was raised
+        assert 'is incompatible with Linux' in caplog.text
 
 
 def test_check_system_CONTRADICTIONS():
@@ -567,3 +570,25 @@ def test_check_version_age_logging(caplog):
                 'nag_in_hundred': 100
             })
     assert 'Please check for updates' in caplog.text
+
+
+def test_version_info_logging(caplog):
+    """Test that version info is logged for packages other than 'compatibility' itself."""
+    caplog.set_level(logging.INFO)
+    compatibility.Check(
+        package_name='my_package',
+        package_version='2.5.0',
+        release_date=date(2024, 6, 15)
+    )
+    # Verify version info is logged
+    assert 'You are using my_package 2.5.0' in caplog.text
+    assert '2024-06-15' in caplog.text
+
+    # Verify compatibility itself doesn't log its own version
+    caplog.clear()
+    compatibility.Check(
+        package_name='compatibility',
+        package_version='2.0.0',
+        release_date=date(2025, 1, 1)
+    )
+    assert 'You are using compatibility' not in caplog.text

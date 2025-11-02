@@ -245,7 +245,7 @@ class Check():
         if 'incompatible' in system_support and running in system_support['incompatible']:
             msg = (_("This version of %s is incompatible with %s!")
                    % (self.package_name, running))
-            logger.exception(msg)
+            logger.error(msg)
             raise RuntimeError(msg)
 
         # the running system does not appear

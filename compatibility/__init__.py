@@ -6,6 +6,7 @@ tested. Remind the user to check for updates of the library.
 import importlib.metadata
 
 from compatibility.__main__ import Check
+from compatibility import err
 
 NAME = "compatibility"
 __version__ = importlib.metadata.version("compatibility")
