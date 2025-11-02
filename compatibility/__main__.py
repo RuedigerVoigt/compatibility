@@ -232,6 +232,10 @@ class Check():
                     _("Contradiction: System cannot have full support AND be incompatible!"))
 
         running = platform.system()
+        # Map Darwin to MacOS for consistency with user-facing API
+        if running == 'Darwin':
+            running = 'MacOS'
+
         if 'full' in system_support and running in system_support['full']:
             logging.debug(
                 _("%s fully supports %s."), self.package_name, running)

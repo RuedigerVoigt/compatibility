@@ -284,6 +284,18 @@ def test_check_system(caplog):
             )
     assert 'fully supports Linux' in caplog.text
 
+    # Test Darwin is mapped to MacOS
+    caplog.clear()
+    with patch('platform.system') as system:
+        system.return_value = 'Darwin'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'full': {'MacOS'}}
+            )
+    assert 'fully supports MacOS' in caplog.text
+
 
 def test_check_system_UNKNOWN_SUPPORT(caplog):
     caplog.set_level(logging.DEBUG)
