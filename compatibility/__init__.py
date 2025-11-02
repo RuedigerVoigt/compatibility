@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
 A library that checks whether the running version of Python is compatible and
 tested. Remind the user to check for updates of the library.
