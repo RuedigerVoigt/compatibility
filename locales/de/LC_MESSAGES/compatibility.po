@@ -1,0 +1,149 @@
+# German translations for compatibility package.
+# Copyright (c) 2021-2025 Rüdiger Voigt and contributors
+# This file is distributed under the same license as the compatibility package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: compatibility 2.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-02 12:00+0000\n"
+"PO-Revision-Date: 2025-01-02 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: compatibility/__main__.py:82
+msgid "Non-existing or incomplete date!"
+msgstr "Nicht existierendes oder unvollständiges Datum!"
+
+#: compatibility/__main__.py:85
+msgid "date_to_coerce must be either string or datetime.date"
+msgstr "date_to_coerce muss entweder string oder datetime.date sein"
+
+#: compatibility/__main__.py:91
+msgid "Missing package name!"
+msgstr "Fehlender Paketname!"
+
+#: compatibility/__main__.py:93
+msgid "Missing package version!"
+msgstr "Fehlende Paketversion!"
+
+#: compatibility/__main__.py:96
+msgid "Invalid value for language_messages!"
+msgstr "Ungültiger Wert für language_messages!"
+
+#: compatibility/__main__.py:111
+msgid "Parameter python_version_support incomplete!"
+msgstr "Parameter python_version_support unvollständig!"
+
+#: compatibility/__main__.py:114
+msgid "Parameter python_version_support: too many keys!"
+msgstr "Parameter python_version_support: zu viele Schlüssel!"
+
+#: compatibility/__main__.py:122
+msgid "Parameter python_version_support contains unknown keys."
+msgstr "Parameter python_version_support enthält unbekannte Schlüssel."
+
+#: compatibility/__main__.py:128
+msgid "Value for key min_version is incorrect."
+msgstr "Wert für Schlüssel min_version ist inkorrekt."
+
+#: compatibility/__main__.py:131
+msgid "Value for key max_tested_version incorrect."
+msgstr "Wert für Schlüssel max_tested_version ist inkorrekt."
+
+#: compatibility/__main__.py:135
+msgid "Some string in incompatible_versions cannot be parsed."
+msgstr "Eine Zeichenkette in incompatible_versions kann nicht geparst werden."
+
+#: compatibility/__main__.py:154
+msgid "You use %(running)s, but need at least %(required)s to run %(package)s."
+msgstr "Sie verwenden %(running)s, benötigen aber mindestens %(required)s um %(package)s auszuführen."
+
+#: compatibility/__main__.py:163
+msgid "Your version of Python is not compatible with this version of %s."
+msgstr "Ihre Python-Version ist nicht kompatibel mit dieser Version von %s."
+
+#: compatibility/__main__.py:165
+msgid "Please check if there is an update."
+msgstr "Bitte prüfen Sie, ob es ein Update gibt."
+
+#: compatibility/__main__.py:177
+msgid "You are running Python %s, but your version of %s is only tested up to %s."
+msgstr "Sie verwenden Python %s, aber Ihre Version von %s ist nur bis %s getestet."
+
+#: compatibility/__main__.py:181
+msgid "Please check for updates."
+msgstr "Bitte prüfen Sie auf Updates."
+
+#: compatibility/__main__.py:202
+msgid "Parameter system_support must be a dictionary"
+msgstr "Parameter system_support muss ein Dictionary sein"
+
+#: compatibility/__main__.py:209
+msgid "Unknown key in dictionary system_support"
+msgstr "Unbekannter Schlüssel im Dictionary system_support"
+
+#: compatibility/__main__.py:211
+msgid "Use a set to hold values for %s."
+msgstr "Verwenden Sie ein Set für die Werte von %s."
+
+#: compatibility/__main__.py:215
+msgid "Invalid system in %s. Allowed: %s"
+msgstr "Ungültiges System in %s. Erlaubt: %s"
+
+#: compatibility/__main__.py:222
+msgid "Contradiction: System cannot simultaneously be "
+msgstr "Widerspruch: System kann nicht gleichzeitig "
+
+#: compatibility/__main__.py:223
+msgid "fully AND only partially supported."
+msgstr "vollständig UND nur teilweise unterstützt sein."
+
+#: compatibility/__main__.py:229
+msgid "Contradiction: System cannot have full support AND be incompatible!"
+msgstr "Widerspruch: System kann nicht vollständig unterstützt UND inkompatibel sein!"
+
+#: compatibility/__main__.py:234
+msgid "%s fully supports %s."
+msgstr "%s unterstützt %s vollständig."
+
+#: compatibility/__main__.py:238
+msgid "%s has only partial support on %s."
+msgstr "%s hat nur teilweise Unterstützung für %s."
+
+#: compatibility/__main__.py:242
+msgid "This version of %s is incompatible with %s!"
+msgstr "Diese Version von %s ist inkompatibel mit %s!"
+
+#: compatibility/__main__.py:248
+msgid "%s's support for %s is unknown!"
+msgstr "Die Unterstützung von %s für %s ist unbekannt!"
+
+#: compatibility/__main__.py:256
+msgid "You are using %(package)s %(version)s (released: %(date)s)"
+msgstr "Sie verwenden %(package)s %(version)s (veröffentlicht: %(date)s)"
+
+#: compatibility/__main__.py:272
+msgid "Some key in nag_over_update has wrong type!"
+msgstr "Ein Schlüssel in nag_over_update hat den falschen Typ!"
+
+#: compatibility/__main__.py:274
+msgid "nag_days_after_release must not be negative."
+msgstr "nag_days_after_release darf nicht negativ sein."
+
+#: compatibility/__main__.py:276
+msgid "nag_in_hundred must be int between 0 and 100."
+msgstr "nag_in_hundred muss ein Integer zwischen 0 und 100 sein."
+
+#: compatibility/__main__.py:285
+msgid "Your version of %s was released %s days ago. "
+msgstr "Ihre Version von %s wurde vor %s Tagen veröffentlicht. "
+
+#: compatibility/__main__.py:287
+msgid "Please check for updates."
+msgstr "Bitte prüfen Sie auf Updates."

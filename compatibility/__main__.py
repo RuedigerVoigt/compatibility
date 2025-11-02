@@ -24,9 +24,12 @@ from typing import Optional, Union
 from compatibility import err
 
 
-gettext.bindtextdomain('compatibility', localedir='locales')
-gettext.textdomain('compatibility')
-_ = gettext.gettext
+import os
+_translation = gettext.translation('compatibility',
+                                   localedir=os.path.join(os.path.dirname(__file__), '..', 'locales'),
+                                   languages=[os.environ.get('LANGUAGE', 'en').split('_')[0]],
+                                   fallback=True)
+_ = _translation.gettext
 
 logging.getLogger('compatibility').addHandler(NullHandler())
 
