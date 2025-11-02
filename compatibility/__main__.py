@@ -25,11 +25,6 @@ from compatibility import err
 
 
 import os
-_translation = gettext.translation('compatibility',
-                                   localedir=os.path.join(os.path.dirname(__file__), 'locales'),
-                                   languages=[os.environ.get('LANGUAGE', 'en').split('_')[0]],
-                                   fallback=True)
-_ = _translation.gettext
 
 logger = logging.getLogger('compatibility')
 logger.addHandler(NullHandler())
@@ -54,8 +49,16 @@ class Check():
                  system_support: Optional[dict] = None):
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
-        self.release_date = self.__coerce_date(release_date)
         self.language_messages = language_messages.strip()
+        # Create instance-local translation based on language_messages parameter
+        # Must be done BEFORE __coerce_date and other methods that use self._()
+        self._translation = gettext.translation(
+            'compatibility',
+            localedir=os.path.join(os.path.dirname(__file__), 'locales'),
+            languages=[self.language_messages],
+            fallback=True)
+        self._ = self._translation.gettext
+        self.release_date = self.__coerce_date(release_date)
         self.check_params()
         self.check_python_version(python_version_support)
         self.check_system(system_support)
@@ -63,9 +66,8 @@ class Check():
         if nag_over_update:
             self.check_version_age(nag_over_update)
 
-    @staticmethod
     def __coerce_date(
-            date_to_coerce: Union[str, datetime.date]) -> datetime.date:
+            self, date_to_coerce: Union[str, datetime.date]) -> datetime.date:
         """Convert a string in the format YYYY-MM-DD to datetime.date.
            This doubles as a check if the date is valid.
            If the object is already of type datetime.date, just return it.
@@ -80,21 +82,21 @@ class Check():
             except ValueError as bad_date:
                 # standard error message is not useful
                 raise err.BadDate(
-                    _('Non-existing or incomplete date!')) from bad_date
+                    self._('Non-existing or incomplete date!')) from bad_date
 
         raise AttributeError(
-            _('date_to_coerce must be either string or datetime.date'))
+            self._('date_to_coerce must be either string or datetime.date'))
 
     def check_params(self) -> None:
         "Check parameters used to initialize this class for completeness"
         # Parameters might be empty after applying .strip()
         if not self.package_name:
-            raise ValueError(_('Missing package name!'))
+            raise ValueError(self._('Missing package name!'))
         if not self.package_version:
-            raise ValueError(_('Missing package version!'))
+            raise ValueError(self._('Missing package version!'))
         # Is the message language supported?
         if self.language_messages not in ('en', 'de'):
-            raise ValueError(_('Invalid value for language_messages!'))
+            raise ValueError(self._('Invalid value for language_messages!'))
 
     def check_python_version(self,
                              python_version_support: Optional[dict] = None
@@ -109,10 +111,10 @@ class Check():
 
         # Python version support: missing or additional keys
         if len(python_version_support.keys()) < 3:
-            raise ValueError(_('Parameter python_version_support incomplete!'))
+            raise ValueError(self._('Parameter python_version_support incomplete!'))
         if len(python_version_support.keys()) > 3:
             raise ValueError(
-                _('Parameter python_version_support: too many keys!'))
+                self._('Parameter python_version_support: too many keys!'))
         # Are there the right keys?
         expected_keys = ['incompatible_versions',
                          'max_tested_version',
@@ -120,20 +122,20 @@ class Check():
         found_keys = list(python_version_support.keys())
         if sorted(found_keys) != expected_keys:
             raise ValueError(
-                _('Parameter python_version_support contains unknown keys.'))
+                self._('Parameter python_version_support contains unknown keys.'))
         # Do the Python versions parse?
         # fullmatch instead of match, because with match something like 3.8.x
         # would be recognized.
         if not re.fullmatch(self.VERSION_REGEX,
                             python_version_support['min_version']):
-            raise ValueError(_('Value for key min_version is incorrect.'))
+            raise ValueError(self._('Value for key min_version is incorrect.'))
         if not re.fullmatch(self.VERSION_REGEX,
                             python_version_support['max_tested_version']):
-            raise ValueError(_('Value for key max_tested_version incorrect.'))
+            raise ValueError(self._('Value for key max_tested_version incorrect.'))
         for version_string in python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
                 raise ValueError(
-                    _('Some string in incompatible_versions cannot be parsed.')
+                    self._('Some string in incompatible_versions cannot be parsed.')
                     )
         major = sys.version_info.major
         minor = sys.version_info.minor
@@ -152,7 +154,7 @@ class Check():
         minor_min = int(match_min.group('minor'))
         if major < major_min or (major_min == major and minor < minor_min):
             raise RuntimeError(
-                _("You use %(running)s, but need at least %(required)s to run %(package)s.")
+                self._("You use %(running)s, but need at least %(required)s to run %(package)s.")
                 % {'required': f"Python {major_min}.{minor_min}",
                    'package': self.package_name,
                    'running': f"Python {full_version}"}
@@ -161,9 +163,9 @@ class Check():
         incompatible = python_version_support['incompatible_versions']
         if short_version in incompatible or full_version in incompatible:
             raise RuntimeError(
-                _("Your version of Python is not compatible with this version of %s.")
+                self._("Your version of Python is not compatible with this version of %s.")
                 % (self.package_name) +
-                _("Please check if there is an update.")
+                self._("Please check if there is an update.")
                 )
         # Check if the running version is higher than the highest tested
         match_h = re.match(
@@ -175,11 +177,11 @@ class Check():
         minor_h = int(match_h.group('minor'))
         if major > major_h or (major == major_h and minor > minor_h):
             logger.warning(
-                _("You are running Python %s, but your version of %s is only tested up to %s.")
+                self._("You are running Python %s, but your version of %s is only tested up to %s.")
                 % (full_version,
                    self.package_name,
                    python_version_support['max_tested_version']) +
-                _("Please check for updates.")
+                self._("Please check for updates.")
                 )
         return None
 
@@ -199,34 +201,34 @@ class Check():
         if not system_support:
             return None
         if not isinstance(system_support, dict):
-            raise ValueError(_('Parameter system_support must be a dictionary'))
+            raise ValueError(self._('Parameter system_support must be a dictionary'))
 
         # Are there only allowed categories and allowed values?
         for key, systems in system_support.items():
             valid_keys = {'full', 'partial', 'incompatible'}
             valid_systems = {'Linux', 'Windows', 'MacOS'}
             if key not in valid_keys:
-                raise ValueError(_('Unknown key in dictionary system_support'))
+                raise ValueError(self._('Unknown key in dictionary system_support'))
             if not isinstance(systems, set):
-                raise ValueError(_("Use a set to hold values for %s.") % key)
+                raise ValueError(self._("Use a set to hold values for %s.") % key)
             for system in systems:
                 if system not in valid_systems:
                     raise ValueError(
-                        _("Invalid system in %s. Allowed: %s")
+                        self._("Invalid system in %s. Allowed: %s")
                         % (key, valid_systems))
 
         if 'full' in system_support and 'partial' in system_support:
             for system in system_support['full']:
                 if system in system_support['partial']:
                     raise err.ParameterContradiction(
-                        _("Contradiction: System cannot simultaneously be ") +
-                        _("fully AND only partially supported.")
+                        self._("Contradiction: System cannot simultaneously be ") +
+                        self._("fully AND only partially supported.")
                           )
 
         if 'full' in system_support and 'incompatible' in system_support:
             if system in system_support['incompatible']:
                 raise err.ParameterContradiction(
-                    _("Contradiction: System cannot have full support AND be incompatible!"))
+                    self._("Contradiction: System cannot have full support AND be incompatible!"))
 
         running = platform.system()
         # Map Darwin to MacOS for consistency with user-facing API
@@ -235,21 +237,21 @@ class Check():
 
         if 'full' in system_support and running in system_support['full']:
             logger.debug(
-                _("%s fully supports %s."), self.package_name, running)
+                self._("%s fully supports %s."), self.package_name, running)
             return None
         if 'partial' in system_support and running in system_support['partial']:
             logger.warning(
-                _("%s has only partial support on %s."),
+                self._("%s has only partial support on %s."),
                 self.package_name, running)
             return None
         if 'incompatible' in system_support and running in system_support['incompatible']:
-            msg = (_("This version of %s is incompatible with %s!")
+            msg = (self._("This version of %s is incompatible with %s!")
                    % (self.package_name, running))
             logger.error(msg)
             raise RuntimeError(msg)
 
         # the running system does not appear
-        logger.info(_("%s's support for %s is unknown!"),
+        logger.info(self._("%s's support for %s is unknown!"),
                      self.package_name, running)
         return None
 
@@ -257,7 +259,7 @@ class Check():
         "Log a message with package name, version, and release date."
         # avoid logging info about itself in every package using it:
         if self.package_name != 'compatibility':
-            msg = (_("You are using %(package)s %(version)s (released: %(date)s)")
+            msg = (self._("You are using %(package)s %(version)s (released: %(date)s)")
                    % {'package': self.package_name,
                       'version': self.package_version,
                       'date': self.release_date})
@@ -273,11 +275,11 @@ class Check():
             nag_in_hundred = int(nag_over_update['nag_in_hundred'])
         except ValueError as wrong_type:
             raise ValueError(
-                _('Some key in nag_over_update has wrong type!')) from wrong_type
+                self._('Some key in nag_over_update has wrong type!')) from wrong_type
         if nag_days_after_release < 0:
-            raise ValueError(_('nag_days_after_release must not be negative.'))
+            raise ValueError(self._('nag_days_after_release must not be negative.'))
         if nag_in_hundred < 0 or nag_in_hundred > 100:
-            raise ValueError(_('nag_in_hundred must be int between 0 and 100.'))
+            raise ValueError(self._('nag_in_hundred must be int between 0 and 100.'))
         if nag_in_hundred == 0:
             return
         date_delta = datetime.date.today() - self.release_date
@@ -286,7 +288,7 @@ class Check():
             probability = nag_in_hundred / 100
             if probability == 1.0 or random.random() < probability:  # nosec
                 logger.info(
-                    _("Your version of %s was released %s days ago. ")
+                    self._("Your version of %s was released %s days ago. ")
                     % (self.package_name, days_since_release) +
-                    _("Please check for updates.")
+                    self._("Please check for updates.")
                     )

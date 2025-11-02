@@ -1,7 +1,7 @@
 # Changelog compatibility Python library
 
 
-## UPCOMING (2025)
+## Version 2.0.0 (2025-11-02)
 
 * Supported Python versions:
     * Dropped support for old Python versions including 3.9 due to EOL of these versions.
@@ -18,10 +18,12 @@
   * Translations:
     * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
     * All messages are now available in English and German.
+    * The `language_messages` parameter now works correctly - each Check instance uses the language specified in its parameter rather than the environment variable.
 * Bugfixes:
   * Fixed inverted comparison logic in `max_tested_version` check. Previously warned when running an older Python version than tested; now correctly warns when running a newer version than tested.
   * Map `Darwin` to `MacOS` for proper macOS detection (platform.system() returns 'Darwin' on macOS).
   * Fixed version regex to properly capture release levels (alpha, beta, candidate, final). Changed from lazy `??` to greedy `?` quantifier, which now correctly parses version strings like "3.10.alpha".
+  * Replaced `logger.exception()` with `logger.error()` before raising intentional exceptions to avoid noisy duplicate tracebacks in logs.
 
 
 

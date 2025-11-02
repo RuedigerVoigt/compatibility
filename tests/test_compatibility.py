@@ -79,6 +79,54 @@ def test_languages():
         language_messages='de')
 
 
+def test_language_messages_actually_work():
+    """Verify that language_messages parameter actually selects the correct translations."""
+    # Test English messages
+    with pytest.raises(ValueError) as excinfo_en:
+        compatibility.Check(
+            package_name='',  # Empty name triggers error
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages='en')
+    assert 'Missing package name!' in str(excinfo_en.value)
+
+    # Test German messages
+    with pytest.raises(ValueError) as excinfo_de:
+        compatibility.Check(
+            package_name='',  # Empty name triggers error
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages='de')
+    # German translation for "Missing package name!"
+    assert 'Fehlender Paketname!' in str(excinfo_de.value)
+
+    # Test that two instances with different languages work independently
+    # Create instance with English
+    check_en = compatibility.Check(
+        package_name='test_en',
+        package_version='1.0',
+        release_date=date(2021, 1, 1),
+        language_messages='en')
+    # Create instance with German
+    check_de = compatibility.Check(
+        package_name='test_de',
+        package_version='1.0',
+        release_date=date(2021, 1, 1),
+        language_messages='de')
+
+    # Verify each instance uses its own language
+    # Test by triggering an error from each instance's methods
+    with pytest.raises(ValueError) as excinfo_en2:
+        check_en.check_params.__self__.package_name = ''
+        check_en.check_params()
+    assert 'Missing package name!' in str(excinfo_en2.value)
+
+    with pytest.raises(ValueError) as excinfo_de2:
+        check_de.check_params.__self__.package_name = ''
+        check_de.check_params()
+    assert 'Fehlender Paketname!' in str(excinfo_de2.value)
+
+
 def test_release_date():
     # Neither a date object nor a string
     with pytest.raises(AttributeError):
