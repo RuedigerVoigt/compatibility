@@ -64,21 +64,13 @@ msgstr "Eine Zeichenkette in incompatible_versions kann nicht geparst werden."
 msgid "You use %(running)s, but need at least %(required)s to run %(package)s."
 msgstr "Sie verwenden %(running)s, benötigen aber mindestens %(required)s um %(package)s auszuführen."
 
-#: compatibility/__main__.py:163
-msgid "Your version of Python is not compatible with this version of %s."
-msgstr "Ihre Python-Version ist nicht kompatibel mit dieser Version von %s."
+#: compatibility/__main__.py:187
+msgid "Your version of Python is not compatible with this version of %(package)s. Please check for updates."
+msgstr "Ihre Python-Version ist nicht kompatibel mit dieser Version von %(package)s. Bitte prüfen Sie auf Updates."
 
-#: compatibility/__main__.py:165
-msgid "Please check if there is an update."
-msgstr "Bitte prüfen Sie, ob es ein Update gibt."
-
-#: compatibility/__main__.py:177
-msgid "You are running Python %s, but your version of %s is only tested up to %s."
-msgstr "Sie verwenden Python %s, aber Ihre Version von %s ist nur bis %s getestet."
-
-#: compatibility/__main__.py:181
-msgid "Please check for updates."
-msgstr "Bitte prüfen Sie auf Updates."
+#: compatibility/__main__.py:200
+msgid "You are running Python %s, but your version of %s is only tested up to %s. Please check for updates."
+msgstr "Sie verwenden Python %s, aber Ihre Version von %s ist nur bis %s getestet. Bitte prüfen Sie auf Updates."
 
 #: compatibility/__main__.py:202
 msgid "Parameter system_support must be a dictionary"
@@ -96,13 +88,9 @@ msgstr "Verwenden Sie ein Set für die Werte von %s."
 msgid "Invalid system in %s. Allowed: %s"
 msgstr "Ungültiges System in %s. Erlaubt: %s"
 
-#: compatibility/__main__.py:222
-msgid "Contradiction: System cannot simultaneously be "
-msgstr "Widerspruch: System kann nicht gleichzeitig "
-
-#: compatibility/__main__.py:223
-msgid "fully AND only partially supported."
-msgstr "vollständig UND nur teilweise unterstützt sein."
+#: compatibility/__main__.py:242
+msgid "Contradiction: System cannot simultaneously be fully AND only partially supported."
+msgstr "Widerspruch: System kann nicht gleichzeitig vollständig UND nur teilweise unterstützt sein."
 
 #: compatibility/__main__.py:229
 msgid "Contradiction: System cannot have full support AND be incompatible!"
@@ -140,10 +128,6 @@ msgstr "nag_days_after_release darf nicht negativ sein."
 msgid "nag_in_hundred must be int between 0 and 100."
 msgstr "nag_in_hundred muss ein Integer zwischen 0 und 100 sein."
 
-#: compatibility/__main__.py:285
-msgid "Your version of %s was released %s days ago. "
-msgstr "Ihre Version von %s wurde vor %s Tagen veröffentlicht. "
-
-#: compatibility/__main__.py:287
-msgid "Please check for updates."
-msgstr "Bitte prüfen Sie auf Updates."
+#: compatibility/__main__.py:308
+msgid "Your version of %s was released %s days ago. Please check for updates."
+msgstr "Ihre Version von %s wurde vor %s Tagen veröffentlicht. Bitte prüfen Sie auf Updates."

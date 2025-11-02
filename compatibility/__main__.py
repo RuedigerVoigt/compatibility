@@ -94,10 +94,10 @@ class Check():
            If the object is already of type datetime.date, just return it.
            Raise ValueError if invalid string or non-existent date.
            Raise AttributeError if neither string nor datetime.date"""
-        if type(date_to_coerce) == datetime.date:
+        if isinstance(date_to_coerce, datetime.date):
             return date_to_coerce
 
-        if type(date_to_coerce) == str:
+        if isinstance(date_to_coerce, str):
             try:
                 return datetime.datetime.strptime(date_to_coerce, '%Y-%m-%d').date()
             except ValueError as bad_date:
@@ -184,9 +184,8 @@ class Check():
         incompatible = python_version_support['incompatible_versions']
         if short_version in incompatible or full_version in incompatible:
             raise RuntimeError(
-                self._("Your version of Python is not compatible with this version of %s.")
-                % (self.package_name) +
-                self._("Please check if there is an update.")
+                self._("Your version of Python is not compatible with this version of %(package)s. Please check for updates.")
+                % {'package': self.package_name}
                 )
         # Check if the running version is higher than the highest tested
         match_h = re.match(
@@ -198,11 +197,10 @@ class Check():
         minor_h = int(match_h.group('minor'))
         if major > major_h or (major == major_h and minor > minor_h):
             logger.warning(
-                self._("You are running Python %s, but your version of %s is only tested up to %s.")
-                % (full_version,
-                   self.package_name,
-                   python_version_support['max_tested_version']) +
-                self._("Please check for updates.")
+                self._("You are running Python %s, but your version of %s is only tested up to %s. Please check for updates."),
+                full_version,
+                self.package_name,
+                python_version_support['max_tested_version']
                 )
         return None
 
@@ -241,8 +239,7 @@ class Check():
         if 'full' in system_support and 'partial' in system_support:
             if system_support['full'] & system_support['partial']:
                 raise err.ParameterContradiction(
-                    self._("Contradiction: System cannot simultaneously be ") +
-                    self._("fully AND only partially supported.")
+                    self._("Contradiction: System cannot simultaneously be fully AND only partially supported.")
                       )
 
         if 'full' in system_support and 'incompatible' in system_support:
@@ -308,7 +305,7 @@ class Check():
             probability = nag_in_hundred / 100
             if probability == 1.0 or random.random() < probability:  # nosec
                 logger.info(
-                    self._("Your version of %s was released %s days ago. ")
-                    % (self.package_name, days_since_release) +
-                    self._("Please check for updates.")
+                    self._("Your version of %s was released %s days ago. Please check for updates."),
+                    self.package_name,
+                    days_since_release
                     )
