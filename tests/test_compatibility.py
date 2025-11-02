@@ -383,7 +383,7 @@ def test_check_system_exceptions():
             package_version='1',
             release_date=date(2021, 1, 1),
             system_support={'full': ['Linux']})
-    assert 'Use a set to hold values' in str(excinfo.value)
+    assert 'Use a set to hold values for full' in str(excinfo.value)
     # Unknown system
     with pytest.raises(ValueError) as excinfo:
         compatibility.Check(

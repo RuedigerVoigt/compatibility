@@ -212,7 +212,7 @@ class Check():
             if key not in valid_keys:
                 raise ValueError(_('Unknown key in dictionary system_support'))
             if not isinstance(systems, set):
-                raise ValueError(_("Use a set to hold values for %s."), (key))
+                raise ValueError(_("Use a set to hold values for %s.") % key)
             for system in systems:
                 if system not in valid_systems:
                     raise ValueError(
