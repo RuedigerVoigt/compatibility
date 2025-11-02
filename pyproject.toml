@@ -1,0 +1,84 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "compatibility"
+version = "2.0.0"
+description = "A library that checks whether the running version of Python is compatible and tested. Remind the user to check for updates of the library."
+readme = "README.md"
+authors = ["Rüdiger Voigt <projects@ruediger-voigt.eu>"]
+license = "Apache-2.0"
+homepage = "https://github.com/RuedigerVoigt/compatibility"
+repository = "https://github.com/RuedigerVoigt/compatibility"
+documentation = "https://github.com/RuedigerVoigt/compatibility"
+keywords = ["compatibility", "version-check", "python-version", "testing"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-cov = "^4.0"
+mypy = "^1.0"
+flake8 = "^7.0"
+coverage = {extras = ["toml"], version = "^7.0"}
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/RuedigerVoigt/compatibility/issues"
+
+# Include py.typed marker file for PEP 561 compliance
+[[tool.poetry.packages]]
+include = "compatibility"
+
+[tool.pytest.ini_options]
+console_output_style = "classic"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = ["-v"]
+
+[tool.coverage.run]
+branch = true
+cover_pylib = false
+source = ["compatibility"]
+
+[tool.coverage.html]
+title = "Coverage Report for the compatibility Python Package"
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true

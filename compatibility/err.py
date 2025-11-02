@@ -9,7 +9,7 @@ Released under the Apache License 2.0
 
 class CompatibilityException(Exception):
     "An exception occured"
-    def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+    def __init__(self, *args: object, **kwargs: object) -> None:
         Exception.__init__(self, *args, **kwargs)
 
 

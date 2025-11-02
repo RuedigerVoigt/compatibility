@@ -51,9 +51,9 @@ class Salted:
             package_version=self.VERSION,
             release_date=date(2025, 6, 18),
             python_version_support={
-                'min_version': '3.9',
-                'incompatible_versions': ['3.7'],
-                'max_tested_version': '3.13'},
+                'min_version': '3.10',
+                'incompatible_versions': [],
+                'max_tested_version': '3.14'},
             nag_over_update={
                     'nag_days_after_release': 30,
                     'nag_in_hundred': 50},
@@ -62,7 +62,7 @@ class Salted:
                 'full': {'Linux', 'MacOS', 'Windows'}
             })
 ```
-The salted package has an actual problem with 3.7 and must not be run with this version. So these settings throw a `RuntimeError` in case someone tries.
+These settings ensure the package runs on Python 3.10 or higher, with testing confirmed through Python 3.14.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
 
 ## Parameters
@@ -71,7 +71,7 @@ Salted in that specific version is a relatively young package that will receive 
 * `package_version` (required): the version number of your package as a string.
 * `release_date` (required): requires a `datetime` object (like `date(2021,1,1)`), or a string in the exact format `YYYY-MM-DD`.
 * `python_version_support` (optional): requires a dictionary with the three following keys:
-    * `min_version`: a string with the number of the oldest supported version (like `'3.6'`).
+    * `min_version`: a string with the number of the oldest supported version (like `'3.10'`).
     * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError`exception if they try to run your package.
     * `max_tested_version`: the latest version of the interpreter you successfully tested your code with.
 * `nag_over_update` (optional): requires a dictionary with the two following keys:

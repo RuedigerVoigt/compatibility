@@ -1,7 +1,0 @@
-[run]
-branch = True
-cover_pylib = False
-source = compatibility
-
-[html]
-title = Coverage Report for the compatibility Python Package
