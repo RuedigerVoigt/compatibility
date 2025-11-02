@@ -19,7 +19,7 @@ import platform
 import random
 import re
 import sys
-from typing import Optional, Union
+from typing import Optional, TypedDict, Union
 
 from compatibility import err
 
@@ -28,6 +28,27 @@ import os
 
 logger = logging.getLogger('compatibility')
 logger.addHandler(NullHandler())
+
+
+class PythonVersionSupport(TypedDict):
+    """Type definition for python_version_support parameter."""
+    min_version: str
+    incompatible_versions: list[str]
+    max_tested_version: str
+
+
+class NagOverUpdate(TypedDict):
+    """Type definition for nag_over_update parameter."""
+    nag_days_after_release: int
+    nag_in_hundred: int
+
+
+class SystemSupport(TypedDict, total=False):
+    """Type definition for system_support parameter.
+    All keys are optional."""
+    full: set[str]
+    partial: set[str]
+    incompatible: set[str]
 
 
 class Check():
@@ -43,10 +64,10 @@ class Check():
                  package_name: str,
                  package_version: str,
                  release_date: Union[datetime.date, str],
-                 python_version_support: Optional[dict] = None,
-                 nag_over_update: Optional[dict] = None,
+                 python_version_support: Optional[PythonVersionSupport] = None,
+                 nag_over_update: Optional[NagOverUpdate] = None,
                  language_messages: str = 'en',
-                 system_support: Optional[dict] = None):
+                 system_support: Optional[SystemSupport] = None):
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.language_messages = language_messages.strip()
@@ -99,7 +120,7 @@ class Check():
             raise ValueError(self._('Invalid value for language_messages!'))
 
     def check_python_version(self,
-                             python_version_support: Optional[dict] = None
+                             python_version_support: Optional[PythonVersionSupport] = None
                              ) -> None:
         """Check whether the running interpreter version is supported, i.e.
            equal or higher than the minimum version and not in the list of
@@ -186,7 +207,7 @@ class Check():
         return None
 
     def check_system(self,
-                     system_support: Optional[dict]) -> None:
+                     system_support: Optional[SystemSupport]) -> None:
         """Check the operating system running this code: is it fully supported,
            only partially or is it known to be incompatible?
 
@@ -266,9 +287,9 @@ class Check():
             logger.info(msg)
 
     def check_version_age(self,
-                          nag_over_update: dict) -> None:
+                          nag_over_update: NagOverUpdate) -> None:
         """Check how many days have passed since the release of this package
-           version. If the number of those days is above the defined treshold,
+           version. If the number of those days is above the defined threshold,
            nag the user to check for an update."""
         try:
             nag_days_after_release = int(nag_over_update['nag_days_after_release'])
