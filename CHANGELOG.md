@@ -14,6 +14,9 @@
 * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
 * All messages are now available in English and German.
 * Use custom exceptions (`ParameterContradiction` and `BadDate`).
+* Bugfixes:
+  * Fixed inverted comparison logic in `max_tested_version` check. Previously warned when running an older Python version than tested; now correctly warns when running a newer version than tested.
+  * Map `Darwin` to `MacOS` for proper macOS detection (platform.system() returns 'Darwin' on macOS).
 
 
 

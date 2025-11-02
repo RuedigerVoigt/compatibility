@@ -206,7 +206,7 @@ def test_python_versions_as_parameters():
     assert 'cannot be parsed.' in str(excinfo.value)
 
 
-def test_running_wrong_python():
+def test_running_wrong_python(caplog):
     # Instead of mocking, create a version string
     # relative to the one running this test:
     major = sys.version_info.major
@@ -267,6 +267,41 @@ def test_running_wrong_python():
                 'min_version': '0.0',
                 'incompatible_versions': [running_version_long],
                 'max_tested_version': '9.100'})
+
+    # Test max_tested_version warning: running version NEWER than tested
+    caplog.clear()
+    caplog.set_level(logging.WARNING)
+    with patch('sys.version_info') as mock_version:
+        mock_version.major = 3
+        mock_version.minor = 14
+        mock_version.releaselevel = 'final'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support={
+                'min_version': '3.10',
+                'incompatible_versions': [],
+                'max_tested_version': '3.12'})
+    assert 'only tested up to 3.12' in caplog.text
+    assert 'Please check for updates' in caplog.text
+
+    # Test max_tested_version no warning: running version OLDER than tested
+    caplog.clear()
+    caplog.set_level(logging.WARNING)
+    with patch('sys.version_info') as mock_version:
+        mock_version.major = 3
+        mock_version.minor = 10
+        mock_version.releaselevel = 'final'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support={
+                'min_version': '3.10',
+                'incompatible_versions': [],
+                'max_tested_version': '3.12'})
+    assert 'only tested up to' not in caplog.text
 
 
 def test_check_system(caplog):

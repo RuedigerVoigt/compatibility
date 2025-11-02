@@ -175,7 +175,7 @@ class Check():
         assert match_h is not None
         major_h = int(match_h.group('major'))
         minor_h = int(match_h.group('minor'))
-        if major_h > major or (major == major_h and minor > minor_h):
+        if major > major_h or (major == major_h and minor > minor_h):
             logging.warning(
                 _("You are running Python %s, but your version of %s is only tested up to %s.")
                 % (full_version,
