@@ -17,14 +17,18 @@ Instructions for AI agents working with the **compatibility** Python package.
 ## Architecture
 
 **Core module:** `compatibility/__main__.py`
-- Single `Check` class handles all validation
+- Single `Check` class handles all validation in `__init__` method
 - Must be called in package constructor, NOT in `__init__.py` (to respect user's logging config)
 - Uses regex to parse version strings (format: "3.10" or "3.10.alpha")
+- **Instance-local translations**: Each `Check` instance creates its own `gettext` translation based on `language_messages` parameter (not module-level!)
+- **Package-specific logger**: Uses `logging.getLogger('compatibility')` - never use root logger
 
 **Key files:**
 - `pyproject.toml` - Version number (single source of truth, Poetry managed)
-- `compatibility/err.py` - Custom exceptions
+- `compatibility/err.py` - Custom exceptions (`BadDate`, `ParameterContradiction`)
+- `compatibility/__init__.py` - Package entry point (exposes `Check` class and `err` module)
 - `tests/test_compatibility.py` - Comprehensive test suite (99% coverage target)
+- `compatibility/locales/` - Translation files (.po/.mo) packaged with distribution
 
 ## Development Workflow
 
@@ -72,6 +76,19 @@ poetry build      # Build wheel and sdist
 - Maintain formal "Sie" form in German
 - Technical terms (e.g., "Dictionary", "Set") may remain in English within error messages
 - Format placeholders (%s, %(name)s) must be preserved exactly
+- Translations are instance-local: `self._translation` and `self._()`
+
+## Public API Surface
+
+**Stable API (do not break):**
+- `compatibility.Check` - Main class for validation
+- `compatibility.err.BadDate` - Exception for invalid dates
+- `compatibility.err.ParameterContradiction` - Exception for conflicting parameters
+- `compatibility.err.CompatibilityException` - Base exception class
+
+**Internal (may change):**
+- All private methods (prefixed with `_`)
+- Module-level implementation details
 
 ## Important Constraints
 
@@ -80,3 +97,51 @@ poetry build      # Build wheel and sdist
 3. **Coverage minimum** - 97% coverage required, 99% target
 4. **Type hints** - All code must have proper type annotations
 5. **Stdlib only** - All features must use Python standard library
+6. **Package logger** - Always use `logging.getLogger('compatibility')`, never root logger
+7. **Instance translations** - Translation must be created per-instance in `__init__`, not module-level
+8. **No logging at import time** - All logging must happen during class instantiation or method calls
+9. **Logger formatting** - Use lazy interpolation: `logger.info("Message %s", value)` not f-strings
+10. **Translation strings** - Avoid concatenating translated fragments; use single complete strings with placeholders
+11. **TypedDict encouraged** - For structured dict parameters when adding new features
+
+## Don't Do This
+
+❌ Add any external dependencies
+❌ Make translations module-level
+❌ Use root logger (`logging.*`)
+❌ Suggest calling `Check` in `__init__.py`
+❌ Skip type hints
+❌ Reduce test coverage below 97%
+❌ Log at module import time
+❌ Concatenate translated strings
+❌ Use f-strings in logger calls
+
+## Release Checklist
+
+Before creating a new release:
+
+1. **Version & Changelog**
+   - [ ] Update version in `pyproject.toml` (`poetry version <newversion>`)
+   - [ ] Update `CHANGELOG.md` with all changes since last release
+   - [ ] Ensure version classifiers in `pyproject.toml` match supported Python versions
+
+2. **Translations**
+   - [ ] Extract new translatable strings: Update `.pot` template
+   - [ ] Update `.po` files with new translations
+   - [ ] Compile translations: `python compile_translations.py`
+
+3. **Quality Checks**
+   - [ ] All tests pass: `pytest tests/`
+   - [ ] Coverage ≥ 97%: `pytest --cov=compatibility --cov-fail-under=97 tests/`
+   - [ ] Type checking passes: `mypy compatibility/`
+   - [ ] Linting passes: `flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
+
+4. **Build & Publish**
+   - [ ] Build package: `poetry build`
+   - [ ] Test wheel installs correctly
+   - [ ] Create GitHub release (triggers automated PyPI publish via CI/CD)
+
+5. **Documentation**
+   - [ ] README reflects new features
+   - [ ] AGENTS.md updated if architecture changed
+   - [ ] TODO.md reflects completed/remaining work
