@@ -497,6 +497,7 @@ def test_check_system_CONTRADICTIONS():
                                 'incompatible': {'Windows'}}
                 )
         assert 'support AND be incompatible' in str(excinfo.value)
+
         # cannot be fully and partialy supported
         with pytest.raises(err.ParameterContradiction) as excinfo:
             compatibility.Check(
@@ -507,6 +508,72 @@ def test_check_system_CONTRADICTIONS():
                                 'partial': {'Windows'}}
                 )
         assert 'fully AND only partially supported' in str(excinfo.value)
+
+        # Multiple systems with overlap - full & incompatible
+        with pytest.raises(err.ParameterContradiction) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'full': {'Linux', 'Windows'},
+                                'incompatible': {'Windows', 'MacOS'}}
+                )
+        assert 'support AND be incompatible' in str(excinfo.value)
+
+        # Multiple systems with overlap - full & partial
+        with pytest.raises(err.ParameterContradiction) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'full': {'Linux', 'MacOS'},
+                                'partial': {'Windows', 'MacOS'}}
+                )
+        assert 'fully AND only partially supported' in str(excinfo.value)
+
+
+def test_check_system_no_contradictions():
+    """Test that non-overlapping system sets work correctly."""
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+
+        # No overlap: full & partial are different systems - should succeed
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'full': {'Linux'},
+                            'partial': {'Windows'}}
+        )
+
+        # No overlap: full & incompatible are different systems - should succeed
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'full': {'Linux', 'MacOS'},
+                            'incompatible': {'Windows'}}
+        )
+
+        # All three categories, no overlap - should succeed
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'full': {'Linux'},
+                            'partial': {'MacOS'},
+                            'incompatible': {'Windows'}}
+        )
+
+        # Empty sets - should succeed
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'full': set(),
+                            'partial': {'Linux'},
+                            'incompatible': set()}
+        )
 
 
 def test_check_version_age():

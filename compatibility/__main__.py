@@ -239,15 +239,14 @@ class Check():
                         % (key, valid_systems))
 
         if 'full' in system_support and 'partial' in system_support:
-            for system in system_support['full']:
-                if system in system_support['partial']:
-                    raise err.ParameterContradiction(
-                        self._("Contradiction: System cannot simultaneously be ") +
-                        self._("fully AND only partially supported.")
-                          )
+            if system_support['full'] & system_support['partial']:
+                raise err.ParameterContradiction(
+                    self._("Contradiction: System cannot simultaneously be ") +
+                    self._("fully AND only partially supported.")
+                      )
 
         if 'full' in system_support and 'incompatible' in system_support:
-            if system in system_support['incompatible']:
+            if system_support['full'] & system_support['incompatible']:
                 raise err.ParameterContradiction(
                     self._("Contradiction: System cannot have full support AND be incompatible!"))
 
