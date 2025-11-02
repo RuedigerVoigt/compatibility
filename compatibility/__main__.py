@@ -71,7 +71,7 @@ class Check():
            This doubles as a check if the date is valid.
            If the object is already of type datetime.date, just return it.
            Raise ValueError if invalid string or non-existent date.
-           Raise AtributeError if neither string nor datetime.date"""
+           Raise AttributeError if neither string nor datetime.date"""
         # pylint: disable=unidiomatic-typecheck
         if type(date_to_coerce) == datetime.date:
             return date_to_coerce
@@ -221,14 +221,14 @@ class Check():
         if 'full' in system_support and 'partial' in system_support:
             for system in system_support['full']:
                 if system in system_support['partial']:
-                    raise err.ParameterContradition(
+                    raise err.ParameterContradiction(
                         _("Contradiction: System cannot simultaneously be ") +
                         _("fully AND only partially supported.")
                           )
 
         if 'full' in system_support and 'incompatible' in system_support:
             if system in system_support['incompatible']:
-                raise err.ParameterContradition(
+                raise err.ParameterContradiction(
                     _("Contradiction: System cannot have full support AND be incompatible!"))
 
         running = platform.system()

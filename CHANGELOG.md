@@ -13,7 +13,7 @@
 * Messages were improved.
 * Translations now use the `gettext` standard module instead of a custom solution. That makes it easier to add new languages.
 * All messages are now available in English and German.
-* Use custom exceptions (`ParameterContradition` and `BadDate`).
+* Use custom exceptions (`ParameterContradiction` and `BadDate`).
 
 
 

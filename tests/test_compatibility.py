@@ -20,7 +20,7 @@ import pytest
 from compatibility import err
 
 
-def test_missing_or_empty_paramameters():
+def test_missing_or_empty_parameters():
     "3 parameters are required, the other 3 have defaults."
     # package name missing
     with pytest.raises(ValueError) as excinfo:
@@ -364,7 +364,7 @@ def test_check_system_CONTRADICTIONS():
     with patch('platform.system') as system:
         system.return_value = 'Windows'
         # Cannot be incompatible and have full support
-        with pytest.raises(err.ParameterContradition) as excinfo:
+        with pytest.raises(err.ParameterContradiction) as excinfo:
             compatibility.Check(
                 package_name='test',
                 package_version='1',
@@ -374,7 +374,7 @@ def test_check_system_CONTRADICTIONS():
                 )
         assert 'support AND be incompatible' in str(excinfo.value)
         # cannot be fully and partialy supported
-        with pytest.raises(err.ParameterContradition) as excinfo:
+        with pytest.raises(err.ParameterContradiction) as excinfo:
             compatibility.Check(
                 package_name='test',
                 package_version='1',

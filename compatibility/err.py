@@ -8,12 +8,12 @@ Released under the Apache License 2.0
 
 
 class CompatibilityException(Exception):
-    "An exception occured"
+    "An exception occurred"
     def __init__(self, *args: object, **kwargs: object) -> None:
         Exception.__init__(self, *args, **kwargs)
 
 
-class ParameterContradition(ValueError, CompatibilityException):
+class ParameterContradiction(ValueError, CompatibilityException):
     "Two or more parameters contradict each other."
 
 

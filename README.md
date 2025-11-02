@@ -1,15 +1,15 @@
 ![Supported Python Versions](https://img.shields.io/pypi/pyversions/compatibility)
 ![pypi version](https://img.shields.io/pypi/v/compatibility)
 ![Last commit](https://img.shields.io/github/last-commit/RuedigerVoigt/compatibility)
-[![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
+[![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
 [![Downloads](https://pepy.tech/badge/compatibility/month)](https://pepy.tech/project/compatibility)
 
 Compatibility is a simple tool designed to be used by package authors. It does five things:
 * Check whether the running Python interpreter version is supported, i.e. equal or higher than the minimum version and not in a list of incompatible versions. Raises a `RuntimeError` exception if the interpreter version is marked as incompatible.
 * Log a warning if the running interpreter version is higher than the highest version used in tests.
 * Log an info message with package name, version, and release date.
-* Log an info message asking the user to check for updates if a defined number of days has passed since release. (For privacy reason it is not checked whether a new version is actually available.)
-* Check whether the operating system group (i.e. Linux, MacOS, or Windows) is fully supported, partially supported or marked as incompatible. Partial supports logs an info message, while incompatibility yields an exception.
+* Log an info message asking the user to check for updates if a defined number of days has passed since release. (For privacy reasons it is not checked whether a new version is actually available.)
+* Check whether the operating system group (i.e. Linux, MacOS, or Windows) is fully supported, partially supported or marked as incompatible. Partial support logs an info message, while incompatibility yields an exception.
 
 The prepared messages are available in English and German.
 
@@ -18,12 +18,12 @@ For these tasks it does not need any dependencies outside the Python standard li
 # Installation
 
 ```bash
-sudo pip3 install compatibility
+pip install compatibility
 ```
 
 # Usage
 
-It is important, that you **do NOT call `compatibility` in the `__init__.py` file of your package, but in the constructor (`def __init__()`) of your class instead.** If you start the check in the `__init__.py` file, then it will run once you *import* the package. This goes well *if* the user already set the level for `logging`. If that is not the case, the user will see all messages including those on the `DEBUG` level. This is not a problem if the check is done in the constructor.
+It is important that you **do NOT call `compatibility` in the `__init__.py` file of your package, but in the constructor (`def __init__()`) of your class instead.** If you start the check in the `__init__.py` file, then it will run once you *import* the package. This goes well *if* the user already set the level for `logging`. If that is not the case, the user will see all messages including those on the `DEBUG` level. This is not a problem if the check is done in the constructor.
 
 As an example the relevant parts of the constructor of the [salted](https://github.com/RuedigerVoigt/salted) package:
 
@@ -72,15 +72,15 @@ Salted in that specific version is a relatively young package that will receive 
 * `release_date` (required): requires a `datetime` object (like `date(2021,1,1)`), or a string in the exact format `YYYY-MM-DD`.
 * `python_version_support` (optional): requires a dictionary with the three following keys:
     * `min_version`: a string with the number of the oldest supported version (like `'3.10'`).
-    * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError`exception if they try to run your package.
+    * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError` exception if they try to run your package.
     * `max_tested_version`: the latest version of the interpreter you successfully tested your code with.
 * `nag_over_update` (optional): requires a dictionary with the two following keys:
     * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
-    * `nag_in_hundred`: Whether to nag over a possible update is random, but this sets the probability in the form how many times (int) out of hundred starts the message is logged. Accordingly 100 means every time.
+    * `nag_in_hundred`: Whether to nag over a possible update is random, but this sets the probability in the form how many times (int) out of a hundred starts the message is logged. Accordingly 100 means every time.
 * `language_messages` (optional): the language (`en` for English or `de` for German) of the messages logged by this. Defaults to English log messages.
 * `system_support` (optional): allows you to state the level of compatibility between your code and different Operating System groups. This is purposefully done on a very high level: valid inputs are only 'Linux', 'MacOS', and 'Windows' and not specific versions and distributions. The dictionary allows three keys with a set as value each:
     * `full`: The set of operating systems that are tested on production level.
-    * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system running found here logs a warning.
+    * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system found running here logs a warning.
     * `incompatible`: The set of systems of which you know they will fail to run the code properly. If an OS in this set tries to run the code, this will yield a `RuntimeError` exception.
 
 ## Version strings
@@ -97,6 +97,15 @@ However, `min_version` and `max_tested_version` ignore the release level part.
 
 ## Avoid running your package with an incompatible version of Python
 
-In the `setup.py` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade, that installs an incompatible version with the systems package manager.
+In the `pyproject.toml` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter (or the `python` field in Poetry's `[tool.poetry.dependencies]`) to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade that installs an incompatible version with the system's package manager.
 
 If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError` exception once the user tries to run your package.
+
+## Exceptions
+
+The `compatibility` package may raise the following exceptions:
+
+* `RuntimeError`: Raised when the Python version or operating system is incompatible with your package.
+* `ValueError`: Raised when invalid parameters are provided to the `Check` class.
+* `compatibility.err.BadDate`: Raised when the `release_date` parameter contains an invalid or malformed date.
+* `compatibility.err.ParameterContradiction`: Raised when conflicting parameters are provided (e.g., a system marked as both fully supported and incompatible).
