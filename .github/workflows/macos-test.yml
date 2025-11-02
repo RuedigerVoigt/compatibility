@@ -16,10 +16,6 @@ jobs:
         python-version: ['3.14']
 
     steps:
-
-    - name: System Update
-      run: softwareupdate -i -a
-
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
