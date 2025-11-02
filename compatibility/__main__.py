@@ -145,9 +145,10 @@ class Check():
             self.VERSION_REGEX,
             python_version_support['min_version'])
         # The value was parsed before, so there is always a value for major_min
-        # and minor_min. So silence mypy for the next two lines:
-        major_min = int(match_min.group('major'))  # type: ignore[union-attr]
-        minor_min = int(match_min.group('minor'))  # type: ignore[union-attr]
+        # and minor_min:
+        assert match_min is not None
+        major_min = int(match_min.group('major'))
+        minor_min = int(match_min.group('minor'))
         if major < major_min or (major_min == major and minor < minor_min):
             raise RuntimeError(
                 _("You use %(running)s, but need at least %(required)s to run %(package)s.")
@@ -167,10 +168,10 @@ class Check():
         match_h = re.match(
             self.VERSION_REGEX,
             python_version_support['max_tested_version'])
-        # Same as above. checked before, that there is always a value.
-        # Silence mypy for the next two lines:
-        major_h = int(match_h.group('major'))  # type: ignore[union-attr]
-        minor_h = int(match_h.group('minor'))  # type: ignore[union-attr]
+        # Same as above. checked before, that there is always a value:
+        assert match_h is not None
+        major_h = int(match_h.group('major'))
+        minor_h = int(match_h.group('minor'))
         if major_h > major or (major == major_h and minor > minor_h):
             logging.warning(
                 _("You are running Python %s, but your version of %s is only tested up to %s.")
