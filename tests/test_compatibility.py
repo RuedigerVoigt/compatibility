@@ -125,6 +125,32 @@ def test_python_versions_regex():
     assert not (re.fullmatch(reg_ex, invalid_short))
     assert not (re.fullmatch(reg_ex, invalid_long))
 
+    # Test release level capture groups
+    match_short = re.fullmatch(reg_ex, '3.10')
+    assert match_short.group('major') == '3'
+    assert match_short.group('minor') == '10'
+    assert match_short.group('releaselevel') is None
+
+    match_alpha = re.fullmatch(reg_ex, '3.9.alpha')
+    assert match_alpha.group('major') == '3'
+    assert match_alpha.group('minor') == '9'
+    assert match_alpha.group('releaselevel') == 'alpha'
+
+    match_beta = re.fullmatch(reg_ex, '3.10.beta')
+    assert match_beta.group('major') == '3'
+    assert match_beta.group('minor') == '10'
+    assert match_beta.group('releaselevel') == 'beta'
+
+    match_candidate = re.fullmatch(reg_ex, '3.11.candidate')
+    assert match_candidate.group('major') == '3'
+    assert match_candidate.group('minor') == '11'
+    assert match_candidate.group('releaselevel') == 'candidate'
+
+    match_final = re.fullmatch(reg_ex, '3.12.final')
+    assert match_final.group('major') == '3'
+    assert match_final.group('minor') == '12'
+    assert match_final.group('releaselevel') == 'final'
+
 
 def test_python_versions_as_parameters():
     # python_version_support: missing key

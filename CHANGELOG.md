@@ -8,6 +8,7 @@
     * Add support for Python 3.10 to 3.14.
 * Quality:
   * Ensure with an automatic workflow that coverage is 97% or higher.
+  * Enabled stricter mypy type checking (`disallow_untyped_defs` and `disallow_incomplete_defs`).
 * Security:
   * Publish to PyPI with a [Trusted Publisher / OIDC](https://docs.pypi.org/trusted-publishers/).
 * New:
@@ -20,6 +21,7 @@
 * Bugfixes:
   * Fixed inverted comparison logic in `max_tested_version` check. Previously warned when running an older Python version than tested; now correctly warns when running a newer version than tested.
   * Map `Darwin` to `MacOS` for proper macOS detection (platform.system() returns 'Darwin' on macOS).
+  * Fixed version regex to properly capture release levels (alpha, beta, candidate, final). Changed from lazy `??` to greedy `?` quantifier, which now correctly parses version strings like "3.10.alpha".
 
 
 

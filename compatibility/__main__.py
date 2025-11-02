@@ -40,9 +40,9 @@ class Check():
        and time since release."""
 
     # Regular expression to parse a version string provided by the user
-    # ?? is the non-greedy version of ?
+    # Optional release level (alpha, beta, candidate, final) after major.minor
     VERSION_REGEX = re.compile(
-        r"(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<releaselevel>\b(alpha|beta|candidate|final)\b))??")
+        r"(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<releaselevel>\b(alpha|beta|candidate|final)\b))?")
 
     def __init__(self,
                  package_name: str,
