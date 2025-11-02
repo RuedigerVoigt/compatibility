@@ -8,14 +8,26 @@ Released under the Apache License 2.0
 
 
 class CompatibilityException(Exception):
-    "An exception occurred"
+    """Base exception for all compatibility package errors.
+
+    Inherits from Exception and serves as the parent class for all
+    custom exceptions in this package.
+    """
     def __init__(self, *args: object, **kwargs: object) -> None:
         Exception.__init__(self, *args, **kwargs)
 
 
 class ParameterContradiction(ValueError, CompatibilityException):
-    "Two or more parameters contradict each other."
+    """Exception raised when parameters contain contradictory values.
+
+    Raised when system_support contains the same OS in conflicting
+    categories (e.g., both 'full' and 'incompatible').
+    """
 
 
 class BadDate(ValueError, CompatibilityException):
-    "The provided date is malformed / nonexistent."
+    """Exception raised when a date is invalid or malformed.
+
+    Raised when release_date cannot be parsed or represents a
+    non-existent date (e.g., "2021-02-30").
+    """

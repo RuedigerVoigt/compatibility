@@ -68,6 +68,38 @@ class Check():
                  nag_over_update: Optional[NagOverUpdate] = None,
                  language_messages: str = 'en',
                  system_support: Optional[SystemSupport] = None):
+        """Initialize compatibility checker and perform all validation checks.
+
+        This constructor performs all compatibility checks immediately upon
+        instantiation. It should be called in your package's main class
+        constructor, not in __init__.py, to respect the user's logging
+        configuration.
+
+        Args:
+            package_name: Name of the package using this library.
+            package_version: Version string of the package (e.g., "1.2.3").
+            release_date: Release date as datetime.date object or string in
+                format "YYYY-MM-DD".
+            python_version_support: Optional dict with keys 'min_version',
+                'max_tested_version', and 'incompatible_versions' to check
+                Python interpreter compatibility.
+            nag_over_update: Optional dict with keys 'nag_days_after_release'
+                and 'nag_in_hundred' to prompt users for updates.
+            language_messages: Language for messages, either 'en' (default)
+                or 'de' for German.
+            system_support: Optional dict with optional keys 'full', 'partial',
+                and 'incompatible', each containing a set of OS names
+                ('Linux', 'MacOS', 'Windows').
+
+        Raises:
+            ValueError: If package_name or package_version is empty, if
+                language_messages is invalid, or if parameters are malformed.
+            RuntimeError: If Python version is incompatible or OS is
+                incompatible.
+            err.BadDate: If release_date is invalid or non-existent.
+            err.ParameterContradiction: If system_support contains
+                contradictory entries.
+        """
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.language_messages = language_messages.strip()
@@ -89,11 +121,22 @@ class Check():
 
     def __coerce_date(
             self, date_to_coerce: Union[str, datetime.date]) -> datetime.date:
-        """Convert a string in the format YYYY-MM-DD to datetime.date.
-           This doubles as a check if the date is valid.
-           If the object is already of type datetime.date, just return it.
-           Raise ValueError if invalid string or non-existent date.
-           Raise AttributeError if neither string nor datetime.date"""
+        """Convert a string to datetime.date and validate.
+
+        Accepts either a datetime.date object (returned as-is) or a string
+        in YYYY-MM-DD format. Validates that the date exists.
+
+        Args:
+            date_to_coerce: Either a datetime.date object or a string in
+                format "YYYY-MM-DD".
+
+        Returns:
+            A datetime.date object.
+
+        Raises:
+            err.BadDate: If string is invalid format or non-existent date.
+            AttributeError: If input is neither string nor datetime.date.
+        """
         if isinstance(date_to_coerce, datetime.date):
             return date_to_coerce
 
@@ -109,7 +152,15 @@ class Check():
             self._('date_to_coerce must be either string or datetime.date'))
 
     def check_params(self) -> None:
-        "Check parameters used to initialize this class for completeness"
+        """Validate that required parameters are non-empty and valid.
+
+        Checks that package_name and package_version are not empty after
+        stripping whitespace, and that language_messages is supported.
+
+        Raises:
+            ValueError: If package_name is empty, package_version is empty,
+                or language_messages is not 'en' or 'de'.
+        """
         # Parameters might be empty after applying .strip()
         if not self.package_name:
             raise ValueError(self._('Missing package name!'))
@@ -122,10 +173,23 @@ class Check():
     def check_python_version(self,
                              python_version_support: Optional[PythonVersionSupport] = None
                              ) -> None:
-        """Check whether the running interpreter version is supported, i.e.
-           equal or higher than the minimum version and not in the list of
-           incompatible versions. Warn with logging.warn if the running
-           version is higher than the highest version used in tests."""
+        """Validate that the running Python version is supported.
+
+        Checks that the Python interpreter version meets minimum requirements,
+        is not in the incompatible list, and logs a warning if running on a
+        version higher than the maximum tested version.
+
+        Args:
+            python_version_support: Optional dict with keys 'min_version',
+                'max_tested_version', and 'incompatible_versions'. If None,
+                no version checking is performed.
+
+        Raises:
+            ValueError: If python_version_support dict is malformed or
+                contains invalid version strings.
+            RuntimeError: If running Python version is below minimum or is
+                in the incompatible versions list.
+        """
         if not python_version_support:
             # Setting python_version_support is not required
             return None
@@ -206,16 +270,24 @@ class Check():
 
     def check_system(self,
                      system_support: Optional[SystemSupport]) -> None:
-        """Check the operating system running this code: is it fully supported,
-           only partially or is it known to be incompatible?
+        """Validate operating system compatibility.
 
-        If the OS has only partial support => logging.warning
-        If the OS is incompatible => RuntimeError exception
+        Checks whether the current OS (Linux, MacOS, or Windows) is fully
+        supported, partially supported, incompatible, or unknown. Logs
+        appropriate messages and raises exceptions for incompatible systems.
 
-        system_support is a dictionary with three allowed keys:
-        'full', 'partial', 'incompatible'.
-        The value for each key has to be a set containing any of these strings:
-        'Linux', 'MacOS', or 'Windows'
+        Args:
+            system_support: Optional dict with optional keys 'full',
+                'partial', and 'incompatible'. Each value must be a set
+                containing OS names from {'Linux', 'MacOS', 'Windows'}.
+                If None, no OS checking is performed.
+
+        Raises:
+            ValueError: If system_support is malformed or contains invalid
+                keys/values.
+            err.ParameterContradiction: If the same OS appears in both
+                'full' and 'partial', or 'full' and 'incompatible'.
+            RuntimeError: If the current OS is in the 'incompatible' set.
         """
         if not system_support:
             return None
@@ -273,7 +345,11 @@ class Check():
         return None
 
     def log_version_info(self) -> None:
-        "Log a message with package name, version, and release date."
+        """Log informational message with package name, version, and release date.
+
+        Logs at INFO level unless package_name is 'compatibility' itself
+        (to avoid recursive logging in self-tests).
+        """
         # avoid logging info about itself in every package using it:
         if self.package_name != 'compatibility':
             msg = (self._("You are using %(package)s %(version)s (released: %(date)s)")
@@ -284,9 +360,21 @@ class Check():
 
     def check_version_age(self,
                           nag_over_update: NagOverUpdate) -> None:
-        """Check how many days have passed since the release of this package
-           version. If the number of those days is above the defined threshold,
-           nag the user to check for an update."""
+        """Check package age and prompt user for updates if threshold exceeded.
+
+        Calculates days since release and probabilistically logs an INFO
+        message suggesting the user check for updates.
+
+        Args:
+            nag_over_update: Dict with keys 'nag_days_after_release' (int,
+                minimum age in days before nagging) and 'nag_in_hundred'
+                (int 0-100, percentage chance of showing nag message).
+
+        Raises:
+            ValueError: If nag_days_after_release is negative, if
+                nag_in_hundred is not between 0-100, or if values have
+                wrong type.
+        """
         try:
             nag_days_after_release = int(nag_over_update['nag_days_after_release'])
             nag_in_hundred = int(nag_over_update['nag_in_hundred'])

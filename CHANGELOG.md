@@ -9,6 +9,7 @@
 * Quality:
   * Ensure with an automatic workflow that coverage is 97% or higher.
   * Enabled stricter mypy type checking (`disallow_untyped_defs` and `disallow_incomplete_defs`).
+  * Converted all docstrings to Google format.
 * Security:
   * Publish to PyPI with a [Trusted Publisher / OIDC](https://docs.pypi.org/trusted-publishers/).
 * New:
