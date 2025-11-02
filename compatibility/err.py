@@ -2,7 +2,7 @@
 Custom Exceptions for the Compatibility Python Package
 
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021 Rüdiger Voigt:
+Copyright (c) 2021-2025 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 

@@ -1,14 +1,9 @@
 """
 Automatic Tests for the Compatibility library
 
-To run these tests with coverage:
-coverage run --source compatibility -m pytest tests.py
-To generate a report afterwards.
-coverage html
-
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-(c) 2021-2025 Rüdiger Voigt
+Copyright (c) 2021-2025 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 
