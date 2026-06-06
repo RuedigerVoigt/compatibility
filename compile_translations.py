@@ -10,7 +10,7 @@ Usage:
 The script will compile:
     locales/de/LC_MESSAGES/compatibility.po -> locales/de/LC_MESSAGES/compatibility.mo
 
-Copyright (c) 2021-2025 Rüdiger Voigt and contributors
+Copyright (c) 2021-2026 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 

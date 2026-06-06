@@ -3,7 +3,7 @@ Automatic Tests for the Compatibility library
 
 ~~~~~~~~~~~~~~~~~~~~~
 Source: https://github.com/RuedigerVoigt/compatibility
-Copyright (c) 2021-2025 Rüdiger Voigt and contributors
+Copyright (c) 2021-2026 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 
