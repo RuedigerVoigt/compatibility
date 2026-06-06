@@ -1,5 +1,12 @@
 # Changelog compatibility Python library
 
+## Upcoming
+
+* CI/CD:
+    * Added an experimental Python 3.15 beta job to the Linux, MacOS, and Windows test workflows. It uses `allow-prereleases` and runs with `continue-on-error`, so it surfaces breakage early without failing CI.
+    * Bumped GitHub Actions to `actions/checkout@v6` and `actions/setup-python@v6`.
+* Maintenance:
+    * Updated the copyright year to 2026.
 
 ## Version 2.0.0 (2025-11-02)
 
