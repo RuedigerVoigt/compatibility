@@ -38,11 +38,11 @@ classifiers = [
 python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0"
-pytest-cov = "^4.0"
-mypy = "^1.0"
-flake8 = "^7.0"
-coverage = {extras = ["toml"], version = "^7.0"}
+pytest = "^9.0"
+pytest-cov = "^7.1"
+mypy = "^2.1"
+flake8 = "^7.3"
+coverage = {extras = ["toml"], version = "^7.14"}
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/RuedigerVoigt/compatibility/issues"
