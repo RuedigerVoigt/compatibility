@@ -8,6 +8,8 @@ import importlib.metadata
 from compatibility.__main__ import Check
 from compatibility import err
 
+__all__ = ["Check", "err"]
+
 NAME = "compatibility"
 __version__ = importlib.metadata.version("compatibility")
 __author__ = "Rüdiger Voigt"
