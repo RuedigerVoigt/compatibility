@@ -1,0 +1,30 @@
+# Dependabot configuration for automated dependency updates.
+#
+# This file is read from the repository's default branch (main), and the
+# version-update pull requests it raises also target the default branch.
+version: 2
+updates:
+  # Keep GitHub Actions used in the workflows up to date.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Keep the Python dev dependencies (managed via Poetry in pyproject.toml)
+  # up to date.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
