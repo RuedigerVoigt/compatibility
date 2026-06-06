@@ -9,7 +9,6 @@ Released under the Apache License 2.0
 
 from datetime import date, timedelta
 import logging
-import platform
 import re
 import sys
 from unittest.mock import patch

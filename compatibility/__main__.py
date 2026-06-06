@@ -15,6 +15,7 @@ import datetime
 import gettext
 import logging
 from logging import NullHandler
+import os
 import platform
 import random
 import re
@@ -22,9 +23,6 @@ import sys
 from typing import Optional, TypedDict, Union
 
 from compatibility import err
-
-
-import os
 
 logger = logging.getLogger('compatibility')
 logger.addHandler(NullHandler())
@@ -341,7 +339,7 @@ class Check():
 
         # the running system does not appear
         logger.info(self._("%s's support for %s is unknown!"),
-                     self.package_name, running)
+                    self.package_name, running)
         return None
 
     def log_version_info(self) -> None:
