@@ -35,6 +35,21 @@ jobs:
       - name: Build package
         run: poetry build
 
+      - name: Verify translations are packaged
+        # Fail the release if the compiled .mo catalogs are missing from the
+        # built wheel. Without this guard a gitignore/packaging mistake would
+        # silently ship a distribution with no translations (gettext then
+        # falls back to English).
+        run: |
+          python - <<'EOF'
+          import glob, sys, zipfile
+          wheel = glob.glob('dist/*.whl')[0]
+          mo = [n for n in zipfile.ZipFile(wheel).namelist() if n.endswith('.mo')]
+          print('Compiled catalogs in wheel:', mo)
+          if not mo:
+              sys.exit('ERROR: no .mo translation files found in the built wheel')
+          EOF
+
       - name: Install Twine
         run: pip install twine
 

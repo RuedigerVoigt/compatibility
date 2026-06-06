@@ -34,6 +34,14 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+# Force-include the compiled translation catalogs in the built distributions.
+# The .mo files are gitignored (build outputs of compile_translations.py), so
+# Poetry would otherwise exclude them. This override packages them anyway,
+# provided they exist on disk at build time (CI compiles them before `poetry build`).
+include = [
+    { path = "compatibility/locales/**/*.mo", format = ["sdist", "wheel"] },
+]
+
 [tool.poetry.dependencies]
 python = "^3.10"
 
