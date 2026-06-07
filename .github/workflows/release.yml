@@ -35,19 +35,45 @@ jobs:
       - name: Build package
         run: poetry build
 
-      - name: Verify translations are packaged
-        # Fail the release if the compiled .mo catalogs are missing from the
-        # built wheel. Without this guard a gitignore/packaging mistake would
-        # silently ship a distribution with no translations (gettext then
-        # falls back to English).
+      - name: Verify wheel and sdist contents
+        # Fail the release if the compiled .mo catalogs or the py.typed marker
+        # are missing from either built artifact. Without this guard a
+        # gitignore/packaging mistake would silently ship a distribution with no
+        # translations (gettext then falls back to English) or without the PEP
+        # 561 typing marker.
         run: |
           python - <<'EOF'
-          import glob, sys, zipfile
-          wheel = glob.glob('dist/*.whl')[0]
-          mo = [n for n in zipfile.ZipFile(wheel).namelist() if n.endswith('.mo')]
-          print('Compiled catalogs in wheel:', mo)
-          if not mo:
-              sys.exit('ERROR: no .mo translation files found in the built wheel')
+          import glob, sys, tarfile, zipfile
+
+          required = [
+              'compatibility/locales/de/LC_MESSAGES/compatibility.mo',
+              'compatibility/py.typed',
+          ]
+
+          def names(path):
+              if path.endswith('.whl'):
+                  return zipfile.ZipFile(path).namelist()
+              with tarfile.open(path, 'r:gz') as tar:
+                  return tar.getnames()
+
+          artifacts = sorted(glob.glob('dist/*.whl') + glob.glob('dist/*.tar.gz'))
+          if not any(p.endswith('.whl') for p in artifacts):
+              sys.exit('ERROR: no wheel found in dist/')
+          if not any(p.endswith('.tar.gz') for p in artifacts):
+              sys.exit('ERROR: no sdist found in dist/')
+
+          errors = []
+          for path in artifacts:
+              entries = names(path)
+              for suffix in required:
+                  if any(n.endswith(suffix) for n in entries):
+                      print(f'OK: {path} contains {suffix}')
+                  else:
+                      errors.append(f'{path} is missing {suffix}')
+
+          if errors:
+              sys.exit('ERROR: ' + '; '.join(errors))
+          print('All required files present in wheel and sdist.')
           EOF
 
       - name: Install Twine
