@@ -11,7 +11,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 - Build system: Poetry (pyproject.toml)
 - Dependencies: None (uses only Python stdlib)
 - Type hints: Full PEP 484 compliance
-- Test coverage: 97% minimum (enforced in CI)
+- Test coverage: 100% (statements and branches), enforced in CI
 - Localization: English and German messages
 
 ## Architecture
@@ -25,22 +25,22 @@ Instructions for AI agents working with the **compatibility** Python package.
 
 **Key files:**
 - `pyproject.toml` - Version number (single source of truth, Poetry managed)
-- `compatibility/err.py` - Custom exceptions (`BadDate`, `ParameterContradiction`)
+- `compatibility/err.py` - Custom exceptions (`BadDate`, `BadDateType`, `ParameterContradiction`)
 - `compatibility/__init__.py` - Package entry point (exposes `Check` class and `err` module)
-- `tests/test_compatibility.py` - Comprehensive test suite (99% coverage target)
+- `tests/test_compatibility.py` - Comprehensive test suite (100% coverage)
 - `compatibility/locales/` - Translation files (.po/.mo) packaged with distribution
 
 ## Development Workflow
 
 **Testing:**
 ```bash
-pytest tests/                                           # Run all tests
-pytest --cov=compatibility --cov-fail-under=97 tests/   # With coverage check
+pytest tests/                                            # Run all tests
+pytest --cov=compatibility --cov-fail-under=100 tests/   # With coverage check
 ```
 
 **Linting & Type Checking:**
 ```bash
-flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+ruff check .          # Rules + complexity (max 10) configured in pyproject.toml
 mypy compatibility/
 ```
 
@@ -52,9 +52,9 @@ poetry build      # Build wheel and sdist
 
 ## CI/CD
 
-**Workflows:** Linux/MacOS/Windows test matrices, coverage, flake8, mypy
+**Workflows:** Linux/MacOS/Windows test matrices, coverage, ruff, mypy
 **Release:** Automated PyPI publish on GitHub release (main branch only)
-**Python versions tested:** 3.10, 3.11, 3.12, 3.13, 3.14
+**Python versions tested:** 3.10, 3.11, 3.12, 3.13, 3.14 (plus an experimental, non-blocking 3.15 beta job)
 
 ## Translation Workflow
 
@@ -82,7 +82,8 @@ poetry build      # Build wheel and sdist
 
 **Stable API (do not break):**
 - `compatibility.Check` - Main class for validation
-- `compatibility.err.BadDate` - Exception for invalid dates
+- `compatibility.err.BadDate` - Exception for invalid/malformed dates
+- `compatibility.err.BadDateType` - Exception for a wrong-typed `release_date` (subclasses `TypeError`)
 - `compatibility.err.ParameterContradiction` - Exception for conflicting parameters
 - `compatibility.err.CompatibilityException` - Base exception class
 
@@ -94,7 +95,7 @@ poetry build      # Build wheel and sdist
 
 1. **Zero dependencies** - Do not add any external dependencies
 2. **Call in constructor** - Never suggest calling `Check` in `__init__.py`
-3. **Coverage minimum** - 97% coverage required, 99% target
+3. **Coverage** - 100% coverage required (statements and branches), enforced in CI
 4. **Type hints** - All code must have proper type annotations
 5. **Stdlib only** - All features must use Python standard library
 6. **Package logger** - Always use `logging.getLogger('compatibility')`, never root logger
@@ -111,7 +112,7 @@ poetry build      # Build wheel and sdist
 ❌ Use root logger (`logging.*`)
 ❌ Suggest calling `Check` in `__init__.py`
 ❌ Skip type hints
-❌ Reduce test coverage below 97%
+❌ Reduce test coverage below 100%
 ❌ Log at module import time
 ❌ Concatenate translated strings
 ❌ Use f-strings in logger calls
@@ -132,9 +133,9 @@ Before creating a new release:
 
 3. **Quality Checks**
    - [ ] All tests pass: `pytest tests/`
-   - [ ] Coverage ≥ 97%: `pytest --cov=compatibility --cov-fail-under=97 tests/`
+   - [ ] Coverage is 100%: `pytest --cov=compatibility --cov-fail-under=100 tests/`
    - [ ] Type checking passes: `mypy compatibility/`
-   - [ ] Linting passes: `flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
+   - [ ] Linting passes: `ruff check .`
 
 4. **Build & Publish**
    - [ ] Build package: `poetry build`
