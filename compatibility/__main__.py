@@ -192,6 +192,33 @@ class Check():
             # Setting python_version_support is not required
             return None
 
+        self.__validate_python_version_support(python_version_support)
+
+        major = sys.version_info.major
+        minor = sys.version_info.minor
+        releaselevel = sys.version_info.releaselevel
+        # construct strings to search for
+        short_version = f"{major}.{minor}"
+        full_version = f"{short_version}.{releaselevel}"
+
+        self.__enforce_version_compatibility(
+            python_version_support, major, minor, short_version, full_version)
+        self.__warn_if_untested_version(
+            python_version_support, major, minor, full_version)
+        return None
+
+    def __validate_python_version_support(
+            self, python_version_support: PythonVersionSupport) -> None:
+        """Validate the structure and version strings of python_version_support.
+
+        Args:
+            python_version_support: The dict to validate.
+
+        Raises:
+            ValueError: If the dict has the wrong keys, or any of the version
+                strings ('min_version', 'max_tested_version', or any entry of
+                'incompatible_versions') cannot be parsed.
+        """
         # Python version support: missing or additional keys
         if len(python_version_support.keys()) < 3:
             raise ValueError(self._('Parameter python_version_support incomplete!'))
@@ -220,12 +247,27 @@ class Check():
                 raise ValueError(
                     self._('Some string in incompatible_versions cannot be parsed.')
                     )
-        major = sys.version_info.major
-        minor = sys.version_info.minor
-        releaselevel = sys.version_info.releaselevel
-        # construct strings to search for
-        short_version = f"{major}.{minor}"
-        full_version = f"{short_version}.{releaselevel}"
+
+    def __enforce_version_compatibility(
+            self,
+            python_version_support: PythonVersionSupport,
+            major: int,
+            minor: int,
+            short_version: str,
+            full_version: str) -> None:
+        """Raise if the running Python is below minimum or incompatible.
+
+        Args:
+            python_version_support: The validated version support dict.
+            major: Major version of the running interpreter.
+            minor: Minor version of the running interpreter.
+            short_version: Running version as "major.minor".
+            full_version: Running version as "major.minor.releaselevel".
+
+        Raises:
+            RuntimeError: If the running version is below 'min_version' or
+                listed in 'incompatible_versions'.
+        """
         # Is the running version equal or higher than the minimum required?
         match_min = re.match(
             self.VERSION_REGEX,
@@ -249,7 +291,21 @@ class Check():
                 self._("Your version of Python is not compatible with this version of %(package)s. Please check for updates.")
                 % {'package': self.package_name}
                 )
-        # Check if the running version is higher than the highest tested
+
+    def __warn_if_untested_version(
+            self,
+            python_version_support: PythonVersionSupport,
+            major: int,
+            minor: int,
+            full_version: str) -> None:
+        """Warn if the running Python is newer than the highest tested version.
+
+        Args:
+            python_version_support: The validated version support dict.
+            major: Major version of the running interpreter.
+            minor: Minor version of the running interpreter.
+            full_version: Running version as "major.minor.releaselevel".
+        """
         match_h = re.match(
             self.VERSION_REGEX,
             python_version_support['max_tested_version'])
@@ -264,7 +320,6 @@ class Check():
                 self.package_name,
                 python_version_support['max_tested_version']
                 )
-        return None
 
     def check_system(self,
                      system_support: Optional[SystemSupport]) -> None:
