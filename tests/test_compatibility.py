@@ -751,3 +751,10 @@ def test_version_info_logging(caplog):
         release_date=date(2025, 1, 1)
     )
     assert 'You are using compatibility' not in caplog.text
+
+
+def test_compatibility_exception_message():
+    """Base compatibility exceptions preserve the given error message."""
+    exception = err.CompatibilityException('base failure')
+
+    assert str(exception) == 'base failure'

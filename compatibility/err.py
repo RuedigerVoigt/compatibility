@@ -13,8 +13,6 @@ class CompatibilityException(Exception):
     Inherits from Exception and serves as the parent class for all
     custom exceptions in this package.
     """
-    def __init__(self, *args: object, **kwargs: object) -> None:
-        Exception.__init__(self, *args, **kwargs)
 
 
 class ParameterContradiction(ValueError, CompatibilityException):
