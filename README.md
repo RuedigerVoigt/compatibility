@@ -292,6 +292,7 @@ The `compatibility` package may raise the following exceptions:
 * `RuntimeError`: Raised when the Python version or operating system is incompatible with your package.
 * `ValueError`: Raised when invalid parameters are provided to the `Check` class.
 * `compatibility.err.BadDate`: Raised when the `release_date` parameter contains an invalid or malformed date.
+* `compatibility.err.BadDateType`: Raised when the `release_date` parameter is neither a `datetime.date` nor a string. Subclasses `TypeError`.
 * `compatibility.err.ParameterContradiction`: Raised when conflicting parameters are provided (e.g., a system marked as both fully supported and incompatible).
 
 ## Use Cases

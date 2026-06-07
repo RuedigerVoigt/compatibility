@@ -128,7 +128,18 @@ def test_language_messages_actually_work():
 
 def test_release_date():
     # Neither a date object nor a string
-    with pytest.raises(AttributeError):
+    with pytest.raises(err.BadDateType):
+        compatibility.Check(
+            package_name='test',
+            package_version='0.1',
+            release_date=(2021, 1, 1))
+    # BadDateType is also catchable as a plain TypeError and as the library base
+    with pytest.raises(TypeError):
+        compatibility.Check(
+            package_name='test',
+            package_version='0.1',
+            release_date=(2021, 1, 1))
+    with pytest.raises(err.CompatibilityException):
         compatibility.Check(
             package_name='test',
             package_version='0.1',

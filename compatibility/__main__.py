@@ -133,7 +133,7 @@ class Check():
 
         Raises:
             err.BadDate: If string is invalid format or non-existent date.
-            AttributeError: If input is neither string nor datetime.date.
+            err.BadDateType: If input is neither string nor datetime.date.
         """
         if isinstance(date_to_coerce, datetime.date):
             return date_to_coerce
@@ -146,7 +146,7 @@ class Check():
                 raise err.BadDate(
                     self._('Non-existing or incomplete date!')) from bad_date
 
-        raise AttributeError(
+        raise err.BadDateType(
             self._('date_to_coerce must be either string or datetime.date'))
 
     def check_params(self) -> None:

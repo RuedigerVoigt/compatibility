@@ -31,3 +31,13 @@ class BadDate(ValueError, CompatibilityException):
     Raised when release_date cannot be parsed or represents a
     non-existent date (e.g., "2021-02-30").
     """
+
+
+class BadDateType(TypeError, CompatibilityException):
+    """Exception raised when a date argument has an unsupported type.
+
+    Raised when release_date is neither a datetime.date object nor a
+    string. Subclasses TypeError (the conventional error for a wrong
+    argument type) so it can be caught either as a TypeError or as a
+    CompatibilityException.
+    """
