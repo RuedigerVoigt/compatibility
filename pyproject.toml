@@ -1,17 +1,19 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+# Standard PEP 621 project metadata. Poetry-specific build settings live under
+# [tool.poetry] below.
+[project]
 name = "compatibility"
 version = "2.0.0"
 description = "A library that checks whether the running version of Python is compatible and tested. Remind the user to check for updates of the library."
 readme = "README.md"
-authors = ["Rüdiger Voigt <projects@ruediger-voigt.eu>"]
 license = "Apache-2.0"
-homepage = "https://github.com/RuedigerVoigt/compatibility"
-repository = "https://github.com/RuedigerVoigt/compatibility"
-documentation = "https://github.com/RuedigerVoigt/compatibility"
+requires-python = ">=3.10"
+authors = [
+    { name = "Rüdiger Voigt", email = "projects@ruediger-voigt.eu" },
+]
 keywords = ["compatibility", "version-check", "python-version", "testing"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -20,7 +22,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
@@ -33,7 +34,20 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
+# Zero runtime dependencies -- standard library only.
+dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/RuedigerVoigt/compatibility"
+Repository = "https://github.com/RuedigerVoigt/compatibility"
+Documentation = "https://github.com/RuedigerVoigt/compatibility"
+"Bug Tracker" = "https://github.com/RuedigerVoigt/compatibility/issues"
+Changelog = "https://github.com/RuedigerVoigt/compatibility/blob/main/CHANGELOG.md"
+
+[tool.poetry]
+# Poetry-specific build settings only; package metadata is in [project] above.
+# Include the py.typed marker (PEP 561) via the package directory.
+packages = [{ include = "compatibility" }]
 # Force-include the compiled translation catalogs in the built distributions.
 # The .mo files are gitignored (build outputs of compile_translations.py), so
 # Poetry would otherwise exclude them. This override packages them anyway,
@@ -42,23 +56,12 @@ include = [
     { path = "compatibility/locales/**/*.mo", format = ["sdist", "wheel"] },
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0"
 pytest-cov = "^7.1"
 mypy = "^2.1"
 ruff = "^0.15"
 coverage = {extras = ["toml"], version = "^7.14"}
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/RuedigerVoigt/compatibility/issues"
-"Changelog" = "https://github.com/RuedigerVoigt/compatibility/blob/main/CHANGELOG.md"
-
-# Include py.typed marker file for PEP 561 compliance
-[[tool.poetry.packages]]
-include = "compatibility"
 
 [tool.pytest.ini_options]
 console_output_style = "classic"
