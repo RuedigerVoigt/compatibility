@@ -18,6 +18,124 @@ import os
 import struct
 
 
+_PO_ESCAPES = {'n': '\n', 't': '\t', 'r': '\r', '"': '"', '\\': '\\'}
+
+
+def _unescape_po(text):
+    """Decode the backslash escape sequences used inside .po quoted strings.
+
+    Handles the standard set (\\n, \\t, \\r, \\", \\\\). An unknown escape is
+    left untouched (backslash preserved). This is needed so the header entry,
+    which encodes its fields with \\n, becomes real newlines that gettext can
+    parse.
+
+    Args:
+        text: A raw string taken from between the quotes of a .po line.
+
+    Returns:
+        The unescaped string.
+    """
+    result = []
+    i = 0
+    while i < len(text):
+        if text[i] == '\\' and i + 1 < len(text):
+            nxt = text[i + 1]
+            result.append(_PO_ESCAPES.get(nxt, '\\' + nxt))
+            i += 2
+        else:
+            result.append(text[i])
+            i += 1
+    return ''.join(result)
+
+
+def _parse_po(po_file):
+    """Parse a .po file into a {msgid: msgstr} mapping.
+
+    The empty-msgid header entry is preserved so its metadata (Content-Type,
+    Language, Plural-Forms, ...) is carried into the compiled catalog.
+
+    Args:
+        po_file: Path to the source .po file.
+
+    Returns:
+        Dict mapping each msgid to its msgstr (including the '' header entry).
+    """
+    with open(po_file, 'r', encoding='utf-8') as f:
+        lines = f.read().split('\n')
+
+    messages = {}
+    current_msgid = []
+    current_msgstr = []
+    state = None  # tracks whether we're reading a msgid or a msgstr
+
+    def flush():
+        # Save the entry just parsed (including the '' header entry).
+        if current_msgid and current_msgstr:
+            messages[''.join(current_msgid)] = ''.join(current_msgstr)
+
+    for line in lines:
+        line = line.strip()
+        if line.startswith('msgid '):
+            flush()
+            current_msgid[:] = [_unescape_po(line[7:-1])]   # strip 'msgid "' / '"'
+            current_msgstr[:] = []
+            state = 'msgid'
+        elif line.startswith('msgstr '):
+            current_msgstr[:] = [_unescape_po(line[8:-1])]  # strip 'msgstr "' / '"'
+            state = 'msgstr'
+        elif line.startswith('"') and line.endswith('"'):
+            text = _unescape_po(line[1:-1])                 # continuation line
+            if state == 'msgid':
+                current_msgid.append(text)
+            elif state == 'msgstr':
+                current_msgstr.append(text)
+    flush()
+    return messages
+
+
+def _serialize_mo(catalog):
+    """Serialize a message catalog into GNU gettext .mo binary format.
+
+    Args:
+        catalog: Dict mapping msgid to msgstr (including the '' metadata header).
+
+    Returns:
+        The .mo file contents as bytes.
+    """
+    keys = sorted(catalog.keys())
+
+    offsets = []
+    ids = b''
+    strs = b''
+    for key in keys:
+        key_bytes = key.encode('utf-8')
+        val_bytes = catalog[key].encode('utf-8')
+        offsets.append((len(ids), len(key_bytes), len(strs), len(val_bytes)))
+        ids += key_bytes + b'\x00'
+        strs += val_bytes + b'\x00'
+
+    keystart = 7 * 4 + 16 * len(keys)
+    valuestart = keystart + len(ids)
+    koffsets = [(l1, keystart + o1) for o1, l1, _, _ in offsets]
+    voffsets = [(l2, valuestart + o2) for _, _, o2, l2 in offsets]
+
+    output = bytearray()
+    output += struct.pack('<I', 0x950412de)             # magic number (LE)
+    output += struct.pack('<I', 0)                       # version
+    output += struct.pack('<I', len(keys))              # number of entries
+    output += struct.pack('<I', 7 * 4)                  # offset of originals table
+    output += struct.pack('<I', 7 * 4 + len(keys) * 8)  # offset of translations table
+    output += struct.pack('<I', 0)                       # hash table size (unused)
+    output += struct.pack('<I', 0)                       # hash table offset (unused)
+    for length, offset in koffsets:
+        output += struct.pack('<II', length, offset)
+    for length, offset in voffsets:
+        output += struct.pack('<II', length, offset)
+    output += ids
+    output += strs
+    return bytes(output)
+
+
 def compile_po_to_mo(po_file, mo_file):
     """Compile .po to .mo using Python stdlib only (no external dependencies).
 
@@ -25,126 +143,12 @@ def compile_po_to_mo(po_file, mo_file):
         po_file: Path to source .po file
         mo_file: Path to output .mo file
     """
-    # Read and parse .po file
-    with open(po_file, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    messages = {}
-    lines = content.split('\n')
-
-    current_msgid = []
-    current_msgstr = []
-    in_msgid = False
-    in_msgstr = False
-
-    for line in lines:
-        line = line.strip()
-
-        if line.startswith('msgid '):
-            # Save previous entry if exists
-            if current_msgid and current_msgstr:
-                msgid_text = ''.join(current_msgid)
-                msgstr_text = ''.join(current_msgstr)
-                if msgid_text:  # Skip empty (header) entry for now
-                    messages[msgid_text] = msgstr_text
-
-            # Start new msgid
-            current_msgid = [line[7:-1]]  # Remove 'msgid "' and trailing '"'
-            current_msgstr = []
-            in_msgid = True
-            in_msgstr = False
-
-        elif line.startswith('msgstr '):
-            current_msgstr = [line[8:-1]]  # Remove 'msgstr "' and trailing '"'
-            in_msgid = False
-            in_msgstr = True
-
-        elif line.startswith('"') and line.endswith('"'):
-            # Continuation line
-            text = line[1:-1]  # Remove quotes
-            if in_msgid:
-                current_msgid.append(text)
-            elif in_msgstr:
-                current_msgstr.append(text)
-
-    # Don't forget the last entry
-    if current_msgid and current_msgstr:
-        msgid_text = ''.join(current_msgid)
-        msgstr_text = ''.join(current_msgstr)
-        if msgid_text:
-            messages[msgid_text] = msgstr_text
-
-    # Build .mo file with proper UTF-8 metadata header
-    # This header is critical for Python's gettext to use UTF-8 encoding
-    metadata = (
-        "Project-Id-Version: compatibility 2.0.0\n"
-        "Content-Type: text/plain; charset=UTF-8\n"
-        "Content-Transfer-Encoding: 8bit\n"
-    )
-
-    # Create catalog with header
-    catalog = {'': metadata}
-    catalog.update(messages)
-
-    # Sort keys
-    keys = sorted(catalog.keys())
-
-    # Prepare data
-    offsets = []
-    ids = b''
-    strs = b''
-
-    for key in keys:
-        # Encode as UTF-8
-        key_bytes = key.encode('utf-8')
-        val_bytes = catalog[key].encode('utf-8')
-
-        offsets.append((len(ids), len(key_bytes), len(strs), len(val_bytes)))
-        ids += key_bytes + b'\x00'
-        strs += val_bytes + b'\x00'
-
-    # Calculate offsets
-    keystart = 7 * 4 + 16 * len(keys)
-    valuestart = keystart + len(ids)
-
-    # Prepare index arrays
-    koffsets = []
-    voffsets = []
-
-    for o1, l1, o2, l2 in offsets:
-        koffsets.append((l1, keystart + o1))
-        voffsets.append((l2, valuestart + o2))
-
-    # Write .mo file in GNU gettext format
+    # The parsed catalog already includes the '' header entry from the .po
+    # (Content-Type, Language, Plural-Forms, ...), so no metadata is injected
+    # here -- the .po file is the single source of truth.
+    catalog = _parse_po(po_file)
     with open(mo_file, 'wb') as f:
-        # Magic number (little-endian)
-        f.write(struct.pack('<I', 0x950412de))
-        # Version
-        f.write(struct.pack('<I', 0))
-        # Number of entries
-        f.write(struct.pack('<I', len(keys)))
-        # Offset of table with original strings
-        f.write(struct.pack('<I', 7 * 4))
-        # Offset of table with translation strings
-        f.write(struct.pack('<I', 7 * 4 + len(keys) * 8))
-        # Size of hashing table (we don't use it)
-        f.write(struct.pack('<I', 0))
-        # Offset of hashing table
-        f.write(struct.pack('<I', 0))
-
-        # Write original strings index
-        for length, offset in koffsets:
-            f.write(struct.pack('<II', length, offset))
-
-        # Write translation strings index
-        for length, offset in voffsets:
-            f.write(struct.pack('<II', length, offset))
-
-        # Write original strings
-        f.write(ids)
-
-        # Write translation strings
-        f.write(strs)
+        f.write(_serialize_mo(catalog))
 
 
 if __name__ == '__main__':

@@ -9,6 +9,8 @@
     * Bumped GitHub Actions to `actions/checkout@v6` and `actions/setup-python@v6`.
 * Testing:
     * The test suite now compiles the translation catalogs automatically via `tests/conftest.py`, so `pytest` works on a fresh checkout without first running `compile_translations.py`.
+* Code quality:
+    * Refactored the most complex functions into smaller helpers (no behaviour change).
 * Maintenance:
     * Updated the copyright year to 2026.
 
