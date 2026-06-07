@@ -686,6 +686,24 @@ def test_check_version_age_logging(caplog):
     assert 'Please check for updates' in caplog.text
 
 
+def test_check_version_age_random_above_probability(caplog):
+    """Past the threshold, but the random draw lands above the probability:
+    no nag should be logged."""
+    caplog.set_level(logging.INFO)
+    # probability is 0.5; force random.random() to return a value >= 0.5 so the
+    # nag is skipped deterministically.
+    with patch('random.random', return_value=0.9):
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            nag_over_update={
+                    'nag_days_after_release': 3,
+                    'nag_in_hundred': 50
+                })
+    assert 'Please check for updates' not in caplog.text
+
+
 def test_version_info_logging(caplog):
     """Test that version info is logged for packages other than 'compatibility' itself."""
     caplog.set_level(logging.INFO)

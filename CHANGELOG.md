@@ -6,8 +6,9 @@
     * Fixed missing translations in the published distribution. The compiled `.mo` catalogs are gitignored build outputs, so Poetry excluded them from the wheel and sdist and installed users only ever saw English (gettext fell back silently). A `[tool.poetry] include` rule now packages the `.mo` files, and the release workflow fails the build if the wheel does not contain them.
 * CI/CD:
     * Added an experimental Python 3.15 beta job to the Linux, MacOS, and Windows test workflows. It uses `allow-prereleases` and runs with `continue-on-error`, so it surfaces breakage early without failing CI.
-    * Bumped GitHub Actions to `actions/checkout@v6` and `actions/setup-python@v6`.
+    * Bumped GitHub Actions.
     * Replaced flake8 with Ruff for linting; complexity is now enforced (max-complexity 10).
+    * The CI gate now requires 100% test coverage (statements and branches).
 * Testing:
     * The test suite now compiles the translation catalogs automatically via `tests/conftest.py`, so `pytest` works on a fresh checkout without first running `compile_translations.py`.
 * Code quality:

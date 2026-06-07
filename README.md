@@ -1,7 +1,7 @@
 ![Supported Python Versions](https://img.shields.io/pypi/pyversions/compatibility)
 ![pypi version](https://img.shields.io/pypi/v/compatibility)
 ![Last commit](https://img.shields.io/github/last-commit/RuedigerVoigt/compatibility)
-[![Coverage](https://img.shields.io/badge/coverage-98%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
 [![Downloads](https://pepy.tech/badge/compatibility/month)](https://pepy.tech/project/compatibility)
 
 # Python Compatibility Checker for Package Authors
@@ -21,7 +21,7 @@ Compatibility is a lightweight, zero-dependency library that helps Python packag
 ✅ **User-friendly warnings** - Inform users about untested Python versions
 ✅ **OS compatibility checks** - Validate Linux, macOS, and Windows support
 ✅ **Update reminders** - Gently encourage users to check for package updates
-✅ **High test coverage** - 99%+ coverage for reliability
+✅ **High test coverage** - 100% coverage (statements and branches) for reliability
 
 ## Table of Contents
 
@@ -55,7 +55,7 @@ All messages are available in English and German, selectable per-instance.
 
 - **Zero Dependencies**: Pure Python stdlib - no external packages required
 - **Type Safe**: Full type hints ([PEP 484](https://www.python.org/dev/peps/pep-0484/)) for excellent IDE integration
-- **Well Tested**: 97% minimum coverage enforced; typically 98-99%
+- **Well Tested**: 100% coverage (statements and branches), enforced in CI
 - **Python 3.10+**: Supports Python 3.10 through 3.14
 
 ## Installation
