@@ -192,7 +192,8 @@ class Check():
             # Setting python_version_support is not required
             return None
 
-        self.__validate_python_version_support(python_version_support)
+        min_version, max_version = self.__validate_python_version_support(
+            python_version_support)
 
         major = sys.version_info.major
         minor = sys.version_info.minor
@@ -202,17 +203,24 @@ class Check():
         full_version = f"{short_version}.{releaselevel}"
 
         self.__enforce_version_compatibility(
-            python_version_support, major, minor, short_version, full_version)
+            python_version_support, major, minor, short_version, full_version,
+            min_version)
         self.__warn_if_untested_version(
-            python_version_support, major, minor, full_version)
+            python_version_support, major, minor, full_version, max_version)
         return None
 
     def __validate_python_version_support(
-            self, python_version_support: PythonVersionSupport) -> None:
+            self, python_version_support: PythonVersionSupport
+            ) -> tuple[tuple[int, int], tuple[int, int]]:
         """Validate the structure and version strings of python_version_support.
 
         Args:
             python_version_support: The dict to validate.
+
+        Returns:
+            Two (major, minor) tuples: the parsed ``min_version`` and
+            ``max_tested_version``. Parsing here once removes the need to
+            re-parse (and assert-guard) the strings in the comparison helpers.
 
         Raises:
             ValueError: If the dict has the wrong keys, or any of the version
@@ -236,17 +244,22 @@ class Check():
         # Do the Python versions parse?
         # fullmatch instead of match, because with match something like 3.8.x
         # would be recognized.
-        if not re.fullmatch(self.VERSION_REGEX,
-                            python_version_support['min_version']):
+        min_match = re.fullmatch(self.VERSION_REGEX,
+                                 python_version_support['min_version'])
+        if not min_match:
             raise ValueError(self._('Value for key min_version is incorrect.'))
-        if not re.fullmatch(self.VERSION_REGEX,
-                            python_version_support['max_tested_version']):
+        max_match = re.fullmatch(self.VERSION_REGEX,
+                                 python_version_support['max_tested_version'])
+        if not max_match:
             raise ValueError(self._('Value for key max_tested_version incorrect.'))
         for version_string in python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
                 raise ValueError(
                     self._('Some string in incompatible_versions cannot be parsed.')
                     )
+        min_version = (int(min_match.group('major')), int(min_match.group('minor')))
+        max_version = (int(max_match.group('major')), int(max_match.group('minor')))
+        return min_version, max_version
 
     def __enforce_version_compatibility(
             self,
@@ -254,7 +267,8 @@ class Check():
             major: int,
             minor: int,
             short_version: str,
-            full_version: str) -> None:
+            full_version: str,
+            min_version: tuple[int, int]) -> None:
         """Raise if the running Python is below minimum or incompatible.
 
         Args:
@@ -263,20 +277,14 @@ class Check():
             minor: Minor version of the running interpreter.
             short_version: Running version as "major.minor".
             full_version: Running version as "major.minor.releaselevel".
+            min_version: Parsed (major, minor) of the minimum supported version.
 
         Raises:
             RuntimeError: If the running version is below 'min_version' or
                 listed in 'incompatible_versions'.
         """
         # Is the running version equal or higher than the minimum required?
-        match_min = re.match(
-            self.VERSION_REGEX,
-            python_version_support['min_version'])
-        # The value was parsed before, so there is always a value for major_min
-        # and minor_min:
-        assert match_min is not None
-        major_min = int(match_min.group('major'))
-        minor_min = int(match_min.group('minor'))
+        major_min, minor_min = min_version
         if major < major_min or (major_min == major and minor < minor_min):
             raise RuntimeError(
                 self._("You use %(running)s, but need at least %(required)s to run %(package)s.")
@@ -297,7 +305,8 @@ class Check():
             python_version_support: PythonVersionSupport,
             major: int,
             minor: int,
-            full_version: str) -> None:
+            full_version: str,
+            max_version: tuple[int, int]) -> None:
         """Warn if the running Python is newer than the highest tested version.
 
         Args:
@@ -305,14 +314,9 @@ class Check():
             major: Major version of the running interpreter.
             minor: Minor version of the running interpreter.
             full_version: Running version as "major.minor.releaselevel".
+            max_version: Parsed (major, minor) of the highest tested version.
         """
-        match_h = re.match(
-            self.VERSION_REGEX,
-            python_version_support['max_tested_version'])
-        # Same as above. checked before, that there is always a value:
-        assert match_h is not None
-        major_h = int(match_h.group('major'))
-        minor_h = int(match_h.group('minor'))
+        major_h, minor_h = max_version
         if major > major_h or (major == major_h and minor > minor_h):
             logger.warning(
                 self._("You are running Python %s, but your version of %s is only tested up to %s. Please check for updates."),

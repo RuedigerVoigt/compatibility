@@ -16,6 +16,7 @@
     * `nag_over_update` is now validated strictly: a missing key raises a clear `ValueError` instead of a `KeyError`, and non-integer values (e.g. floats) are rejected rather than silently truncated.
 * Code quality:
     * Refactored the most complex functions into smaller helpers (no behaviour change).
+    * Version strings are now parsed once during validation instead of being re-parsed behind `assert` guards, so version checks behave correctly under `python -O` (which strips asserts).
 * Maintenance:
     * Updated the copyright year to 2026.
 
