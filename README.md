@@ -14,14 +14,14 @@ Compatibility is a lightweight, zero-dependency library that helps Python packag
 
 ## Why Use This Library?
 
-✅ **Prevent cryptic runtime errors** - Catch incompatible Python versions before they cause problems
-✅ **Zero dependencies** - Uses only Python's standard library
-✅ **Fully typed** - Complete type hints (PEP 484) for better IDE support
-✅ **Multilingual** - Built-in English and German messages, plus AI-translated French, Dutch, and Spanish
-✅ **User-friendly warnings** - Inform users about untested Python versions
-✅ **OS compatibility checks** - Validate Linux, macOS, and Windows support
-✅ **Update reminders** - Gently encourage users to check for package updates
-✅ **High test coverage** - 100% coverage (statements and branches) for reliability
+- **Prevent cryptic runtime errors** - Catch incompatible Python versions before they cause problems
+- **Zero dependencies** - Uses only Python's standard library
+- **Fully typed** - Complete type hints (PEP 484) for better IDE support
+- **Multilingual** - Built-in English and German messages, plus AI-translated French, Dutch, and Spanish
+- **User-friendly warnings** - Inform users about untested Python versions
+- **OS compatibility checks** - Validate Linux, macOS, and Windows support
+- **Update reminders** - Gently encourage users to check for package updates
+- **High test coverage** - 100% coverage (statements and branches) for reliability
 
 ## Table of Contents
 
@@ -291,6 +291,31 @@ The compatibility package logs at different levels:
 * **WARNING**: Running newer Python than tested, or partial platform support
 * **ERROR**: Incompatible Python version or operating system (also raises exceptions)
 
+### Example Messages
+
+With logging configured, the messages look like the following (the level/name
+prefix comes from your logging setup; here it is Python's `basicConfig` default):
+
+```text
+DEBUG:compatibility:my_package fully supports Linux.
+INFO:compatibility:You are using my_package 1.0.0 (released: 2025-01-01)
+INFO:compatibility:Your version of my_package was released 120 days ago. Please check for updates.
+WARNING:compatibility:my_package has only partial support on Windows.
+WARNING:compatibility:You are running Python 3.15.final, but your version of my_package is only tested up to 3.14. Please check for updates.
+ERROR:compatibility:This version of my_package is incompatible with Windows!
+```
+
+An incompatible Python version (below `min_version`, or listed in
+`incompatible_versions`) is logged the same way and, with the default
+`on_incompatible='raise'`, additionally raises `RuntimeError`:
+
+```text
+ERROR:compatibility:You use Python 3.9.final, but need at least Python 3.10 to run my_package.
+```
+
+The same messages appear translated when you select another language (for
+example `language_messages='de'`).
+
 ## Translations
 
 Each available language has one of the following quality levels:
@@ -329,7 +354,7 @@ Use `incompatible_versions` to block specific Python versions where your package
 Use `max_tested_version` to warn users when they're running your package on newer Python versions you haven't tested yet. This helps manage expectations and reduces false bug reports.
 
 ### When You Drop Support for Old Python Versions
-After dropping Python 3.9 support, use this library to give users a clear error message instead of cryptic import errors or runtime failures.
+After dropping (for example) Python 3.9 support, use this library to give users a clear error message instead of cryptic import errors or runtime failures.
 
 ### When Your Package Only Works on Certain Operating Systems
 Use `system_support` to declare which operating systems (Linux, macOS, Windows) are fully supported, partially supported, or incompatible. For example, if your package uses Linux-specific system calls.
