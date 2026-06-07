@@ -758,3 +758,15 @@ def test_compatibility_exception_message():
     exception = err.CompatibilityException('base failure')
 
     assert str(exception) == 'base failure'
+
+
+def test_version_fallback(monkeypatch):
+    """_get_version falls back to a placeholder when package metadata is absent
+    (e.g. importing from a fresh source checkout that was never installed)."""
+    import importlib.metadata
+
+    def raise_not_found(name):
+        raise importlib.metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(importlib.metadata, 'version', raise_not_found)
+    assert compatibility._get_version() == '0+unknown'

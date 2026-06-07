@@ -10,6 +10,17 @@ from compatibility import err
 
 __all__ = ["Check", "err"]
 
+
+def _get_version() -> str:
+    # Reading the version from installed package metadata fails on a fresh
+    # source checkout (before `pip install -e .` / `poetry install`). Fall back
+    # to a placeholder so importing straight from the source tree still works.
+    try:
+        return importlib.metadata.version("compatibility")
+    except importlib.metadata.PackageNotFoundError:
+        return "0+unknown"
+
+
 NAME = "compatibility"
-__version__ = importlib.metadata.version("compatibility")
+__version__ = _get_version()
 __author__ = "Rüdiger Voigt"
