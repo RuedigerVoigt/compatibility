@@ -27,6 +27,11 @@ from compatibility import err
 logger = logging.getLogger('compatibility')
 logger.addHandler(NullHandler())
 
+# Languages that ship a message catalog. 'en' is the source language; 'de' is
+# reviewed by a native speaker; the others are AI-translated (see their .po
+# headers) pending native review.
+SUPPORTED_LANGUAGES = ('en', 'de', 'fr', 'nl', 'es')
+
 
 class PythonVersionSupport(TypedDict):
     """Type definition for python_version_support parameter."""
@@ -172,7 +177,7 @@ class Check():
         if not self.package_version:
             raise ValueError(self._('Missing package version!'))
         # Is the message language supported?
-        if self.language_messages not in ('en', 'de'):
+        if self.language_messages not in SUPPORTED_LANGUAGES:
             raise ValueError(self._('Invalid value for language_messages!'))
         # Is the incompatibility handling mode valid?
         if self.on_incompatible not in ('raise', 'warn', 'ignore'):

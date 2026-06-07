@@ -14,6 +14,7 @@ Copyright (c) 2021-2026 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 
+import glob
 import os
 import struct
 
@@ -152,10 +153,13 @@ def compile_po_to_mo(po_file, mo_file):
 
 
 if __name__ == '__main__':
-    po_file = 'compatibility/locales/de/LC_MESSAGES/compatibility.po'
-    mo_file = 'compatibility/locales/de/LC_MESSAGES/compatibility.mo'
-
-    print(f"Compiling {po_file} to {mo_file}...")
-    compile_po_to_mo(po_file, mo_file)
-    print(f"Done! Created {mo_file}")
-    print(f"File size: {os.path.getsize(mo_file)} bytes")
+    # Compile every .po catalog under the locales tree (one per language).
+    po_files = sorted(
+        glob.glob('compatibility/locales/**/*.po', recursive=True))
+    if not po_files:
+        print('No .po files found under compatibility/locales/.')
+    for po_file in po_files:
+        mo_file = os.path.splitext(po_file)[0] + '.mo'
+        print(f"Compiling {po_file} to {mo_file}...")
+        compile_po_to_mo(po_file, mo_file)
+        print(f"Done! Created {mo_file} ({os.path.getsize(mo_file)} bytes)")

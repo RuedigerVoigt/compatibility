@@ -1,0 +1,143 @@
+# Dutch translation for the compatibility package.
+# Copyright (c) 2021-2026 Rüdiger Voigt and contributors
+# This file is distributed under the same license as the compatibility package.
+#
+# NOTE: Translated by AI. Not yet reviewed by a native speaker.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: compatibility 2.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-07 12:00+0000\n"
+"PO-Revision-Date: 2026-06-07 12:00+0000\n"
+"Last-Translator: AI (machine translation, unreviewed)\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: compatibility/__main__.py:153
+msgid "Non-existing or incomplete date!"
+msgstr "Niet-bestaande of onvolledige datum!"
+
+#: compatibility/__main__.py:156
+msgid "date_to_coerce must be either string or datetime.date"
+msgstr "date_to_coerce moet een string of datetime.date zijn"
+
+#: compatibility/__main__.py:171
+msgid "Missing package name!"
+msgstr "Ontbrekende pakketnaam!"
+
+#: compatibility/__main__.py:173
+msgid "Missing package version!"
+msgstr "Ontbrekende pakketversie!"
+
+#: compatibility/__main__.py:176
+msgid "Invalid value for language_messages!"
+msgstr "Ongeldige waarde voor language_messages!"
+
+#: compatibility/__main__.py:179
+msgid "Invalid value for on_incompatible!"
+msgstr "Ongeldige waarde voor on_incompatible!"
+
+#: compatibility/__main__.py:242
+msgid "Parameter python_version_support incomplete!"
+msgstr "Parameter python_version_support is onvolledig!"
+
+#: compatibility/__main__.py:245
+msgid "Parameter python_version_support: too many keys!"
+msgstr "Parameter python_version_support: te veel sleutels!"
+
+#: compatibility/__main__.py:253
+msgid "Parameter python_version_support contains unknown keys."
+msgstr "Parameter python_version_support bevat onbekende sleutels."
+
+#: compatibility/__main__.py:260
+msgid "Value for key min_version is incorrect."
+msgstr "De waarde voor sleutel min_version is onjuist."
+
+#: compatibility/__main__.py:264
+msgid "Value for key max_tested_version incorrect."
+msgstr "De waarde voor sleutel max_tested_version is onjuist."
+
+#: compatibility/__main__.py:268
+msgid "Some string in incompatible_versions cannot be parsed."
+msgstr "Een string in incompatible_versions kan niet worden geparseerd."
+
+#: compatibility/__main__.py:300
+msgid "You use %(running)s, but need at least %(required)s to run %(package)s."
+msgstr "U gebruikt %(running)s, maar u hebt minstens %(required)s nodig om %(package)s uit te voeren."
+
+#: compatibility/__main__.py:309
+msgid "Your version of Python is not compatible with this version of %(package)s. Please check for updates."
+msgstr "Uw versie van Python is niet compatibel met deze versie van %(package)s. Controleer op updates."
+
+#: compatibility/__main__.py:332
+msgid "You are running Python %s, but your version of %s is only tested up to %s. Please check for updates."
+msgstr "U voert Python %s uit, maar uw versie van %s is alleen getest tot %s. Controleer op updates."
+
+#: compatibility/__main__.py:362
+msgid "Parameter system_support must be a dictionary"
+msgstr "Parameter system_support moet een dictionary zijn"
+
+#: compatibility/__main__.py:389
+msgid "Unknown key in dictionary system_support"
+msgstr "Onbekende sleutel in dictionary system_support"
+
+#: compatibility/__main__.py:391
+msgid "Use a set to hold values for %s."
+msgstr "Gebruik een set voor de waarden van %s."
+
+#: compatibility/__main__.py:395
+msgid "Invalid system in %s. Allowed: %s"
+msgstr "Ongeldig systeem in %s. Toegestaan: %s"
+
+#: compatibility/__main__.py:412
+msgid "Contradiction: System cannot simultaneously be fully AND only partially supported."
+msgstr "Tegenstrijdigheid: een systeem kan niet tegelijk volledig EN slechts gedeeltelijk worden ondersteund."
+
+#: compatibility/__main__.py:418
+msgid "Contradiction: System cannot have full support AND be incompatible!"
+msgstr "Tegenstrijdigheid: een systeem kan niet volledig worden ondersteund EN incompatibel zijn!"
+
+#: compatibility/__main__.py:434
+msgid "%s fully supports %s."
+msgstr "%s ondersteunt %s volledig."
+
+#: compatibility/__main__.py:438
+msgid "%s has only partial support on %s."
+msgstr "%s heeft slechts gedeeltelijke ondersteuning op %s."
+
+#: compatibility/__main__.py:443
+msgid "This version of %s is incompatible with %s!"
+msgstr "Deze versie van %s is incompatibel met %s!"
+
+#: compatibility/__main__.py:448
+msgid "%s's support for %s is unknown!"
+msgstr "De ondersteuning van %s voor %s is onbekend!"
+
+#: compatibility/__main__.py:479
+msgid "You are using %(package)s %(version)s (released: %(date)s)"
+msgstr "U gebruikt %(package)s %(version)s (uitgebracht: %(date)s)"
+
+#: compatibility/__main__.py:512
+msgid "Your version of %s was released %s days ago. Please check for updates."
+msgstr "Uw versie van %s is %s dagen geleden uitgebracht. Controleer op updates."
+
+#: compatibility/__main__.py:535
+msgid "A key in nag_over_update is missing."
+msgstr "Een sleutel in nag_over_update ontbreekt."
+
+#: compatibility/__main__.py:542
+msgid "Some key in nag_over_update has wrong type!"
+msgstr "Een sleutel in nag_over_update heeft een verkeerd type!"
+
+#: compatibility/__main__.py:544
+msgid "nag_days_after_release must not be negative."
+msgstr "nag_days_after_release mag niet negatief zijn."
+
+#: compatibility/__main__.py:546
+msgid "nag_in_hundred must be int between 0 and 100."
+msgstr "nag_in_hundred moet een geheel getal tussen 0 en 100 zijn."

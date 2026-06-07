@@ -47,6 +47,9 @@ jobs:
 
           required = [
               'compatibility/locales/de/LC_MESSAGES/compatibility.mo',
+              'compatibility/locales/fr/LC_MESSAGES/compatibility.mo',
+              'compatibility/locales/nl/LC_MESSAGES/compatibility.mo',
+              'compatibility/locales/es/LC_MESSAGES/compatibility.mo',
               'compatibility/py.typed',
           ]
 

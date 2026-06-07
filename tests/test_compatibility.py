@@ -77,6 +77,32 @@ def test_languages():
         release_date=date(2021, 1, 1),
         language_messages='de')
 
+    # all shipped languages are accepted
+    for lang in ('en', 'de', 'fr', 'nl', 'es'):
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages=lang)
+
+
+def test_translations_load():
+    """Every non-source catalog resolves a known message to its language."""
+    expected = {
+        'de': 'Fehlender Paketname',
+        'fr': 'Nom de paquet manquant',
+        'nl': 'Ontbrekende pakketnaam',
+        'es': 'Falta el nombre del paquete',
+    }
+    for lang, fragment in expected.items():
+        with pytest.raises(ValueError) as excinfo:
+            compatibility.Check(
+                package_name='',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                language_messages=lang)
+        assert fragment in str(excinfo.value)
+
 
 def test_language_messages_actually_work():
     """Verify that language_messages parameter actually selects the correct translations."""

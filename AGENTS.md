@@ -12,7 +12,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 - Dependencies: None (uses only Python stdlib)
 - Type hints: Full PEP 484 compliance
 - Test coverage: 100% (statements and branches), enforced in CI
-- Localization: English and German messages
+- Localization: English (source) and German (native-reviewed); French and Dutch are AI-translated
 
 ## Architecture
 
@@ -60,22 +60,26 @@ same `.[dev]` set so local and CI tooling stay aligned.
 
 ## Translation Workflow
 
-**Supported languages:** English (default), German (de)
+**Supported languages** (allow-list in `SUPPORTED_LANGUAGES`, validated in `check_params`):
+- `en` - English, source language
+- `de` - German, reviewed by a native speaker
+- `fr` - French, AI-translated (pending native review)
+- `nl` - Dutch, AI-translated (pending native review)
+- `es` - Spanish, AI-translated (pending native review)
 
 **Files:**
-- `locales/compatibility.pot` - Translation template with all translatable strings
-- `locales/de/LC_MESSAGES/compatibility.po` - German translations (human-editable)
-- `locales/de/LC_MESSAGES/compatibility.mo` - Compiled German translations (binary)
-- `compile_translations.py` - Script to compile .po to .mo files
+- `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po` - per-language source catalog (human-editable)
+- `compatibility/locales/<lang>/LC_MESSAGES/compatibility.mo` - compiled catalog (binary, gitignored, built by CI)
+- `compile_translations.py` - compiles every `.po` under `locales/` to `.mo`
 
 **Adding/updating translations:**
-1. Extract strings: Update `locales/compatibility.pot` with any new `_("...")` strings from code
-2. Update .po file: Edit `locales/de/LC_MESSAGES/compatibility.po` with German translations
-3. Compile: Run `python compile_translations.py` to generate .mo file
-4. **Important**: All German translations must be reviewed by a native speaker
+1. Add or edit `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po`.
+2. To add a new language, also add its code to `SUPPORTED_LANGUAGES` in `__main__.py`.
+3. Compile: run `python compile_translations.py` (builds all languages).
+4. **Important**: German must be native-reviewed. AI-translated catalogs must say so in their `.po` header until a native speaker reviews them.
 
 **Translation notes:**
-- Maintain formal "Sie" form in German
+- Maintain formal address (German "Sie"; French "vous"; Dutch "u").
 - Technical terms (e.g., "Dictionary", "Set") may remain in English within error messages
 - Format placeholders (%s, %(name)s) must be preserved exactly
 - Translations are instance-local: `self._translation` and `self._()`
@@ -130,9 +134,8 @@ Before creating a new release:
    - [ ] Ensure version classifiers in `pyproject.toml` match supported Python versions
 
 2. **Translations**
-   - [ ] Extract new translatable strings: Update `.pot` template
-   - [ ] Update `.po` files with new translations
-   - [ ] Compile translations: `python compile_translations.py`
+   - [ ] Add any new `_("...")` strings to every language's `.po` file
+   - [ ] Compile translations: `python compile_translations.py` (builds all languages)
 
 3. **Quality Checks**
    - [ ] All tests pass: `pytest tests/`
