@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 authors = [
     { name = "Rüdiger Voigt", email = "projects@ruediger-voigt.eu" },
 ]
-keywords = ["compatibility", "version-check", "python-version", "testing"]
+keywords = ["compatibility", "version-check", "python-version", "cross-platform", "update-notifier"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
