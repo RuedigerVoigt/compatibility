@@ -49,7 +49,7 @@ python = "^3.10"
 pytest = "^9.0"
 pytest-cov = "^7.1"
 mypy = "^2.1"
-flake8 = "^7.3"
+ruff = "^0.15"
 coverage = {extras = ["toml"], version = "^7.14"}
 
 [tool.poetry.urls]
@@ -82,3 +82,17 @@ skip_covered = false
 [tool.mypy]
 python_version = "3.10"
 strict = true
+
+[tool.ruff]
+# Relaxed line length (the GitHub editor is 127 chars wide).
+line-length = 127
+
+[tool.ruff.lint]
+# pyflakes (F), pycodestyle errors + warnings (E/W), flake8-bugbear (B), and
+# mccabe complexity (C901). Replaces the previous flake8 setup; unlike the old
+# flake8 job -- which ran the complexity check with --exit-zero so it never
+# failed -- every selected rule is now actually enforced.
+select = ["E", "F", "W", "B", "C901"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

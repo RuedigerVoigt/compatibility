@@ -301,7 +301,7 @@ def test_running_wrong_python(caplog):
             'incompatible_versions': [],
             'max_tested_version': '3.0'})
     # major version required is larger than version running
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError):
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -311,7 +311,7 @@ def test_running_wrong_python(caplog):
                 'incompatible_versions': [],
                 'max_tested_version': '9.100'})
     # minor version above is required
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError):
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -321,7 +321,7 @@ def test_running_wrong_python(caplog):
                 'incompatible_versions': [],
                 'max_tested_version': '9.100'})
     # short form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError):
         compatibility.Check(
             package_name='test',
             package_version='1',

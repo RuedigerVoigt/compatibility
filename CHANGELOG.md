@@ -7,6 +7,7 @@
 * CI/CD:
     * Added an experimental Python 3.15 beta job to the Linux, MacOS, and Windows test workflows. It uses `allow-prereleases` and runs with `continue-on-error`, so it surfaces breakage early without failing CI.
     * Bumped GitHub Actions to `actions/checkout@v6` and `actions/setup-python@v6`.
+    * Replaced flake8 with Ruff for linting; complexity is now enforced (max-complexity 10).
 * Testing:
     * The test suite now compiles the translation catalogs automatically via `tests/conftest.py`, so `pytest` works on a fresh checkout without first running `compile_translations.py`.
 * Code quality:
