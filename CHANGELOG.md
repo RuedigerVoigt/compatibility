@@ -13,6 +13,7 @@
     * The test suite now compiles the translation catalogs automatically via `tests/conftest.py`, so `pytest` works on a fresh checkout without first running `compile_translations.py`.
 * Changed:
     * Passing a `release_date` that is neither a `datetime.date` nor a string now raises the new `compatibility.err.BadDateType` (a subclass of `TypeError`) instead of `AttributeError`.
+    * `nag_over_update` is now validated strictly: a missing key raises a clear `ValueError` instead of a `KeyError`, and non-integer values (e.g. floats) are rejected rather than silently truncated.
 * Code quality:
     * Refactored the most complex functions into smaller helpers (no behaviour change).
 * Maintenance:

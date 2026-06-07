@@ -117,6 +117,10 @@ msgid "You are using %(package)s %(version)s (released: %(date)s)"
 msgstr "Sie verwenden %(package)s %(version)s (veröffentlicht: %(date)s)"
 
 #: compatibility/__main__.py:272
+msgid "A key in nag_over_update is missing."
+msgstr "Ein Schlüssel in nag_over_update fehlt."
+
+#: compatibility/__main__.py:272
 msgid "Some key in nag_over_update has wrong type!"
 msgstr "Ein Schlüssel in nag_over_update hat den falschen Typ!"
 

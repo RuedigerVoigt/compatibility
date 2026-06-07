@@ -462,20 +462,12 @@ class Check():
                 (int 0-100, percentage chance of showing nag message).
 
         Raises:
-            ValueError: If nag_days_after_release is negative, if
-                nag_in_hundred is not between 0-100, or if values have
-                wrong type.
+            ValueError: If a key is missing, if a value is not an int, if
+                nag_days_after_release is negative, or if nag_in_hundred is
+                not between 0 and 100.
         """
-        try:
-            nag_days_after_release = int(nag_over_update['nag_days_after_release'])
-            nag_in_hundred = int(nag_over_update['nag_in_hundred'])
-        except ValueError as wrong_type:
-            raise ValueError(
-                self._('Some key in nag_over_update has wrong type!')) from wrong_type
-        if nag_days_after_release < 0:
-            raise ValueError(self._('nag_days_after_release must not be negative.'))
-        if nag_in_hundred < 0 or nag_in_hundred > 100:
-            raise ValueError(self._('nag_in_hundred must be int between 0 and 100.'))
+        nag_days_after_release, nag_in_hundred = self.__validate_nag_over_update(
+            nag_over_update)
         if nag_in_hundred == 0:
             return
         date_delta = datetime.date.today() - self.release_date
@@ -488,3 +480,35 @@ class Check():
                     self.package_name,
                     days_since_release
                     )
+
+    def __validate_nag_over_update(
+            self, nag_over_update: NagOverUpdate) -> tuple[int, int]:
+        """Validate nag_over_update and return its two integer fields.
+
+        Args:
+            nag_over_update: The dict to validate.
+
+        Returns:
+            A tuple of (nag_days_after_release, nag_in_hundred).
+
+        Raises:
+            ValueError: If a key is missing, if a value is not an int (floats
+                and strings are rejected rather than coerced), if
+                nag_days_after_release is negative, or if nag_in_hundred is
+                not between 0 and 100.
+        """
+        required = {'nag_days_after_release', 'nag_in_hundred'}
+        if required - nag_over_update.keys():
+            raise ValueError(self._('A key in nag_over_update is missing.'))
+        nag_days_after_release = nag_over_update['nag_days_after_release']
+        nag_in_hundred = nag_over_update['nag_in_hundred']
+        # Reject non-int values explicitly: int() would silently truncate a
+        # float (3.7 -> 3) or accept a numeric string.
+        if (not isinstance(nag_days_after_release, int)
+                or not isinstance(nag_in_hundred, int)):
+            raise ValueError(self._('Some key in nag_over_update has wrong type!'))
+        if nag_days_after_release < 0:
+            raise ValueError(self._('nag_days_after_release must not be negative.'))
+        if nag_in_hundred < 0 or nag_in_hundred > 100:
+            raise ValueError(self._('nag_in_hundred must be int between 0 and 100.'))
+        return nag_days_after_release, nag_in_hundred

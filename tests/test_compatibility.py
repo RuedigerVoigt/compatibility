@@ -613,7 +613,18 @@ def test_check_version_age():
             })
     assert 'nag_days_after_release must not be negative.' in str(excinfo.value)
 
-    # non integer value
+    # missing key
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            nag_over_update={
+                'nag_in_hundred': 50
+            })
+    assert 'missing' in str(excinfo.value)
+
+    # non integer value (string)
     with pytest.raises(ValueError) as excinfo:
         compatibility.Check(
             package_name='test',
@@ -622,6 +633,18 @@ def test_check_version_age():
             nag_over_update={
                 'nag_days_after_release': 'foo',
                 'nag_in_hundred': 100
+            })
+    assert 'Some key in nag_over_update has wrong type!' in str(excinfo.value)
+
+    # float value is rejected, not silently truncated
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            nag_over_update={
+                'nag_days_after_release': 3.7,
+                'nag_in_hundred': 50
             })
     assert 'Some key in nag_over_update has wrong type!' in str(excinfo.value)
 
