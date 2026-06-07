@@ -110,7 +110,8 @@ class Check():
                 on_incompatible is 'raise' (the default).
             err.BadDate: If release_date is invalid or non-existent.
             err.ParameterContradiction: If system_support contains
-                contradictory entries.
+                contradictory entries, or if min_version is higher than
+                max_tested_version.
         """
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
@@ -214,8 +215,11 @@ class Check():
         Raises:
             ValueError: If python_version_support dict is malformed or
                 contains invalid version strings.
+            err.ParameterContradiction: If 'min_version' is higher than
+                'max_tested_version'.
             RuntimeError: If running Python version is below minimum or is
-                in the incompatible versions list.
+                in the incompatible versions list (and on_incompatible is
+                'raise').
         """
         if not python_version_support:
             # Setting python_version_support is not required
@@ -255,6 +259,8 @@ class Check():
             ValueError: If the dict has the wrong keys, or any of the version
                 strings ('min_version', 'max_tested_version', or any entry of
                 'incompatible_versions') cannot be parsed.
+            err.ParameterContradiction: If 'min_version' is higher than
+                'max_tested_version'.
         """
         # Python version support: missing or additional keys
         if len(python_version_support.keys()) < 3:
@@ -288,6 +294,13 @@ class Check():
                     )
         min_version = (int(min_match.group('major')), int(min_match.group('minor')))
         max_version = (int(max_match.group('major')), int(max_match.group('minor')))
+        # A minimum higher than the highest tested version is a contradictory
+        # configuration (it would wrongly blame the running environment).
+        if min_version > max_version:
+            raise err.ParameterContradiction(
+                self._("min_version (%(min)s) is higher than max_tested_version (%(max)s).")
+                % {'min': python_version_support['min_version'],
+                   'max': python_version_support['max_tested_version']})
         return min_version, max_version
 
     def __enforce_version_compatibility(

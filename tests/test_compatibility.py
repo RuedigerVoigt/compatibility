@@ -343,6 +343,23 @@ def test_python_versions_as_parameters():
     assert 'cannot be parsed.' in str(excinfo.value)
 
 
+def test_min_version_higher_than_max_tested():
+    # min_version above max_tested_version is a contradictory configuration and
+    # must be reported as such (not blamed on the running environment), even
+    # with on_incompatible='ignore'.
+    with pytest.raises(err.ParameterContradiction) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support={
+                'min_version': '3.17',
+                'incompatible_versions': [],
+                'max_tested_version': '3.14'},
+            on_incompatible='ignore')
+    assert 'higher than max_tested_version' in str(excinfo.value)
+
+
 def test_running_wrong_python(caplog):
     # Instead of mocking, create a version string
     # relative to the one running this test:
