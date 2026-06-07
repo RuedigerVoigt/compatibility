@@ -56,7 +56,7 @@ All messages are available in English and German, selectable per-instance.
 - **Zero Dependencies**: Pure Python stdlib - no external packages required
 - **Type Safe**: Full type hints ([PEP 484](https://www.python.org/dev/peps/pep-0484/)) for excellent IDE integration
 - **Well Tested**: 100% coverage (statements and branches), enforced in CI
-- **Python 3.10+**: Supports Python 3.10 through 3.14
+- **Python 3.10+**: Supports Python 3.10 through 3.14. Python 3.15 is already tested against its betas and will be officially supported once it is released.
 
 ## Installation
 
@@ -207,7 +207,7 @@ Salted in that specific version is a relatively young package that will receive 
 
 * `python_version_support`: requires a dictionary with the three following keys:
     * `min_version`: a string with the number of the oldest supported version (like `'3.10'`).
-    * `incompatible_versions`: a list of incompatible versions that will raise the `RuntimeError` exception if they try to run your package.
+    * `incompatible_versions`: a list of incompatible versions that, by default, raise the `RuntimeError` exception if they try to run your package (configurable with `on_incompatible`).
     * `max_tested_version`: the latest version of the interpreter you successfully tested your code with.
 * `nag_over_update` (optional): requires a dictionary with the two following keys:
     * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
@@ -216,7 +216,7 @@ Salted in that specific version is a relatively young package that will receive 
 * `system_support` (optional): allows you to state the level of compatibility between your code and different Operating System groups. This is purposefully done on a very high level: valid inputs are only 'Linux', 'MacOS', and 'Windows' and not specific versions and distributions. The dictionary allows three keys with a set as value each:
     * `full`: The set of operating systems that are tested on production level.
     * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system found running here logs a warning.
-    * `incompatible`: The set of systems of which you know they will fail to run the code properly. If an OS in this set tries to run the code, this will yield a `RuntimeError` exception.
+    * `incompatible`: The set of systems of which you know they will fail to run the code properly. By default, if an OS in this set tries to run the code, this will yield a `RuntimeError` exception (configurable with `on_incompatible`).
 * `on_incompatible` (optional): what to do when the running Python version or operating system is incompatible. One of:
     * `'raise'` (default): raise a `RuntimeError` — the current behaviour.
     * `'warn'`: log a warning and continue.
@@ -230,6 +230,8 @@ Salted in that specific version is a relatively young package that will receive 
 | `partial` | WARNING | No | Should work, but less rigorously tested |
 | `incompatible` | ERROR | Yes (`RuntimeError`) | Known to fail |
 | Not listed | INFO | No | Support status unknown |
+
+The `incompatible` row reflects the default `on_incompatible='raise'`. With `'warn'` it logs a warning and continues; with `'ignore'` it continues silently.
 
 ## Version strings
 
