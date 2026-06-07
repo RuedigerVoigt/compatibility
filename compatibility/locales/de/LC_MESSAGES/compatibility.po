@@ -36,6 +36,10 @@ msgstr "Fehlende Paketversion!"
 msgid "Invalid value for language_messages!"
 msgstr "Ungültiger Wert für language_messages!"
 
+#: compatibility/__main__.py:96
+msgid "Invalid value for on_incompatible!"
+msgstr "Ungültiger Wert für on_incompatible!"
+
 #: compatibility/__main__.py:111
 msgid "Parameter python_version_support incomplete!"
 msgstr "Parameter python_version_support unvollständig!"

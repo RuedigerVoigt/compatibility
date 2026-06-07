@@ -217,6 +217,10 @@ Salted in that specific version is a relatively young package that will receive 
     * `full`: The set of operating systems that are tested on production level.
     * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system found running here logs a warning.
     * `incompatible`: The set of systems of which you know they will fail to run the code properly. If an OS in this set tries to run the code, this will yield a `RuntimeError` exception.
+* `on_incompatible` (optional): what to do when the running Python version or operating system is incompatible. One of:
+    * `'raise'` (default): raise a `RuntimeError` — the current behaviour.
+    * `'warn'`: log a warning and continue.
+    * `'ignore'`: continue silently (logged at DEBUG only). You take responsibility for running in an unsupported environment.
 
 **System Support Behavior:**
 

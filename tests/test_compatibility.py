@@ -498,6 +498,65 @@ def test_check_system_incompatible_systems(caplog):
         assert 'is incompatible with Linux' in caplog.text
 
 
+def test_on_incompatible_invalid_value():
+    # on_incompatible must be one of 'raise', 'warn', 'ignore'
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            on_incompatible='explode')
+    assert 'Invalid value for on_incompatible!' in str(excinfo.value)
+
+
+def test_on_incompatible_warn_os(caplog):
+    # 'warn' logs a warning instead of raising for an incompatible OS
+    caplog.set_level(logging.WARNING)
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        check = compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'incompatible': {'Linux'}},
+            on_incompatible='warn')
+    assert check  # no exception raised
+    assert 'is incompatible with Linux' in caplog.text
+
+
+def test_on_incompatible_ignore_os(caplog):
+    # 'ignore' neither raises nor logs at warning/error level
+    caplog.set_level(logging.WARNING)
+    with patch('platform.system') as system:
+        system.return_value = 'Linux'
+        check = compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            system_support={'incompatible': {'Linux'}},
+            on_incompatible='ignore')
+    assert check
+    assert 'incompatible' not in caplog.text
+
+
+def test_on_incompatible_warn_python(caplog):
+    # 'warn' also covers an incompatible Python version instead of raising
+    caplog.set_level(logging.WARNING)
+    major = sys.version_info.major
+    version_major_above = f"{major + 1}.0"
+    check = compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date(2021, 1, 1),
+        python_version_support={
+            'min_version': version_major_above,
+            'incompatible_versions': [],
+            'max_tested_version': '99.100'},
+        on_incompatible='warn')
+    assert check
+    assert 'need at least' in caplog.text
+
+
 def test_check_system_CONTRADICTIONS():
     with patch('platform.system') as system:
         system.return_value = 'Windows'

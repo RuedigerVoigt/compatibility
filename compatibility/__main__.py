@@ -20,7 +20,7 @@ import platform
 import random
 import re
 import sys
-from typing import Optional, TypedDict, Union
+from typing import Literal, Optional, TypedDict, Union
 
 from compatibility import err
 
@@ -65,7 +65,8 @@ class Check():
                  python_version_support: Optional[PythonVersionSupport] = None,
                  nag_over_update: Optional[NagOverUpdate] = None,
                  language_messages: str = 'en',
-                 system_support: Optional[SystemSupport] = None):
+                 system_support: Optional[SystemSupport] = None,
+                 on_incompatible: Literal['raise', 'warn', 'ignore'] = 'raise'):
         """Initialize compatibility checker and perform all validation checks.
 
         This constructor performs all compatibility checks immediately upon
@@ -88,12 +89,16 @@ class Check():
             system_support: Optional dict with optional keys 'full', 'partial',
                 and 'incompatible', each containing a set of OS names
                 ('Linux', 'MacOS', 'Windows').
+            on_incompatible: What to do when the Python version or OS is
+                incompatible: 'raise' (default, raise RuntimeError), 'warn'
+                (log a warning and continue), or 'ignore' (continue silently).
 
         Raises:
             ValueError: If package_name or package_version is empty, if
-                language_messages is invalid, or if parameters are malformed.
-            RuntimeError: If Python version is incompatible or OS is
-                incompatible.
+                language_messages or on_incompatible is invalid, or if
+                parameters are malformed.
+            RuntimeError: If Python version or OS is incompatible and
+                on_incompatible is 'raise' (the default).
             err.BadDate: If release_date is invalid or non-existent.
             err.ParameterContradiction: If system_support contains
                 contradictory entries.
@@ -101,6 +106,7 @@ class Check():
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.language_messages = language_messages.strip()
+        self.on_incompatible = on_incompatible
         # Create instance-local translation based on language_messages parameter
         # Must be done BEFORE __coerce_date and other methods that use self._()
         self._translation = gettext.translation(
@@ -157,7 +163,8 @@ class Check():
 
         Raises:
             ValueError: If package_name is empty, package_version is empty,
-                or language_messages is not 'en' or 'de'.
+                language_messages is not 'en' or 'de', or on_incompatible is
+                not 'raise', 'warn', or 'ignore'.
         """
         # Parameters might be empty after applying .strip()
         if not self.package_name:
@@ -167,6 +174,9 @@ class Check():
         # Is the message language supported?
         if self.language_messages not in ('en', 'de'):
             raise ValueError(self._('Invalid value for language_messages!'))
+        # Is the incompatibility handling mode valid?
+        if self.on_incompatible not in ('raise', 'warn', 'ignore'):
+            raise ValueError(self._('Invalid value for on_incompatible!'))
 
     def check_python_version(self,
                              python_version_support: Optional[PythonVersionSupport] = None
@@ -286,7 +296,7 @@ class Check():
         # Is the running version equal or higher than the minimum required?
         major_min, minor_min = min_version
         if major < major_min or (major_min == major and minor < minor_min):
-            raise RuntimeError(
+            self.__handle_incompatible(
                 self._("You use %(running)s, but need at least %(required)s to run %(package)s.")
                 % {'required': f"Python {major_min}.{minor_min}",
                    'package': self.package_name,
@@ -295,7 +305,7 @@ class Check():
         # Check if the running version is in the list of incompatible versions
         incompatible = python_version_support['incompatible_versions']
         if short_version in incompatible or full_version in incompatible:
-            raise RuntimeError(
+            self.__handle_incompatible(
                 self._("Your version of Python is not compatible with this version of %(package)s. Please check for updates.")
                 % {'package': self.package_name}
                 )
@@ -429,15 +439,34 @@ class Check():
                 self.package_name, running)
             return None
         if 'incompatible' in system_support and running in system_support['incompatible']:
-            msg = (self._("This version of %s is incompatible with %s!")
-                   % (self.package_name, running))
-            logger.error(msg)
-            raise RuntimeError(msg)
+            self.__handle_incompatible(
+                self._("This version of %s is incompatible with %s!")
+                % (self.package_name, running))
+            return None
 
         # the running system does not appear
         logger.info(self._("%s's support for %s is unknown!"),
                     self.package_name, running)
         return None
+
+    def __handle_incompatible(self, msg: str) -> None:
+        """Act on an incompatible Python version or OS per ``on_incompatible``.
+
+        Args:
+            msg: The fully formatted, translated message describing the
+                incompatibility.
+
+        Raises:
+            RuntimeError: If ``on_incompatible`` is 'raise' (the default).
+        """
+        if self.on_incompatible == 'raise':
+            logger.error(msg)
+            raise RuntimeError(msg)
+        if self.on_incompatible == 'warn':
+            logger.warning(msg)
+            return
+        # 'ignore': stay silent at the user-visible levels, but leave a trace.
+        logger.debug(msg)
 
     def log_version_info(self) -> None:
         """Log informational message with package name, version, and release date.
