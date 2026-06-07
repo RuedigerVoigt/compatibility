@@ -292,10 +292,30 @@ class Check():
         if not isinstance(system_support, dict):
             raise ValueError(self._('Parameter system_support must be a dictionary'))
 
-        # Are there only allowed categories and allowed values?
+        self.__validate_system_support(system_support)
+        self.__check_system_contradictions(system_support)
+
+        running = platform.system()
+        # Map Darwin to MacOS for consistency with user-facing API
+        if running == 'Darwin':
+            running = 'MacOS'
+        self.__classify_running_system(system_support, running)
+        return None
+
+    def __validate_system_support(self,
+                                  system_support: SystemSupport) -> None:
+        """Validate that system_support uses only allowed keys and values.
+
+        Args:
+            system_support: The system support dictionary to validate.
+
+        Raises:
+            ValueError: If a key is unknown, a value is not a set, or a set
+                contains an OS name outside {'Linux', 'MacOS', 'Windows'}.
+        """
+        valid_keys = {'full', 'partial', 'incompatible'}
+        valid_systems = {'Linux', 'Windows', 'MacOS'}
         for key, systems in system_support.items():
-            valid_keys = {'full', 'partial', 'incompatible'}
-            valid_systems = {'Linux', 'Windows', 'MacOS'}
             if key not in valid_keys:
                 raise ValueError(self._('Unknown key in dictionary system_support'))
             if not isinstance(systems, set):
@@ -306,6 +326,17 @@ class Check():
                         self._("Invalid system in %s. Allowed: %s")
                         % (key, valid_systems))
 
+    def __check_system_contradictions(self,
+                                      system_support: SystemSupport) -> None:
+        """Detect systems listed in mutually exclusive support categories.
+
+        Args:
+            system_support: The system support dictionary to check.
+
+        Raises:
+            err.ParameterContradiction: If an OS appears in both 'full' and
+                'partial', or in both 'full' and 'incompatible'.
+        """
         if 'full' in system_support and 'partial' in system_support:
             if system_support['full'] & system_support['partial']:
                 raise err.ParameterContradiction(
@@ -317,11 +348,18 @@ class Check():
                 raise err.ParameterContradiction(
                     self._("Contradiction: System cannot have full support AND be incompatible!"))
 
-        running = platform.system()
-        # Map Darwin to MacOS for consistency with user-facing API
-        if running == 'Darwin':
-            running = 'MacOS'
+    def __classify_running_system(self,
+                                  system_support: SystemSupport,
+                                  running: str) -> None:
+        """Log the support status of the running OS and raise if incompatible.
 
+        Args:
+            system_support: The system support dictionary.
+            running: The name of the running operating system.
+
+        Raises:
+            RuntimeError: If the running OS is in the 'incompatible' set.
+        """
         if 'full' in system_support and running in system_support['full']:
             logger.debug(
                 self._("%s fully supports %s."), self.package_name, running)
