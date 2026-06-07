@@ -760,6 +760,32 @@ def test_compatibility_exception_message():
     assert str(exception) == 'base failure'
 
 
+def test_config_typeddicts_exported():
+    """The config TypedDicts are exported from the package root so consumers
+    can annotate their configuration dictionaries."""
+    from compatibility import (
+        NagOverUpdate,
+        PythonVersionSupport,
+        SystemSupport,
+    )
+
+    for name in ('PythonVersionSupport', 'NagOverUpdate', 'SystemSupport'):
+        assert name in compatibility.__all__
+        assert hasattr(compatibility, name)
+
+    # At runtime a TypedDict value is a plain dict; annotating with it is valid.
+    versions: PythonVersionSupport = {
+        'min_version': '3.10',
+        'incompatible_versions': [],
+        'max_tested_version': '3.14',
+    }
+    nag: NagOverUpdate = {'nag_days_after_release': 30, 'nag_in_hundred': 50}
+    systems: SystemSupport = {'full': {'Linux'}}
+    assert versions['min_version'] == '3.10'
+    assert nag['nag_in_hundred'] == 50
+    assert systems['full'] == {'Linux'}
+
+
 def test_version_fallback(monkeypatch):
     """_get_version falls back to a placeholder when package metadata is absent
     (e.g. importing from a fresh source checkout that was never installed)."""

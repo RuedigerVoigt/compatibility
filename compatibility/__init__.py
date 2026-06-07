@@ -5,10 +5,21 @@ tested. Remind the user to check for updates of the library.
 
 import importlib.metadata
 
-from compatibility.__main__ import Check
+from compatibility.__main__ import (
+    Check,
+    NagOverUpdate,
+    PythonVersionSupport,
+    SystemSupport,
+)
 from compatibility import err
 
-__all__ = ["Check", "err"]
+__all__ = [
+    "Check",
+    "NagOverUpdate",
+    "PythonVersionSupport",
+    "SystemSupport",
+    "err",
+]
 
 
 def _get_version() -> str:

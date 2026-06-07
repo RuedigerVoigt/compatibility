@@ -84,6 +84,7 @@ same `.[dev]` set so local and CI tooling stay aligned.
 
 **Stable API (do not break):**
 - `compatibility.Check` - Main class for validation
+- `compatibility.PythonVersionSupport` / `NagOverUpdate` / `SystemSupport` - TypedDicts for annotating config dicts
 - `compatibility.err.BadDate` - Exception for invalid/malformed dates
 - `compatibility.err.BadDateType` - Exception for a wrong-typed `release_date` (subclasses `TypeError`)
 - `compatibility.err.ParameterContradiction` - Exception for conflicting parameters
