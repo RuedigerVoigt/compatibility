@@ -301,7 +301,7 @@ def test_running_wrong_python(caplog):
             'incompatible_versions': [],
             'max_tested_version': '3.0'})
     # major version required is larger than version running
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as excinfo:
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -310,8 +310,9 @@ def test_running_wrong_python(caplog):
                 'min_version': version_major_above,
                 'incompatible_versions': [],
                 'max_tested_version': '9.100'})
+    assert 'need at least' in str(excinfo.value)
     # minor version above is required
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as excinfo:
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -320,8 +321,9 @@ def test_running_wrong_python(caplog):
                 'min_version': version_minor_above,
                 'incompatible_versions': [],
                 'max_tested_version': '9.100'})
+    assert 'need at least' in str(excinfo.value)
     # short form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as excinfo:
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -330,8 +332,9 @@ def test_running_wrong_python(caplog):
                 'min_version': '0.0',
                 'incompatible_versions': [running_version_short],
                 'max_tested_version': '9.100'})
+    assert 'not compatible' in str(excinfo.value)
     # long form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError) as excinfo:
         compatibility.Check(
             package_name='test',
             package_version='1',
@@ -340,6 +343,7 @@ def test_running_wrong_python(caplog):
                 'min_version': '0.0',
                 'incompatible_versions': [running_version_long],
                 'max_tested_version': '9.100'})
+    assert 'not compatible' in str(excinfo.value)
 
     # Test max_tested_version warning: running version NEWER than tested
     caplog.clear()
@@ -576,17 +580,6 @@ def test_check_system_no_contradictions():
 
 
 def test_check_version_age():
-
-# Test *temporarily* disabled because if the guard clause is there, the mypy unreachable
-# code check, cannot be silenced and there is always an error.
-    # value of nag_over_update is None
-#    my_check = compatibility.Check(
-#        package_name='test',
-#        package_version='1',
-#        release_date=date(2021, 1, 1),
-#        nag_over_update=None)
-#    my_check.check_version_age(None)
-
     # nag_in_hundred is 0
     compatibility.Check(
         package_name='test',
