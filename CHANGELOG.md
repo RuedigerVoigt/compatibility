@@ -2,9 +2,12 @@
 
 ## Upcoming
 
+## Version 2.1.0 (2026-06-07)
+
 * New:
     * Added the `on_incompatible` parameter (`'raise'` (default), `'warn'`, or `'ignore'`) to control how an incompatible Python version or OS is handled. Defaults to the previous raise-on-incompatible behaviour.
     * Added three more languages alongside the existing English and German: French (`fr`), Dutch (`nl`), and Spanish (`es`). These three are AI-translated.
+    * `language_messages` now accepts `'auto'`, which selects the language from the user's environment locale and falls back to English when no matching catalog is available.
 * Bugfixes:
     * Fixed missing translations in the published distribution. The compiled `.mo` catalogs are gitignored build outputs, so Poetry excluded them from the wheel and sdist and installed users only ever saw English (gettext fell back silently). A `[tool.poetry] include` rule now packages the `.mo` files, and the release workflow fails the build if the wheel does not contain them.
 * CI/CD:

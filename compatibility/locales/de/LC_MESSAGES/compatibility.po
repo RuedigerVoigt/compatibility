@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: compatibility 2.0.0\n"
+"Project-Id-Version: compatibility 2.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-07 12:00+0000\n"
 "PO-Revision-Date: 2026-06-07 12:00+0000\n"

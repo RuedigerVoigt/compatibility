@@ -89,8 +89,12 @@ class Check():
                 Python interpreter compatibility.
             nag_over_update: Optional dict with keys 'nag_days_after_release'
                 and 'nag_in_hundred' to prompt users for updates.
-            language_messages: Language for messages, either 'en' (default)
-                or 'de' for German.
+            language_messages: Language for the logged messages. One of
+                'en' (English, default), 'de' (German), 'fr' (French),
+                'nl' (Dutch), 'es' (Spanish), or 'auto'. Any explicit code
+                selects that language; 'auto' detects the language from the
+                user's environment (LANGUAGE/LC_ALL/LC_MESSAGES/LANG) and
+                falls back to English when no matching catalog is available.
             system_support: Optional dict with optional keys 'full', 'partial',
                 and 'incompatible', each containing a set of OS names
                 ('Linux', 'MacOS', 'Windows').
@@ -114,11 +118,18 @@ class Check():
         self.on_incompatible = on_incompatible
         # Create instance-local translation based on language_messages parameter
         # Must be done BEFORE __coerce_date and other methods that use self._()
-        self._translation = gettext.translation(
-            'compatibility',
-            localedir=os.path.join(os.path.dirname(__file__), 'locales'),
-            languages=[self.language_messages],
-            fallback=True)
+        # 'auto' lets gettext choose the language from the environment
+        # (LANGUAGE/LC_ALL/LC_MESSAGES/LANG); any other value selects that
+        # language explicitly. Either way an unavailable catalog falls back to
+        # English via fallback=True.
+        localedir = os.path.join(os.path.dirname(__file__), 'locales')
+        if self.language_messages == 'auto':
+            self._translation = gettext.translation(
+                'compatibility', localedir=localedir, fallback=True)
+        else:
+            self._translation = gettext.translation(
+                'compatibility', localedir=localedir,
+                languages=[self.language_messages], fallback=True)
         self._ = self._translation.gettext
         self.release_date = self.__coerce_date(release_date)
         self.check_params()
@@ -168,16 +179,19 @@ class Check():
 
         Raises:
             ValueError: If package_name is empty, package_version is empty,
-                language_messages is not 'en' or 'de', or on_incompatible is
-                not 'raise', 'warn', or 'ignore'.
+                language_messages is not one of the supported languages or
+                'auto', or on_incompatible is not 'raise', 'warn', or
+                'ignore'.
         """
         # Parameters might be empty after applying .strip()
         if not self.package_name:
             raise ValueError(self._('Missing package name!'))
         if not self.package_version:
             raise ValueError(self._('Missing package version!'))
-        # Is the message language supported?
-        if self.language_messages not in SUPPORTED_LANGUAGES:
+        # Is the message language supported? ('auto' selects it from the
+        # environment and is always allowed.)
+        if (self.language_messages not in SUPPORTED_LANGUAGES
+                and self.language_messages != 'auto'):
             raise ValueError(self._('Invalid value for language_messages!'))
         # Is the incompatibility handling mode valid?
         if self.on_incompatible not in ('raise', 'warn', 'ignore'):

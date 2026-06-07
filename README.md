@@ -125,7 +125,7 @@ class MyAdvancedPackage:
                 'nag_days_after_release': 90,  # Start reminding after 90 days
                 'nag_in_hundred': 25            # Show reminder 25% of the time
             },
-            language_messages='en',  # or 'de' for German
+            language_messages='en',  # 'en', 'de', 'fr', 'nl', 'es', or 'auto'
             system_support={
                 'full': {'Linux', 'MacOS'},     # Fully tested
                 'partial': {'Windows'},          # Should work, less tested
@@ -212,7 +212,7 @@ Salted in that specific version is a relatively young package that will receive 
 * `nag_over_update` (optional): requires a dictionary with the two following keys:
     * `nag_days_after_release`: wait this number of days (`int`) since the release before reminding users to check for an update.
     * `nag_in_hundred`: Whether to nag over a possible update is random, but this sets the probability in the form how many times (int) out of a hundred starts the message is logged. Accordingly 100 means every time.
-* `language_messages` (optional): the language of the messages logged by this — `en` (English), `de` (German), `fr` (French), `nl` (Dutch), or `es` (Spanish). Defaults to English. See [Translations](#translations) for the quality status of each language.
+* `language_messages` (optional): the language of the messages logged by this — `en` (English), `de` (German), `fr` (French), `nl` (Dutch), `es` (Spanish), or `auto`. Defaults to `en`. Any explicit code selects that language; `auto` detects the language from the user's environment locale (`LANGUAGE`/`LC_ALL`/`LC_MESSAGES`/`LANG`) and falls back to English when no matching catalog is available. See [Translations](#translations) for the quality status of each language.
 * `system_support` (optional): allows you to state the level of compatibility between your code and different Operating System groups. This is purposefully done on a very high level: valid inputs are only 'Linux', 'MacOS', and 'Windows' and not specific versions and distributions. The dictionary allows three keys with a set as value each:
     * `full`: The set of operating systems that are tested on production level.
     * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system found running here logs a warning.
@@ -304,6 +304,8 @@ Each available language has one of the following quality levels:
 | Spanish | `es` | Translated by AI (pending native review) |
 
 The AI-translated languages are marked as such in the message catalog (`.po`) header until a native speaker has reviewed them. Corrections and reviews from native speakers are very welcome.
+
+Set `language_messages='auto'` to follow the user's environment locale (`LANGUAGE`/`LC_ALL`/`LC_MESSAGES`/`LANG`); if no matching catalog is available, messages fall back to English.
 
 ## Exceptions
 

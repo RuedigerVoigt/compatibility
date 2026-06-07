@@ -77,13 +77,40 @@ def test_languages():
         release_date=date(2021, 1, 1),
         language_messages='de')
 
-    # all shipped languages are accepted
-    for lang in ('en', 'de', 'fr', 'nl', 'es'):
+    # all shipped languages plus 'auto' are accepted
+    for lang in ('en', 'de', 'fr', 'nl', 'es', 'auto'):
         compatibility.Check(
             package_name='test',
             package_version='1',
             release_date=date(2021, 1, 1),
             language_messages=lang)
+
+
+def test_language_auto_uses_environment_locale(monkeypatch):
+    """language_messages='auto' picks the language from the environment."""
+    for var in ('LC_ALL', 'LC_MESSAGES', 'LANG'):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv('LANGUAGE', 'de')
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages='auto')
+    assert 'Fehlender Paketname' in str(excinfo.value)
+
+
+def test_language_auto_falls_back_to_english(monkeypatch):
+    """language_messages='auto' falls back to English when no catalog matches."""
+    for var in ('LANGUAGE', 'LC_ALL', 'LC_MESSAGES', 'LANG'):
+        monkeypatch.setenv(var, 'xx')
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages='auto')
+    assert 'Missing package name!' in str(excinfo.value)
 
 
 def test_translations_load():

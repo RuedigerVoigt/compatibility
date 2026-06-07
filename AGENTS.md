@@ -66,6 +66,7 @@ same `.[dev]` set so local and CI tooling stay aligned.
 - `fr` - French, AI-translated (pending native review)
 - `nl` - Dutch, AI-translated (pending native review)
 - `es` - Spanish, AI-translated (pending native review)
+- `auto` - not a catalog; selects the language from the environment locale, English fallback
 
 **Files:**
 - `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po` - per-language source catalog (human-editable)
