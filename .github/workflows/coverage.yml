@@ -14,17 +14,10 @@ jobs:
       with:
         python-version: '3.14'
 
-    - name: Install dependencies
+    - name: Install package and dev dependencies
       run: |
         python -m pip install --upgrade pip
-
-    - name: Install test tools
-      run: |
-        pip install pytest
-        pip install pytest-cov
-
-    - name: Install package
-      run: pip install -e .
+        pip install -e ".[dev]"
 
     - name: Compile translations
       run: python compile_translations.py

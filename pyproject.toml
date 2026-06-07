@@ -37,6 +37,17 @@ classifiers = [
 # Zero runtime dependencies -- standard library only.
 dependencies = []
 
+# Development tooling. Install with `pip install -e ".[dev]"`; CI installs the
+# same set so local and CI tooling stay aligned.
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0,<10",
+    "pytest-cov>=7.1,<8",
+    "mypy>=2.1,<3",
+    "ruff>=0.15,<0.16",
+    "coverage[toml]>=7.14,<8",
+]
+
 [project.urls]
 Homepage = "https://github.com/RuedigerVoigt/compatibility"
 Repository = "https://github.com/RuedigerVoigt/compatibility"
@@ -55,13 +66,6 @@ packages = [{ include = "compatibility" }]
 include = [
     { path = "compatibility/locales/**/*.mo", format = ["sdist", "wheel"] },
 ]
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^9.0"
-pytest-cov = "^7.1"
-mypy = "^2.1"
-ruff = "^0.15"
-coverage = {extras = ["toml"], version = "^7.14"}
 
 [tool.pytest.ini_options]
 console_output_style = "classic"

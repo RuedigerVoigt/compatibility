@@ -33,16 +33,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
 
-    - name: Install dependencies
+    - name: Install package and dev dependencies
       run: |
         python -m pip install --upgrade pip
-
-    - name: Install test utilities
-      run: |
-        pip install pytest pytest_mock pyfakefs
-
-    - name: Install package
-      run: pip install -e .
+        pip install -e ".[dev]"
 
     - name: Compile translations
       run: python compile_translations.py

@@ -16,6 +16,7 @@
     * `nag_over_update` is now validated strictly: a missing key raises a clear `ValueError` instead of a `KeyError`, and non-integer values (e.g. floats) are rejected rather than silently truncated.
 * Packaging:
     * Modernized `pyproject.toml` to PEP 621 `[project]` metadata (requires `poetry-core>=2.0.0`).
+    * Dev tooling moved to a `[project.optional-dependencies]` `dev` extra; CI installs `.[dev]` so local and CI tooling match.
 * Code quality:
     * Refactored the most complex functions into smaller helpers (no behaviour change).
     * Version strings are now parsed once during validation instead of being re-parsed behind `assert` guards, so version checks behave correctly under `python -O` (which strips asserts).

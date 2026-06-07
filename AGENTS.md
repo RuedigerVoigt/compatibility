@@ -44,11 +44,13 @@ ruff check .          # Rules + complexity (max 10) configured in pyproject.toml
 mypy compatibility/
 ```
 
-**Build:**
+**Build & dev setup:**
 ```bash
-poetry install    # Install dependencies
-poetry build      # Build wheel and sdist
+pip install -e ".[dev]"   # Editable install with dev tooling (pytest, mypy, ruff, ...)
+poetry build              # Build wheel and sdist
 ```
+Dev dependencies live in `[project.optional-dependencies].dev`; CI installs the
+same `.[dev]` set so local and CI tooling stay aligned.
 
 ## CI/CD
 
