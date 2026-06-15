@@ -60,6 +60,10 @@ msgstr "Wert für Schlüssel min_version ist inkorrekt."
 msgid "Value for key max_tested_version incorrect."
 msgstr "Wert für Schlüssel max_tested_version ist inkorrekt."
 
+#: compatibility/__main__.py:326
+msgid "Value for key incompatible_versions must be a list."
+msgstr "Wert für Schlüssel incompatible_versions muss eine Liste sein."
+
 #: compatibility/__main__.py:294
 msgid "min_version (%(min)s) is higher than max_tested_version (%(max)s)."
 msgstr "min_version (%(min)s) ist höher als max_tested_version (%(max)s)."

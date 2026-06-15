@@ -286,7 +286,8 @@ class Check:
             re-parse (and assert-guard) the strings in the comparison helpers.
 
         Raises:
-            ValueError: If the dict has the wrong keys, or any of the version
+            ValueError: If the dict has the wrong keys, if
+                'incompatible_versions' is not a list, or any of the version
                 strings ('min_version', 'max_tested_version', or any entry of
                 'incompatible_versions') cannot be parsed.
             err.ParameterContradiction: If 'min_version' is higher than
@@ -317,6 +318,12 @@ class Check:
                                  python_version_support['max_tested_version'])
         if not max_match:
             raise ValueError(self._('Value for key max_tested_version incorrect.'))
+        # A bare string here would otherwise be iterated character by character
+        # (yielding a misleading "cannot be parsed" error), and an empty string
+        # would pass silently. Require an actual list.
+        if not isinstance(python_version_support['incompatible_versions'], list):
+            raise ValueError(
+                self._('Value for key incompatible_versions must be a list.'))
         for version_string in python_version_support['incompatible_versions']:
             if not re.fullmatch(self.VERSION_REGEX, version_string):
                 raise ValueError(

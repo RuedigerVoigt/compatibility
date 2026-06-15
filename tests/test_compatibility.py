@@ -430,6 +430,24 @@ def test_python_version_support_not_dict():
     assert 'python_version_support must be a dictionary' in str(excinfo.value)
 
 
+@pytest.mark.parametrize("incompatible", ['3.9', ''],
+                         ids=['bare-string', 'empty-string'])
+def test_incompatible_versions_must_be_a_list(incompatible):
+    # A bare string where a list is expected is rejected with a clear message,
+    # instead of iterating characters (misleading "cannot be parsed") or, for
+    # an empty string, passing silently.
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support={
+                'min_version': '3.10',
+                'incompatible_versions': incompatible,
+                'max_tested_version': '3.14'})
+    assert 'incompatible_versions must be a list' in str(excinfo.value)
+
+
 def test_nag_over_update_not_dict():
     # A non-dict nag_over_update gets a clear ValueError, not a raw
     # AttributeError from calling .keys() on the wrong type.

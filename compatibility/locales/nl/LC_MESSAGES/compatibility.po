@@ -62,6 +62,10 @@ msgstr "De waarde voor sleutel min_version is onjuist."
 msgid "Value for key max_tested_version incorrect."
 msgstr "De waarde voor sleutel max_tested_version is onjuist."
 
+#: compatibility/__main__.py:326
+msgid "Value for key incompatible_versions must be a list."
+msgstr "De waarde voor sleutel incompatible_versions moet een lijst zijn."
+
 #: compatibility/__main__.py:294
 msgid "min_version (%(min)s) is higher than max_tested_version (%(max)s)."
 msgstr "min_version (%(min)s) is hoger dan max_tested_version (%(max)s)."
