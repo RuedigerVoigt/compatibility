@@ -6,6 +6,10 @@ name: MacOS Test
 
 on: [push, pull_request]
 
+# Least-privilege token: this workflow only reads the repository.
+permissions:
+  contents: read
+
 jobs:
   build:
 
