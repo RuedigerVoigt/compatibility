@@ -9,6 +9,8 @@
 * Security:
     * Hardened the CI workflows with least-privilege `permissions: contents: read`, so the `GITHUB_TOKEN` no longer inherits broader default scopes.
     * Pinned all GitHub Actions to full commit SHAs (with a version comment) instead of mutable tags, protecting the pipeline against a compromised or moved tag.
+* CI/CD:
+    * The mypy workflow now type-checks against each matrix Python version (`--python-version`) instead of repeating the same 3.10 analysis twice.
 
 ## Version 2.1.0 (2026-06-07)
 
