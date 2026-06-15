@@ -4,6 +4,9 @@
 
 * New:
     * `release_date` is now sanity-checked: a date more than 60 days in the future (likely a typo such as a wrong year) or more than 8 years in the past (likely never updated) logs a warning. Both only warn and never raise — a near-future date stays valid while developing toward a planned release.
+* Security:
+    * Hardened the CI workflows with least-privilege `permissions: contents: read`, so the `GITHUB_TOKEN` no longer inherits broader default scopes.
+    * Pinned all GitHub Actions to full commit SHAs (with a version comment) instead of mutable tags, protecting the pipeline against a compromised or moved tag.
 
 ## Version 2.1.0 (2026-06-07)
 
