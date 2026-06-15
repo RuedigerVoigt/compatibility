@@ -19,6 +19,17 @@ import pytest
 from compatibility import err
 
 
+# Version strings built relative to the running interpreter, so the version
+# tests stay correct on whatever Python actually runs them.
+_MAJOR = sys.version_info.major
+_MINOR = sys.version_info.minor
+_RELEASELEVEL = sys.version_info.releaselevel
+_RUNNING_SHORT = f"{_MAJOR}.{_MINOR}"
+_RUNNING_LONG = f"{_MAJOR}.{_MINOR}.{_RELEASELEVEL}"
+_MINOR_ABOVE = f"{_MAJOR}.{_MINOR + 1}"
+_MAJOR_ABOVE = f"{_MAJOR + 1}.{_MINOR}"
+
+
 def test_missing_or_empty_parameters():
     "3 parameters are required, the other 3 have defaults."
     # package name missing
@@ -431,20 +442,41 @@ def test_nag_over_update_not_dict():
     assert 'nag_over_update must be a dictionary' in str(excinfo.value)
 
 
-def test_running_wrong_python(caplog):
-    # Instead of mocking, create a version string
-    # relative to the one running this test:
-    major = sys.version_info.major
-    minor = sys.version_info.minor
-    releaselevel = sys.version_info.releaselevel
-    running_version_short = f"{major}.{minor}"
-    running_version_long = f"{major}.{minor}.{releaselevel}"
-    version_minor_above = f"{major}.{minor + 1}"
-    version_major_above = f"{major + 1}.{minor}"
-    # running version is above max tested version
-    # TO Do : check if logging is called
-    # Minimal test version is 3.6, so 3.0
-    compatibility.Check(
+@pytest.mark.parametrize("support, fragment", [
+    pytest.param(
+        {'min_version': _MAJOR_ABOVE, 'incompatible_versions': [],
+         'max_tested_version': '9.100'},
+        'need at least', id='major-below-min'),
+    pytest.param(
+        {'min_version': _MINOR_ABOVE, 'incompatible_versions': [],
+         'max_tested_version': '9.100'},
+        'need at least', id='minor-below-min'),
+    pytest.param(
+        {'min_version': '0.0', 'incompatible_versions': [_RUNNING_SHORT],
+         'max_tested_version': '9.100'},
+        'not compatible', id='short-form-in-incompatible'),
+    pytest.param(
+        {'min_version': '0.0', 'incompatible_versions': [_RUNNING_LONG],
+         'max_tested_version': '9.100'},
+        'not compatible', id='long-form-in-incompatible'),
+])
+def test_incompatible_python_raises(support, fragment):
+    """An unmet min_version, or a running version listed in
+    incompatible_versions, raises RuntimeError. Versions are built relative to
+    the running interpreter so the test holds on any Python."""
+    with pytest.raises(RuntimeError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support=support)
+    assert fragment in str(excinfo.value)
+
+
+def test_running_above_max_tested_is_allowed():
+    """min and max both 3.0: the running interpreter is >= 3.0, so the check
+    passes (it only warns about being newer than tested)."""
+    assert compatibility.Check(
         package_name='test',
         package_version='1',
         release_date=date(2021, 1, 1),
@@ -452,57 +484,19 @@ def test_running_wrong_python(caplog):
             'min_version': '3.0',
             'incompatible_versions': [],
             'max_tested_version': '3.0'})
-    # major version required is larger than version running
-    with pytest.raises(RuntimeError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            python_version_support={
-                'min_version': version_major_above,
-                'incompatible_versions': [],
-                'max_tested_version': '9.100'})
-    assert 'need at least' in str(excinfo.value)
-    # minor version above is required
-    with pytest.raises(RuntimeError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            python_version_support={
-                'min_version': version_minor_above,
-                'incompatible_versions': [],
-                'max_tested_version': '9.100'})
-    assert 'need at least' in str(excinfo.value)
-    # short form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            python_version_support={
-                'min_version': '0.0',
-                'incompatible_versions': [running_version_short],
-                'max_tested_version': '9.100'})
-    assert 'not compatible' in str(excinfo.value)
-    # long form of running  version is in list of incompatible versions
-    with pytest.raises(RuntimeError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            python_version_support={
-                'min_version': '0.0',
-                'incompatible_versions': [running_version_long],
-                'max_tested_version': '9.100'})
-    assert 'not compatible' in str(excinfo.value)
 
-    # Test max_tested_version warning: running version NEWER than tested
-    caplog.clear()
+
+@pytest.mark.parametrize("running_minor, expect_warning", [
+    pytest.param(14, True, id='newer-than-tested-warns'),
+    pytest.param(10, False, id='not-newer-no-warning'),
+])
+def test_max_tested_version_warning(caplog, running_minor, expect_warning):
+    """Running a Python newer than max_tested_version warns; an equal or older
+    version does not."""
     caplog.set_level(logging.WARNING)
     with patch('sys.version_info') as mock_version:
         mock_version.major = 3
-        mock_version.minor = 14
+        mock_version.minor = running_minor
         mock_version.releaselevel = 'final'
         compatibility.Check(
             package_name='test',
@@ -512,25 +506,11 @@ def test_running_wrong_python(caplog):
                 'min_version': '3.10',
                 'incompatible_versions': [],
                 'max_tested_version': '3.12'})
-    assert 'only tested up to 3.12' in caplog.text
-    assert 'Please check for updates' in caplog.text
-
-    # Test max_tested_version no warning: running version OLDER than tested
-    caplog.clear()
-    caplog.set_level(logging.WARNING)
-    with patch('sys.version_info') as mock_version:
-        mock_version.major = 3
-        mock_version.minor = 10
-        mock_version.releaselevel = 'final'
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            python_version_support={
-                'min_version': '3.10',
-                'incompatible_versions': [],
-                'max_tested_version': '3.12'})
-    assert 'only tested up to' not in caplog.text
+    if expect_warning:
+        assert 'only tested up to 3.12' in caplog.text
+        assert 'Please check for updates' in caplog.text
+    else:
+        assert 'only tested up to' not in caplog.text
 
 
 def test_check_system(caplog):
@@ -790,113 +770,56 @@ def test_check_system_no_contradictions():
         )
 
 
-def test_check_version_age():
-    # nag_in_hundred is 0
-    compatibility.Check(
+@pytest.mark.parametrize("nag, fragment", [
+    pytest.param({'nag_days_after_release': -42, 'nag_in_hundred': 100},
+                 'nag_days_after_release must not be negative.',
+                 id='negative-days'),
+    pytest.param({'nag_in_hundred': 50},
+                 'missing', id='missing-key'),
+    pytest.param({'nag_days_after_release': 'foo', 'nag_in_hundred': 100},
+                 'Some key in nag_over_update has wrong type!',
+                 id='string-days'),
+    pytest.param({'nag_days_after_release': 3.7, 'nag_in_hundred': 50},
+                 'Some key in nag_over_update has wrong type!',
+                 id='float-days-rejected-not-truncated'),
+    pytest.param({'nag_days_after_release': 3, 'nag_in_hundred': -100},
+                 'must be int between 0 and 100', id='nag-in-hundred-negative'),
+    pytest.param({'nag_days_after_release': 3, 'nag_in_hundred': 101},
+                 'must be int between 0 and 100', id='nag-in-hundred-above-100'),
+])
+def test_nag_over_update_invalid(nag, fragment):
+    """Malformed nag_over_update values raise ValueError with a clear message."""
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            nag_over_update=nag)
+    assert fragment in str(excinfo.value)
+
+
+# Note: datetime cannot be mocked directly (it is C code), so the release date
+# is calculated relative to today instead. See:
+# https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+@pytest.mark.parametrize("release, nag", [
+    pytest.param(date(2021, 1, 1),
+                 {'nag_days_after_release': 1, 'nag_in_hundred': 0},
+                 id='nag-in-hundred-zero'),
+    pytest.param(date.today() - timedelta(days=7),
+                 {'nag_days_after_release': 100, 'nag_in_hundred': 100},
+                 id='below-threshold'),
+    pytest.param(date.today() - timedelta(days=7),
+                 {'nag_days_after_release': 3, 'nag_in_hundred': 100},
+                 id='above-threshold'),
+])
+def test_nag_over_update_valid(release, nag):
+    """Valid nag_over_update configurations are accepted: zero probability,
+    age below the threshold, and age above the threshold."""
+    assert compatibility.Check(
         package_name='test',
         package_version='1',
-        release_date=date(2021, 1, 1),
-        nag_over_update={
-            'nag_days_after_release': 1,
-            'nag_in_hundred': 0
-        })
-
-    # negative value
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            nag_over_update={
-                'nag_days_after_release': -42,
-                'nag_in_hundred': 100
-            })
-    assert 'nag_days_after_release must not be negative.' in str(excinfo.value)
-
-    # missing key
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            nag_over_update={
-                'nag_in_hundred': 50
-            })
-    assert 'missing' in str(excinfo.value)
-
-    # non integer value (string)
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            nag_over_update={
-                'nag_days_after_release': 'foo',
-                'nag_in_hundred': 100
-            })
-    assert 'Some key in nag_over_update has wrong type!' in str(excinfo.value)
-
-    # float value is rejected, not silently truncated
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=date(2021, 1, 1),
-            nag_over_update={
-                'nag_days_after_release': 3.7,
-                'nag_in_hundred': 50
-            })
-    assert 'Some key in nag_over_update has wrong type!' in str(excinfo.value)
-
-    # Note: Directly mocking datetime will fail, because it is C-Code !
-    # Solution could be partial mocking, see.
-    # https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
-    # However, it is simpler to calculate the release date:
-    a_week_ago = date.today() - timedelta(days=7)
-
-    # days since release below threshold
-    compatibility.Check(
-        package_name='test',
-        package_version='1',
-        release_date=a_week_ago,
-        nag_over_update={
-                'nag_days_after_release': 100,
-                'nag_in_hundred': 100
-            })
-
-    # days since release above threshold
-    compatibility.Check(
-        package_name='test',
-        package_version='1',
-        release_date=a_week_ago,
-        nag_over_update={
-                'nag_days_after_release': 3,
-                'nag_in_hundred': 100
-            })
-
-    # nag_in_hundred negative
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=a_week_ago,
-            nag_over_update={
-                    'nag_days_after_release': 3,
-                    'nag_in_hundred': -100
-                })
-    assert 'must be int between 0 and 100' in str(excinfo.value)
-
-    # nag_in_hundred above 100
-    with pytest.raises(ValueError) as excinfo:
-        compatibility.Check(
-            package_name='test',
-            package_version='1',
-            release_date=a_week_ago,
-            nag_over_update={
-                    'nag_days_after_release': 3,
-                    'nag_in_hundred': 101
-                })
-    assert 'must be int between 0 and 100' in str(excinfo.value)
+        release_date=release,
+        nag_over_update=nag)
 
 
 def test_check_version_age_logging(caplog):
