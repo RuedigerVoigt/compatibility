@@ -61,7 +61,7 @@ def _parse_po(po_file):
     Returns:
         Dict mapping each msgid to its msgstr (including the '' header entry).
     """
-    with open(po_file, 'r', encoding='utf-8') as f:
+    with open(po_file, encoding='utf-8') as f:
         lines = f.read().split('\n')
 
     messages = {}

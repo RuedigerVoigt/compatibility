@@ -20,7 +20,7 @@ import platform
 import random
 import re
 import sys
-from typing import Literal, Optional, TypedDict, Union
+from typing import Literal, TypedDict
 
 from compatibility import err
 
@@ -54,7 +54,7 @@ class SystemSupport(TypedDict, total=False):
     incompatible: set[str]
 
 
-class Check():
+class Check:
     """Main Class of the compatibility package: check Python version
        and time since release."""
 
@@ -73,11 +73,11 @@ class Check():
     def __init__(self,
                  package_name: str,
                  package_version: str,
-                 release_date: Union[datetime.date, str],
-                 python_version_support: Optional[PythonVersionSupport] = None,
-                 nag_over_update: Optional[NagOverUpdate] = None,
+                 release_date: datetime.date | str,
+                 python_version_support: PythonVersionSupport | None = None,
+                 nag_over_update: NagOverUpdate | None = None,
                  language_messages: str = 'en',
-                 system_support: Optional[SystemSupport] = None,
+                 system_support: SystemSupport | None = None,
                  on_incompatible: Literal['raise', 'warn', 'ignore'] = 'raise'):
         """Initialize compatibility checker and perform all validation checks.
 
@@ -149,7 +149,7 @@ class Check():
             self.check_version_age(nag_over_update)
 
     def __coerce_date(
-            self, date_to_coerce: Union[str, datetime.date]) -> datetime.date:
+            self, date_to_coerce: str | datetime.date) -> datetime.date:
         """Convert a string to datetime.date and validate.
 
         Accepts either a datetime.date object (returned as-is) or a string
@@ -226,7 +226,7 @@ class Check():
             raise ValueError(self._('Invalid value for on_incompatible!'))
 
     def check_python_version(self,
-                             python_version_support: Optional[PythonVersionSupport] = None
+                             python_version_support: PythonVersionSupport | None = None
                              ) -> None:
         """Validate that the running Python version is supported.
 
@@ -395,7 +395,7 @@ class Check():
                 )
 
     def check_system(self,
-                     system_support: Optional[SystemSupport]) -> None:
+                     system_support: SystemSupport | None) -> None:
         """Validate operating system compatibility.
 
         Checks whether the current OS (Linux, MacOS, or Windows) is fully
