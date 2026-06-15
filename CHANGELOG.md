@@ -11,6 +11,7 @@
     * Pinned all GitHub Actions to full commit SHAs (with a version comment) instead of mutable tags, protecting the pipeline against a compromised or moved tag.
 * CI/CD:
     * The mypy workflow now type-checks against each matrix Python version (`--python-version`) instead of repeating the same 3.10 analysis twice.
+    * Added `concurrency` groups to the CI workflows so a newer push cancels superseded in-progress runs (the publish workflow is left untouched).
 
 ## Version 2.1.0 (2026-06-07)
 
