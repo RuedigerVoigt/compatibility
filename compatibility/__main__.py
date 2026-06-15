@@ -590,8 +590,8 @@ class Check:
             A tuple of (nag_days_after_release, nag_in_hundred).
 
         Raises:
-            ValueError: If a key is missing, if a value is not an int (floats
-                and strings are rejected rather than coerced), if
+            ValueError: If a key is missing, if a value is not an int (bool,
+                floats, and strings are rejected rather than coerced), if
                 nag_days_after_release is negative, or if nag_in_hundred is
                 not between 0 and 100.
         """
@@ -601,8 +601,11 @@ class Check:
         nag_days_after_release = nag_over_update['nag_days_after_release']
         nag_in_hundred = nag_over_update['nag_in_hundred']
         # Reject non-int values explicitly: int() would silently truncate a
-        # float (3.7 -> 3) or accept a numeric string.
-        if (not isinstance(nag_days_after_release, int)
+        # float (3.7 -> 3) or accept a numeric string. bool is checked first
+        # because it is a subclass of int (True would otherwise pass as 1).
+        if (isinstance(nag_days_after_release, bool)
+                or isinstance(nag_in_hundred, bool)
+                or not isinstance(nag_days_after_release, int)
                 or not isinstance(nag_in_hundred, int)):
             raise ValueError(self._('Some key in nag_over_update has wrong type!'))
         if nag_days_after_release < 0:
