@@ -6,7 +6,7 @@ build-backend = "poetry.core.masonry.api"
 # [tool.poetry] below.
 [project]
 name = "compatibility"
-version = "2.1.0"
+version = "2.2.0"
 description = "A library that checks whether the running version of Python is compatible and tested. Remind the user to check for updates of the library."
 readme = "README.md"
 license = "Apache-2.0"
