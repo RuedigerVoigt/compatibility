@@ -153,3 +153,11 @@ msgstr "La release_date %s está a más de %s días en el futuro. Compruebe que 
 #: compatibility/__main__.py:199
 msgid "The release_date %s is more than %s years in the past. Please check it is correct."
 msgstr "La release_date %s es de hace más de %s años. Compruebe que sea correcta."
+
+#: compatibility/__main__.py:256
+msgid "Parameter python_version_support must be a dictionary"
+msgstr "El parámetro python_version_support debe ser un diccionario"
+
+#: compatibility/__main__.py:566
+msgid "Parameter nag_over_update must be a dictionary"
+msgstr "El parámetro nag_over_update debe ser un diccionario"

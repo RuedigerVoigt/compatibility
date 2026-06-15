@@ -240,8 +240,8 @@ class Check:
                 no version checking is performed.
 
         Raises:
-            ValueError: If python_version_support dict is malformed or
-                contains invalid version strings.
+            ValueError: If python_version_support is not a dict, is malformed,
+                or contains invalid version strings.
             err.ParameterContradiction: If 'min_version' is higher than
                 'max_tested_version'.
             RuntimeError: If running Python version is below minimum or is
@@ -251,6 +251,9 @@ class Check:
         if not python_version_support:
             # Setting python_version_support is not required
             return None
+        if not isinstance(python_version_support, dict):
+            raise ValueError(
+                self._('Parameter python_version_support must be a dictionary'))
 
         min_version, max_version = self.__validate_python_version_support(
             python_version_support)
@@ -554,10 +557,13 @@ class Check:
                 (int 0-100, percentage chance of showing nag message).
 
         Raises:
-            ValueError: If a key is missing, if a value is not an int, if
-                nag_days_after_release is negative, or if nag_in_hundred is
-                not between 0 and 100.
+            ValueError: If nag_over_update is not a dict, a key is missing, a
+                value is not an int, nag_days_after_release is negative, or
+                nag_in_hundred is not between 0 and 100.
         """
+        if not isinstance(nag_over_update, dict):
+            raise ValueError(
+                self._('Parameter nag_over_update must be a dictionary'))
         nag_days_after_release, nag_in_hundred = self.__validate_nag_over_update(
             nag_over_update)
         if nag_in_hundred == 0:

@@ -407,6 +407,30 @@ def test_min_version_higher_than_max_tested():
     assert 'higher than max_tested_version' in str(excinfo.value)
 
 
+def test_python_version_support_not_dict():
+    # A non-dict python_version_support gets a clear ValueError, not a raw
+    # AttributeError from calling .keys() on the wrong type.
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support=['3.10'])
+    assert 'python_version_support must be a dictionary' in str(excinfo.value)
+
+
+def test_nag_over_update_not_dict():
+    # A non-dict nag_over_update gets a clear ValueError, not a raw
+    # AttributeError from calling .keys() on the wrong type.
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            nag_over_update=['nag'])
+    assert 'nag_over_update must be a dictionary' in str(excinfo.value)
+
+
 def test_running_wrong_python(caplog):
     # Instead of mocking, create a version string
     # relative to the one running this test:
