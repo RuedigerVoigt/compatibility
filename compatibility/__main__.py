@@ -63,6 +63,13 @@ class Check():
     VERSION_REGEX = re.compile(
         r"(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<releaselevel>\b(alpha|beta|candidate|final)\b))?")
 
+    # Plausibility bounds for release_date. A date well into the future is
+    # almost always a typo (e.g. a wrong year); a very old date suggests
+    # release_date was never updated. Both only warn -- a near-future date is
+    # legitimate while developing toward a planned release.
+    FUTURE_LIMIT_DAYS = 60
+    PAST_LIMIT_YEARS = 8
+
     def __init__(self,
                  package_name: str,
                  package_version: str,
@@ -134,6 +141,7 @@ class Check():
         self._ = self._translation.gettext
         self.release_date = self.__coerce_date(release_date)
         self.check_params()
+        self.__warn_implausible_release_date()
         self.check_python_version(python_version_support)
         self.check_system(system_support)
         self.log_version_info()
@@ -171,6 +179,25 @@ class Check():
 
         raise err.BadDateType(
             self._('date_to_coerce must be either string or datetime.date'))
+
+    def __warn_implausible_release_date(self) -> None:
+        """Warn (never raise) if release_date is implausibly far off.
+
+        A date more than ``FUTURE_LIMIT_DAYS`` ahead is almost always a typo
+        (e.g. a wrong year), and a date more than ``PAST_LIMIT_YEARS`` old
+        suggests release_date was not updated. Neither is fatal: a near-future
+        date is legitimate while developing toward a planned release, so both
+        cases only log a warning and leave the date usable.
+        """
+        days_from_today = (self.release_date - datetime.date.today()).days
+        if days_from_today > self.FUTURE_LIMIT_DAYS:
+            logger.warning(
+                self._("The release_date %s is more than %s days in the future. Please check it is correct."),
+                self.release_date, self.FUTURE_LIMIT_DAYS)
+        elif days_from_today < -(self.PAST_LIMIT_YEARS * 365):
+            logger.warning(
+                self._("The release_date %s is more than %s years in the past. Please check it is correct."),
+                self.release_date, self.PAST_LIMIT_YEARS)
 
     def check_params(self) -> None:
         """Validate that required parameters are non-empty and valid.

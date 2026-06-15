@@ -2,6 +2,9 @@
 
 ## Upcoming
 
+* New:
+    * `release_date` is now sanity-checked: a date more than 60 days in the future (likely a typo such as a wrong year) or more than 8 years in the past (likely never updated) logs a warning. Both only warn and never raise — a near-future date stays valid while developing toward a planned release.
+
 ## Version 2.1.0 (2026-06-07)
 
 * New:

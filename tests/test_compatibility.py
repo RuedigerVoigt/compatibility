@@ -221,6 +221,53 @@ def test_release_date():
             release_date='2021-13-01')
 
 
+def test_release_date_far_future_warns(caplog):
+    """A release_date more than 60 days ahead is almost certainly a typo and
+    should log a warning (but not raise)."""
+    caplog.set_level(logging.WARNING)
+    far_future = date.today() + timedelta(days=61)
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=far_future)
+    assert 'in the future' in caplog.text
+
+
+def test_release_date_near_future_no_warning(caplog):
+    """A release_date within 60 days ahead (developing toward a planned
+    release) must not warn."""
+    caplog.set_level(logging.WARNING)
+    near_future = date.today() + timedelta(days=30)
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=near_future)
+    assert 'in the future' not in caplog.text
+
+
+def test_release_date_far_past_warns(caplog):
+    """A release_date more than 8 years old suggests it was never updated and
+    should log a warning (but not raise)."""
+    caplog.set_level(logging.WARNING)
+    far_past = date.today() - timedelta(days=365 * 9)
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=far_past)
+    assert 'in the past' in caplog.text
+
+
+def test_release_date_recent_past_no_warning(caplog):
+    """A release_date within the last 8 years must not warn."""
+    caplog.set_level(logging.WARNING)
+    recent = date.today() - timedelta(days=365)
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=recent)
+    assert 'in the past' not in caplog.text
+
+
 def test_python_versions_regex():
     reg_ex = compatibility.Check.VERSION_REGEX
     valid_short = '3.8'

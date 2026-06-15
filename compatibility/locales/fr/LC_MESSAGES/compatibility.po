@@ -145,3 +145,11 @@ msgstr "nag_days_after_release ne doit pas être négatif."
 #: compatibility/__main__.py:546
 msgid "nag_in_hundred must be int between 0 and 100."
 msgstr "nag_in_hundred doit être un entier entre 0 et 100."
+
+#: compatibility/__main__.py:195
+msgid "The release_date %s is more than %s days in the future. Please check it is correct."
+msgstr "La release_date %s est à plus de %s jours dans le futur. Veuillez vérifier qu'elle est correcte."
+
+#: compatibility/__main__.py:199
+msgid "The release_date %s is more than %s years in the past. Please check it is correct."
+msgstr "La release_date %s remonte à plus de %s ans. Veuillez vérifier qu'elle est correcte."
