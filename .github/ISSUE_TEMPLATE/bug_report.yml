@@ -1,0 +1,94 @@
+name: Bug Report
+description: Report a problem with the compatibility library
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug report. Please fill in the fields below so the
+        problem can be reproduced and fixed quickly.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight checklist
+      options:
+        - label: I searched existing issues and this has not been reported yet.
+          required: true
+        - label: I am running a supported Python version (3.10 or newer).
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear description of the bug — what you expected and what actually happened.
+      placeholder: "Check(...) raised X, but I expected Y."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: The smallest snippet that triggers the bug. Rendered as Python — no backticks needed.
+      render: python
+      placeholder: |
+        import compatibility
+
+        compatibility.Check(
+            package_name="my_package",
+            package_version="1.0.0",
+            release_date="2025-01-01",
+        )
+    validations:
+      required: true
+
+  - type: input
+    id: compat-version
+    attributes:
+      label: compatibility version
+      description: From `pip show compatibility` (the Version field).
+      placeholder: "2.2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Output of `python --version`.
+      placeholder: "Python 3.12.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other (describe above)
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: Message language (language_messages)
+      description: The language setting in use, if relevant — en, de, fr, nl, es, or auto.
+      placeholder: "en"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Output from the `compatibility` logger and/or the full traceback. Rendered as a code block.
+      render: shell
+    validations:
+      required: false

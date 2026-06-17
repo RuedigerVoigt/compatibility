@@ -1,0 +1,3 @@
+# Keep the "open a blank issue" option available for feature requests and
+# questions until dedicated templates exist for them.
+blank_issues_enabled: true
