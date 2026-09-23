@@ -70,15 +70,19 @@ same `.[dev]` set so local and CI tooling stay aligned.
 - `auto` - not a catalog; selects the language from the environment locale, English fallback
 
 **Files:**
+- `compatibility/locales/compatibility.pot` - template with every translatable message (generated, tracked; do not edit by hand)
 - `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po` - per-language source catalog (human-editable)
 - `compatibility/locales/<lang>/LC_MESSAGES/compatibility.mo` - compiled catalog (binary, gitignored, built by CI)
-- `compile_translations.py` - compiles every `.po` under `locales/` to `.mo`
+- `compile_translations.py` - compiles every `.po` under `locales/` to `.mo`; with `--extract` it regenerates the `.pot` from the `_('...')` calls in the source
 
 **Adding/updating translations:**
-1. Add or edit `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po`.
-2. To add a new language, also add its code to `SUPPORTED_LANGUAGES` in `core.py`.
-3. Compile: run `python compile_translations.py` (builds all languages).
-4. **Important**: German must be native-reviewed. AI-translated catalogs must say so in their `.po` header until a native speaker reviews them.
+1. After adding or changing a `_('...')` message in the code, run `python compile_translations.py --extract` to regenerate the `.pot`.
+2. Update every `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po` to match.
+3. To add a new language, copy the `.pot` to `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po`, fill in the header and translations, and add its code to `SUPPORTED_LANGUAGES` in `core.py`.
+4. Compile: run `python compile_translations.py` (builds all languages). Untranslated entries are left out, so gettext falls back to English for them.
+5. **Important**: German must be native-reviewed. AI-translated catalogs must say so in their `.po` header until a native speaker reviews them.
+
+Tests in `tests/test_translations.py` fail if the `.pot` is out of date, if a `.po` has missing, obsolete or untranslated messages, or if a translation changes a placeholder.
 
 **Translation notes:**
 - Maintain formal address (German "Sie"; French "vous"; Dutch "u").
@@ -136,6 +140,7 @@ Before creating a new release:
    - [ ] Ensure version classifiers in `pyproject.toml` match supported Python versions
 
 2. **Translations**
+   - [ ] Regenerate the template after message changes: `python compile_translations.py --extract`
    - [ ] Add any new `_("...")` strings to every language's `.po` file
    - [ ] Compile translations: `python compile_translations.py` (builds all languages)
 

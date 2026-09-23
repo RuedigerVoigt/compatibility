@@ -330,6 +330,8 @@ Each available language has one of the following quality levels:
 
 The AI-translated languages are marked as such in the message catalog (`.po`) header until a native speaker has reviewed them. Corrections and reviews from native speakers are very welcome.
 
+To add a new language, start from the template `compatibility/locales/compatibility.pot`, which lists every message.
+
 Set `language_messages='auto'` to follow the user's environment locale (`LANGUAGE`/`LC_ALL`/`LC_MESSAGES`/`LANG`); if no matching catalog is available, messages fall back to English.
 
 ## Exceptions
