@@ -1,7 +1,7 @@
 ![Supported Python Versions](https://img.shields.io/pypi/pyversions/compatibility)
 ![pypi version](https://img.shields.io/pypi/v/compatibility)
 ![Last commit](https://img.shields.io/github/last-commit/RuedigerVoigt/compatibility)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://www.ruediger-voigt.eu/coverage/compatibility/index.html)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 [![Downloads](https://pepy.tech/badge/compatibility/month)](https://pepy.tech/project/compatibility)
 
 # Python Compatibility Checker for Package Authors
