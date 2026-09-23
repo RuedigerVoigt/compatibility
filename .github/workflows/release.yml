@@ -24,16 +24,21 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Install Poetry
+      - name: Install build frontend
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          pip install build
 
       - name: Compile translations
         run: python compile_translations.py
 
       - name: Build package
-        run: poetry build
+        # Use the PEP 517 frontend instead of `poetry build`: it builds in an
+        # isolated environment that honours `[build-system] requires` in
+        # pyproject.toml, so the poetry-core floor pinned there is what actually
+        # builds the release (`poetry build` would use the poetry-core bundled
+        # with whatever Poetry version pip installed).
+        run: python -m build
 
       - name: Verify wheel and sdist contents
         # Fail the release if the compiled .mo catalogs or the py.typed marker
