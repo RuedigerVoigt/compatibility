@@ -7,7 +7,8 @@ that are used by Python's gettext module at runtime.
 Usage:
     python compile_translations.py
 
-The script will compile:
+The script compiles every .po catalog found under compatibility/locales/
+(one per language), writing each .mo file next to its source, e.g.:
     locales/de/LC_MESSAGES/compatibility.po -> locales/de/LC_MESSAGES/compatibility.mo
 
 Copyright (c) 2021-2026 Rüdiger Voigt and contributors
