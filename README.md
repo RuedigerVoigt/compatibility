@@ -56,7 +56,7 @@ All messages are available in English and German (plus AI-translated French, Dut
 - **Zero Dependencies**: Pure Python stdlib - no external packages required
 - **Type Safe**: Full type hints ([PEP 484](https://www.python.org/dev/peps/pep-0484/)) for excellent IDE integration
 - **Well Tested**: 100% coverage (statements and branches), enforced in CI
-- **Python 3.10+**: Supports Python 3.10 through 3.14. Python 3.15 is already tested against its betas and will be officially supported once it is released.
+- **Python 3.10+**: Supports Python 3.10 through 3.14. Python 3.15 is already tested against its release candidates and will be officially supported once it is released.
 
 ## Installation
 

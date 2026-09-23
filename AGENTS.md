@@ -56,7 +56,7 @@ same `.[dev]` set so local and CI tooling stay aligned.
 
 **Workflows:** Linux/MacOS/Windows test matrices, coverage, ruff, mypy
 **Release:** Automated PyPI publish on GitHub release (main branch only)
-**Python versions tested:** 3.10, 3.11, 3.12, 3.13, 3.14 (plus an experimental, non-blocking 3.15 beta job)
+**Python versions tested:** 3.10, 3.11, 3.12, 3.13, 3.14 (plus a required 3.15 job running against the release candidate until 3.15 final is out)
 
 ## Translation Workflow
 
