@@ -940,3 +940,29 @@ def test_version_fallback(monkeypatch):
 
     monkeypatch.setattr(importlib.metadata, 'version', raise_not_found)
     assert compatibility._get_version() == '0+unknown'
+
+
+def test_deprecated_main_import_alias():
+    """The library code moved from compatibility/__main__.py to
+    compatibility/core.py. Old imports from compatibility.__main__ keep
+    working but emit a DeprecationWarning."""
+    import importlib
+    sys.modules.pop('compatibility.__main__', None)
+    with pytest.warns(DeprecationWarning, match='compatibility.__main__'):
+        legacy = importlib.import_module('compatibility.__main__')
+    assert legacy.Check is compatibility.Check
+    assert legacy.SUPPORTED_LANGUAGES == compatibility.core.SUPPORTED_LANGUAGES
+    assert legacy.PythonVersionSupport is compatibility.PythonVersionSupport
+    assert legacy.NagOverUpdate is compatibility.NagOverUpdate
+    assert legacy.SystemSupport is compatibility.SystemSupport
+    assert legacy.logger is compatibility.core.logger
+
+
+def test_run_as_module(capsys, recwarn):
+    """`python -m compatibility` prints name and version, without the
+    DeprecationWarning meant for importers."""
+    import runpy
+    runpy.run_module('compatibility', run_name='__main__', alter_sys=False)
+    assert capsys.readouterr().out == (
+        f"{compatibility.NAME} {compatibility.__version__}\n")
+    assert not [w for w in recwarn if w.category is DeprecationWarning]
