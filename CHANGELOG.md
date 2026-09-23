@@ -1,5 +1,10 @@
 # Changelog compatibility Python library
 
+## Upcoming
+
+* Python 3.15 support
+
+
 ## Version 2.2.0 (2026-06-16)
 
 * New:

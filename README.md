@@ -56,7 +56,7 @@ All messages are available in English and German (plus AI-translated French, Dut
 - **Zero Dependencies**: Pure Python stdlib - no external packages required
 - **Type Safe**: Full type hints ([PEP 484](https://www.python.org/dev/peps/pep-0484/)) for excellent IDE integration
 - **Well Tested**: 100% coverage (statements and branches), enforced in CI
-- **Python 3.10+**: Supports Python 3.10 through 3.14. Python 3.15 is already tested against its release candidates and will be officially supported once it is released.
+- **Python 3.10+**: Supports Python 3.10 through 3.15.
 
 ## Installation
 
@@ -94,7 +94,7 @@ class MyPackage:
             python_version_support={
                 'min_version': '3.10',
                 'incompatible_versions': [],
-                'max_tested_version': '3.14'
+                'max_tested_version': '3.15'
             }
         )
 ```
@@ -119,7 +119,7 @@ class MyAdvancedPackage:
             python_version_support={
                 'min_version': '3.10',
                 'incompatible_versions': ['3.9'],
-                'max_tested_version': '3.14'
+                'max_tested_version': '3.15'
             },
             nag_over_update={
                 'nag_days_after_release': 90,  # Start reminding after 90 days
@@ -183,7 +183,7 @@ class Salted:
             python_version_support={
                 'min_version': '3.10',
                 'incompatible_versions': [],
-                'max_tested_version': '3.14'},
+                'max_tested_version': '3.15'},
             nag_over_update={
                     'nag_days_after_release': 30,
                     'nag_in_hundred': 50},
@@ -192,7 +192,7 @@ class Salted:
                 'full': {'Linux', 'MacOS', 'Windows'}
             })
 ```
-These settings ensure the package runs on Python 3.10 or higher, with testing confirmed through Python 3.14.
+These settings ensure the package runs on Python 3.10 or higher, with testing confirmed through Python 3.15.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
 
 ## Parameters
@@ -301,7 +301,7 @@ DEBUG:compatibility:my_package fully supports Linux.
 INFO:compatibility:You are using my_package 1.0.0 (released: 2025-01-01)
 INFO:compatibility:Your version of my_package was released 120 days ago. Please check for updates.
 WARNING:compatibility:my_package has only partial support on Windows.
-WARNING:compatibility:You are running Python 3.15.final, but your version of my_package is only tested up to 3.14. Please check for updates.
+WARNING:compatibility:You are running Python 3.16.final, but your version of my_package is only tested up to 3.15. Please check for updates.
 ERROR:compatibility:This version of my_package is incompatible with Windows!
 ```
 
