@@ -110,6 +110,8 @@ class Check:
                 (log a warning and continue), or 'ignore' (continue silently).
 
         Raises:
+            TypeError: If package_name, package_version, or
+                language_messages is not a string.
             ValueError: If package_name or package_version is empty, if
                 language_messages or on_incompatible is invalid, or if
                 parameters are malformed.
@@ -120,6 +122,17 @@ class Check:
                 contradictory entries, or if min_version is higher than
                 max_tested_version.
         """
+        # Guard clause: .strip() below only works on strings, so reject other
+        # types with a clear error instead of a raw AttributeError. This runs
+        # before the translation is set up (which depends on
+        # language_messages), so the message is not localized.
+        for name, value in (('package_name', package_name),
+                            ('package_version', package_version),
+                            ('language_messages', language_messages)):
+            if not isinstance(value, str):
+                raise TypeError(
+                    f'Parameter {name} must be a string, '
+                    f'not {type(value).__name__}.')
         self.package_name = package_name.strip()
         self.package_version = package_version.strip()
         self.language_messages = language_messages.strip()

@@ -64,6 +64,25 @@ def test_missing_or_empty_parameters():
             release_date='')
 
 
+@pytest.mark.parametrize("param", ['package_name', 'package_version',
+                                   'language_messages'])
+@pytest.mark.parametrize("bad_value, type_name", [
+    (None, 'NoneType'),
+    (1.0, 'float'),
+    (['test'], 'list'),
+])
+def test_string_parameters_must_be_strings(param, bad_value, type_name):
+    """A non-string raises a clear TypeError naming the parameter and the
+    received type, instead of a raw AttributeError from .strip()."""
+    kwargs = {'package_name': 'test', 'package_version': '1',
+              'release_date': date(2021, 1, 1)}
+    kwargs[param] = bad_value
+    with pytest.raises(TypeError) as excinfo:
+        compatibility.Check(**kwargs)
+    assert str(excinfo.value) == (
+        f'Parameter {param} must be a string, not {type_name}.')
+
+
 def test_languages():
     # not supported language
     with pytest.raises(ValueError) as excinfo:
