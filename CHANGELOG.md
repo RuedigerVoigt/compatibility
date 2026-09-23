@@ -1,8 +1,30 @@
 # Changelog compatibility Python library
 
-## Upcoming
+## Version 2.3.0 (2026-09-23)
 
-* Python 3.15 support
+* New:
+    * Add Python 3.15 support (as tested with the last release candidate)
+* Changed:
+    * The library code moved from `compatibility/__main__.py` to `compatibility/core.py` to avoid warning message. Imports from `compatibility` (e.g. `from compatibility import Check`) are unaffected.
+    * `python -m compatibility` now prints the package name and version.
+    * Passing a non-string `package_name`, `package_version`, or `language_messages` now raises a clear `TypeError` naming the parameter and the received type, instead of a raw `AttributeError`.
+* Translations:
+    * Added `compatibility/locales/compatibility.pot`, the template for new languages. It was gitignored and had fallen out of date. Now it is tracked and regenerated from the source with `python compile_translations.py --extract`.
+    * Additional tests fail when the template is out of date, or when a language catalog has missing, obsolete, or untranslated messages, or a changed placeholder.
+    * Bugfix: `compile_translations.py` no longer writes untranslated entries into the compiled `.mo` file. Previously gettext returned an empty string for them instead of falling back to English (no effect on the shipped catalogs, which are complete).
+* Deprecated:
+    * Importing from `compatibility.__main__` still works but emits a `DeprecationWarning`; this alias will be removed in version 3.
+* CI/CD:
+    * Bumped GitHub Actions.
+    * Dependabot version updates now target the `develop` branch.
+    * Removed unused steps from some workflows.
+* Packaging:
+    * Releases are built with `python -m build` instead of `poetry build`, so the `poetry-core>=2.5.0` floor in `[build-system]` applies.
+    * Raised the dev dependency floors.
+* Housekeeping:
+    * Split the test suite into topic files.
+    * Removed the dead link from the coverage badge in the README.
+    * Added `.gitattributes` to enforce LF line endings.
 
 
 ## Version 2.2.0 (2026-06-16)

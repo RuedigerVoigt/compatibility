@@ -151,7 +151,7 @@ Before creating a new release:
    - [ ] Linting passes: `ruff check .`
 
 4. **Build & Publish**
-   - [ ] Build package: `poetry build`
+   - [ ] Build package: `python -m build` (as the release workflow does; honours the `poetry-core` floor in `[build-system]`)
    - [ ] Test wheel installs correctly
    - [ ] Create GitHub release (triggers automated PyPI publish via CI/CD)
 

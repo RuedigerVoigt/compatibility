@@ -50,7 +50,7 @@ body:
     attributes:
       label: compatibility version
       description: From `pip show compatibility` (the Version field).
-      placeholder: "2.2.0"
+      placeholder: "2.3.0"
     validations:
       required: true
 
@@ -59,7 +59,7 @@ body:
     attributes:
       label: Python version
       description: Output of `python --version`.
-      placeholder: "Python 3.12.4"
+      placeholder: "Python 3.14.4"
     validations:
       required: true
 
@@ -69,7 +69,7 @@ body:
       label: Operating system
       options:
         - Linux
-        - macOS
+        - MacOS
         - Windows
         - Other (describe above)
     validations:
