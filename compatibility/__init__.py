@@ -5,7 +5,7 @@ tested. Remind the user to check for updates of the library.
 
 import importlib.metadata
 
-from compatibility.__main__ import (
+from compatibility.core import (
     Check,
     NagOverUpdate,
     PythonVersionSupport,

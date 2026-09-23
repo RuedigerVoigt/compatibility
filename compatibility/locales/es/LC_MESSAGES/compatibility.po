@@ -18,150 +18,150 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: compatibility/__main__.py:153
+#: compatibility/core.py:153
 msgid "Non-existing or incomplete date!"
 msgstr "¡Fecha inexistente o incompleta!"
 
-#: compatibility/__main__.py:156
+#: compatibility/core.py:156
 msgid "date_to_coerce must be either string or datetime.date"
 msgstr "date_to_coerce debe ser una cadena o datetime.date"
 
-#: compatibility/__main__.py:171
+#: compatibility/core.py:171
 msgid "Missing package name!"
 msgstr "¡Falta el nombre del paquete!"
 
-#: compatibility/__main__.py:173
+#: compatibility/core.py:173
 msgid "Missing package version!"
 msgstr "¡Falta la versión del paquete!"
 
-#: compatibility/__main__.py:176
+#: compatibility/core.py:176
 msgid "Invalid value for language_messages!"
 msgstr "¡Valor no válido para language_messages!"
 
-#: compatibility/__main__.py:179
+#: compatibility/core.py:179
 msgid "Invalid value for on_incompatible!"
 msgstr "¡Valor no válido para on_incompatible!"
 
-#: compatibility/__main__.py:242
+#: compatibility/core.py:242
 msgid "Parameter python_version_support incomplete!"
 msgstr "¡Parámetro python_version_support incompleto!"
 
-#: compatibility/__main__.py:245
+#: compatibility/core.py:245
 msgid "Parameter python_version_support: too many keys!"
 msgstr "Parámetro python_version_support: ¡demasiadas claves!"
 
-#: compatibility/__main__.py:253
+#: compatibility/core.py:253
 msgid "Parameter python_version_support contains unknown keys."
 msgstr "El parámetro python_version_support contiene claves desconocidas."
 
-#: compatibility/__main__.py:260
+#: compatibility/core.py:260
 msgid "Value for key min_version is incorrect."
 msgstr "El valor de la clave min_version es incorrecto."
 
-#: compatibility/__main__.py:264
+#: compatibility/core.py:264
 msgid "Value for key max_tested_version incorrect."
 msgstr "El valor de la clave max_tested_version es incorrecto."
 
-#: compatibility/__main__.py:326
+#: compatibility/core.py:326
 msgid "Value for key incompatible_versions must be a list."
 msgstr "El valor de la clave incompatible_versions debe ser una lista."
 
-#: compatibility/__main__.py:294
+#: compatibility/core.py:294
 msgid "min_version (%(min)s) is higher than max_tested_version (%(max)s)."
 msgstr "min_version (%(min)s) es mayor que max_tested_version (%(max)s)."
 
-#: compatibility/__main__.py:268
+#: compatibility/core.py:268
 msgid "Some string in incompatible_versions cannot be parsed."
 msgstr "No se puede analizar una cadena de incompatible_versions."
 
-#: compatibility/__main__.py:300
+#: compatibility/core.py:300
 msgid "You use %(running)s, but need at least %(required)s to run %(package)s."
 msgstr "Usa %(running)s, pero necesita al menos %(required)s para ejecutar %(package)s."
 
-#: compatibility/__main__.py:309
+#: compatibility/core.py:309
 msgid "Your version of Python is not compatible with this version of %(package)s. Please check for updates."
 msgstr "Su versión de Python no es compatible con esta versión de %(package)s. Compruebe si hay actualizaciones."
 
-#: compatibility/__main__.py:332
+#: compatibility/core.py:332
 msgid "You are running Python %s, but your version of %s is only tested up to %s. Please check for updates."
 msgstr "Está ejecutando Python %s, pero su versión de %s solo se ha probado hasta %s. Compruebe si hay actualizaciones."
 
-#: compatibility/__main__.py:362
+#: compatibility/core.py:362
 msgid "Parameter system_support must be a dictionary"
 msgstr "El parámetro system_support debe ser un diccionario"
 
-#: compatibility/__main__.py:389
+#: compatibility/core.py:389
 msgid "Unknown key in dictionary system_support"
 msgstr "Clave desconocida en el diccionario system_support"
 
-#: compatibility/__main__.py:391
+#: compatibility/core.py:391
 msgid "Use a set to hold values for %s."
 msgstr "Use un set para contener los valores de %s."
 
-#: compatibility/__main__.py:395
+#: compatibility/core.py:395
 msgid "Invalid system in %s. Allowed: %s"
 msgstr "Sistema no válido en %s. Permitidos: %s"
 
-#: compatibility/__main__.py:412
+#: compatibility/core.py:412
 msgid "Contradiction: System cannot simultaneously be fully AND only partially supported."
 msgstr "Contradicción: un sistema no puede tener simultáneamente compatibilidad total Y solo parcial."
 
-#: compatibility/__main__.py:418
+#: compatibility/core.py:418
 msgid "Contradiction: System cannot have full support AND be incompatible!"
 msgstr "¡Contradicción: un sistema no puede tener compatibilidad total Y ser incompatible!"
 
-#: compatibility/__main__.py:434
+#: compatibility/core.py:434
 msgid "%s fully supports %s."
 msgstr "%s es totalmente compatible con %s."
 
-#: compatibility/__main__.py:438
+#: compatibility/core.py:438
 msgid "%s has only partial support on %s."
 msgstr "%s solo tiene compatibilidad parcial en %s."
 
-#: compatibility/__main__.py:443
+#: compatibility/core.py:443
 msgid "This version of %s is incompatible with %s!"
 msgstr "¡Esta versión de %s es incompatible con %s!"
 
-#: compatibility/__main__.py:448
+#: compatibility/core.py:448
 msgid "%s's support for %s is unknown!"
 msgstr "¡La compatibilidad de %s con %s es desconocida!"
 
-#: compatibility/__main__.py:479
+#: compatibility/core.py:479
 msgid "You are using %(package)s %(version)s (released: %(date)s)"
 msgstr "Está usando %(package)s %(version)s (publicado: %(date)s)"
 
-#: compatibility/__main__.py:512
+#: compatibility/core.py:512
 msgid "Your version of %s was released %s days ago. Please check for updates."
 msgstr "Su versión de %s se publicó hace %s días. Compruebe si hay actualizaciones."
 
-#: compatibility/__main__.py:535
+#: compatibility/core.py:535
 msgid "A key in nag_over_update is missing."
 msgstr "Falta una clave en nag_over_update."
 
-#: compatibility/__main__.py:542
+#: compatibility/core.py:542
 msgid "Some key in nag_over_update has wrong type!"
 msgstr "¡Una clave de nag_over_update tiene un tipo incorrecto!"
 
-#: compatibility/__main__.py:544
+#: compatibility/core.py:544
 msgid "nag_days_after_release must not be negative."
 msgstr "nag_days_after_release no debe ser negativo."
 
-#: compatibility/__main__.py:546
+#: compatibility/core.py:546
 msgid "nag_in_hundred must be int between 0 and 100."
 msgstr "nag_in_hundred debe ser un entero entre 0 y 100."
 
-#: compatibility/__main__.py:195
+#: compatibility/core.py:195
 msgid "The release_date %s is more than %s days in the future. Please check it is correct."
 msgstr "La release_date %s está a más de %s días en el futuro. Compruebe que sea correcta."
 
-#: compatibility/__main__.py:199
+#: compatibility/core.py:199
 msgid "The release_date %s is more than %s years in the past. Please check it is correct."
 msgstr "La release_date %s es de hace más de %s años. Compruebe que sea correcta."
 
-#: compatibility/__main__.py:256
+#: compatibility/core.py:256
 msgid "Parameter python_version_support must be a dictionary"
 msgstr "El parámetro python_version_support debe ser un diccionario"
 
-#: compatibility/__main__.py:566
+#: compatibility/core.py:566
 msgid "Parameter nag_over_update must be a dictionary"
 msgstr "El parámetro nag_over_update debe ser un diccionario"

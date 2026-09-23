@@ -16,7 +16,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 
 ## Architecture
 
-**Core module:** `compatibility/__main__.py`
+**Core module:** `compatibility/core.py` (`compatibility/__main__.py` is only the `python -m compatibility` entry point and a deprecated import alias, to be removed in v3)
 - Single `Check` class handles all validation in `__init__` method
 - Must be called in package constructor, NOT in `__init__.py` (to respect user's logging config)
 - Uses regex to parse version strings (format: "3.10" or "3.10.alpha")
@@ -75,7 +75,7 @@ same `.[dev]` set so local and CI tooling stay aligned.
 
 **Adding/updating translations:**
 1. Add or edit `compatibility/locales/<lang>/LC_MESSAGES/compatibility.po`.
-2. To add a new language, also add its code to `SUPPORTED_LANGUAGES` in `__main__.py`.
+2. To add a new language, also add its code to `SUPPORTED_LANGUAGES` in `core.py`.
 3. Compile: run `python compile_translations.py` (builds all languages).
 4. **Important**: German must be native-reviewed. AI-translated catalogs must say so in their `.po` header until a native speaker reviews them.
 
