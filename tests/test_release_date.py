@@ -7,7 +7,7 @@ Copyright (c) 2021-2026 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import logging
 
 import compatibility
@@ -56,6 +56,21 @@ def test_release_date():
             package_name='test',
             package_version='0.1',
             release_date='2021-13-01')
+
+
+@pytest.mark.parametrize("release_date", [
+    pytest.param(datetime(2021, 1, 1, 23, 59), id='datetime-time-dropped'),
+    pytest.param('2021-1-1', id='string-without-leading-zeros'),
+])
+def test_release_date_also_accepted(release_date):
+    """A datetime.datetime (a subclass of date) is reduced to its date
+    instead of failing later, and a string needs no leading zeros."""
+    check = compatibility.Check(
+        package_name='test',
+        package_version='0.1',
+        release_date=release_date)
+    assert check.release_date == date(2021, 1, 1)
+    assert type(check.release_date) is date
 
 
 def _future_date_records(caplog, days_ahead):

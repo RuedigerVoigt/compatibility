@@ -109,8 +109,9 @@ class Check:
         Args:
             package_name: Name of the package using this library.
             package_version: Version string of the package (e.g., "1.2.3").
-            release_date: Release date as datetime.date object or string in
-                format "YYYY-MM-DD".
+            release_date: Release date as datetime.date object (a
+                datetime.datetime is accepted, its time is dropped) or string
+                in format "YYYY-MM-DD".
             python_version_support: Optional dict with keys 'min_version',
                 'max_tested_version', and 'incompatible_versions' to check
                 Python interpreter compatibility.
@@ -191,12 +192,13 @@ class Check:
             self, date_to_coerce: str | datetime.date) -> datetime.date:
         """Convert a string to datetime.date and validate.
 
-        Accepts either a datetime.date object (returned as-is) or a string
-        in YYYY-MM-DD format. Validates that the date exists.
+        Accepts a datetime.date object (returned as-is), a datetime.datetime
+        object (its time is dropped), or a string in YYYY-MM-DD format
+        (leading zeros optional). Validates that the date exists.
 
         Args:
-            date_to_coerce: Either a datetime.date object or a string in
-                format "YYYY-MM-DD".
+            date_to_coerce: A datetime.date or datetime.datetime object, or a
+                string in format "YYYY-MM-DD".
 
         Returns:
             A datetime.date object.
@@ -205,6 +207,10 @@ class Check:
             err.BadDate: If string is invalid format or non-existent date.
             err.BadDateType: If input is neither string nor datetime.date.
         """
+        # datetime.datetime subclasses datetime.date, so it would pass the
+        # check below, but then fail when subtracted from a date.
+        if isinstance(date_to_coerce, datetime.datetime):
+            return date_to_coerce.date()
         if isinstance(date_to_coerce, datetime.date):
             return date_to_coerce
 

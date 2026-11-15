@@ -203,7 +203,7 @@ Salted in that specific version is a relatively young package that will receive 
 
 * `package_name`: the name of your package.
 * `package_version`: the version number of your package as a string.
-* `release_date`: requires a `datetime` object (like `date(2021,1,1)`), or a string in the exact format `YYYY-MM-DD`.
+* `release_date`: a `datetime.date` (like `date(2021, 1, 1)`), or a string in the format `YYYY-MM-DD` (like `'2021-01-01'`; leading zeros are optional). A `datetime.datetime` is accepted too; its time is ignored.
 
 ### Optional Parameters
 
