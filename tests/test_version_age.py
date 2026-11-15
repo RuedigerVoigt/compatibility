@@ -115,6 +115,60 @@ def test_check_version_age_random_above_probability(caplog):
     assert 'Please check for updates' not in caplog.text
 
 
+def test_future_release_date_skips_nag_with_debug_line(caplog):
+    """A future release date never nags, even with the most aggressive
+    settings, and logs a DEBUG line with the date and the days remaining."""
+    caplog.set_level(logging.DEBUG, logger='compatibility')
+    release = date.today() + timedelta(days=10)
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=release,
+        nag_over_update={
+                'nag_days_after_release': 0,
+                'nag_in_hundred': 100
+            })
+    assert 'Please check for updates' not in caplog.text
+    skip_records = [r for r in caplog.records
+                    if 'Skipping the update reminder' in r.getMessage()]
+    assert len(skip_records) == 1
+    assert skip_records[0].levelno == logging.DEBUG
+    assert str(release) in skip_records[0].getMessage()
+    assert 'days remaining: 10' in skip_records[0].getMessage()
+
+
+def test_future_release_date_debug_line_translated(caplog):
+    """The skip message is localized like every other message."""
+    caplog.set_level(logging.DEBUG, logger='compatibility')
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date.today() + timedelta(days=3),
+        language_messages='de',
+        nag_over_update={
+                'nag_days_after_release': 0,
+                'nag_in_hundred': 100
+            })
+    assert 'Update-Erinnerung für test übersprungen' in caplog.text
+    assert 'verbleibende Tage: 3' in caplog.text
+
+
+def test_release_today_nags_without_skip_line(caplog):
+    """On the release day itself the date is not in the future: the nag can
+    fire and no skip line is logged."""
+    caplog.set_level(logging.DEBUG, logger='compatibility')
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date.today(),
+        nag_over_update={
+                'nag_days_after_release': 0,
+                'nag_in_hundred': 100
+            })
+    assert 'Please check for updates' in caplog.text
+    assert 'Skipping the update reminder' not in caplog.text
+
+
 def test_version_info_logging(caplog):
     """Test that version info is logged for packages other than 'compatibility' itself."""
     caplog.set_level(logging.INFO)

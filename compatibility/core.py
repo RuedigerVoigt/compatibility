@@ -590,6 +590,16 @@ class Check:
             return
         date_delta = datetime.date.today() - self.release_date
         days_since_release = date_delta.days
+        if days_since_release < 0:
+            # A future release date can never reach the threshold (it is
+            # validated to be >= 0). Say so, as the skip is otherwise silent.
+            logger.debug(
+                self._("Skipping the update reminder for %(package)s: its release date "
+                       "%(date)s is in the future (days remaining: %(days)s)."),
+                {'package': self.package_name,
+                 'date': self.release_date,
+                 'days': -days_since_release})
+            return
         if days_since_release >= nag_days_after_release:
             probability = nag_in_hundred / 100
             if probability == 1.0 or random.random() < probability:  # nosec

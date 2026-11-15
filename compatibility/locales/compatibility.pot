@@ -159,21 +159,26 @@ msgstr ""
 
 #: compatibility/core.py:597
 #, python-format
+msgid "Skipping the update reminder for %(package)s: its release date %(date)s is in the future (days remaining: %(days)s)."
+msgstr ""
+
+#: compatibility/core.py:607
+#, python-format
 msgid "Your version of %s was released %s days ago. Please check for updates."
 msgstr ""
 
-#: compatibility/core.py:620
+#: compatibility/core.py:630
 msgid "A key in nag_over_update is missing."
 msgstr ""
 
-#: compatibility/core.py:630
+#: compatibility/core.py:640
 msgid "Some key in nag_over_update has wrong type!"
 msgstr ""
 
-#: compatibility/core.py:632
+#: compatibility/core.py:642
 msgid "nag_days_after_release must not be negative."
 msgstr ""
 
-#: compatibility/core.py:634
+#: compatibility/core.py:644
 msgid "nag_in_hundred must be int between 0 and 100."
 msgstr ""

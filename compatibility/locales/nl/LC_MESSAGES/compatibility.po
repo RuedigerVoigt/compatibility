@@ -134,6 +134,10 @@ msgstr "U gebruikt %(package)s %(version)s (uitgebracht: %(date)s)"
 msgid "Your version of %s was released %s days ago. Please check for updates."
 msgstr "Uw versie van %s is %s dagen geleden uitgebracht. Controleer op updates."
 
+#: compatibility/core.py:597
+msgid "Skipping the update reminder for %(package)s: its release date %(date)s is in the future (days remaining: %(days)s)."
+msgstr "Updateherinnering voor %(package)s overgeslagen: de releasedatum %(date)s ligt in de toekomst (resterende dagen: %(days)s)."
+
 #: compatibility/core.py:535
 msgid "A key in nag_over_update is missing."
 msgstr "Een sleutel in nag_over_update ontbreekt."

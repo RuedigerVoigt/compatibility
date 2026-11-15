@@ -1,5 +1,10 @@
 # Changelog compatibility Python library
 
+## Upcoming
+
+* New:
+    * When `nag_over_update` is set and `release_date` is in the future, the update reminder is skipped (as before), but this is now logged at DEBUG level with the release date and the number of days remaining. Previously the skip was silent.
+
 ## Version 2.3.0 (2026-09-23)
 
 * New:

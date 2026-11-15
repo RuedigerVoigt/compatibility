@@ -134,6 +134,10 @@ msgstr "Está usando %(package)s %(version)s (publicado: %(date)s)"
 msgid "Your version of %s was released %s days ago. Please check for updates."
 msgstr "Su versión de %s se publicó hace %s días. Compruebe si hay actualizaciones."
 
+#: compatibility/core.py:597
+msgid "Skipping the update reminder for %(package)s: its release date %(date)s is in the future (days remaining: %(days)s)."
+msgstr "Se omite el recordatorio de actualización de %(package)s: su fecha de publicación %(date)s está en el futuro (días restantes: %(days)s)."
+
 #: compatibility/core.py:535
 msgid "A key in nag_over_update is missing."
 msgstr "Falta una clave en nag_over_update."
