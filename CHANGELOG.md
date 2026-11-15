@@ -4,6 +4,10 @@
 
 * Changed:
     * A `release_date` in the future is logged at DEBUG level after 30 days and as a warning after a year (previously: a warning after 60 days). With `nag_over_update`, a DEBUG line also names the days left until the release, as no update reminder is shown before then.
+* CI/CD:
+    * Bumped GitHub Actions.
+* Packaging:
+    * Raised the dev dependency floors.
 
 ## Version 2.3.0 (2026-09-23)
 
