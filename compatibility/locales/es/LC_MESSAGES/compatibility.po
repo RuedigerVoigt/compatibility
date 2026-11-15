@@ -169,3 +169,9 @@ msgstr "El parámetro python_version_support debe ser un diccionario"
 #: compatibility/core.py:566
 msgid "Parameter nag_over_update must be a dictionary"
 msgstr "El parámetro nag_over_update debe ser un diccionario"
+
+msgid "Parameter warn_eol must be True or False."
+msgstr "El parámetro warn_eol debe ser True o False."
+
+msgid "Python %(version)s reached its end of life (%(eol)s) and no longer receives security updates. Please upgrade to a newer version of Python."
+msgstr "Python %(version)s llegó al final de su vida útil (%(eol)s) y ya no recibe actualizaciones de seguridad. Actualice a una versión más reciente de Python."

@@ -45,9 +45,10 @@ Compatibility is a lightweight, zero-dependency library that helps Python packag
 
 1. **Python Version Validation** - Check if the running Python interpreter meets minimum requirements and isn't in your list of incompatible versions. Raises `RuntimeError` for incompatible versions.
 2. **Untested Version Warnings** - Warn users when running your package on Python versions newer than you've tested.
-3. **Package Version Logging** - Log package name, version, and release date for better debugging.
-4. **Privacy-Friendly Update Reminders** - Optionally remind users to check for updates after N days (without phoning home or checking if updates exist).
-5. **Operating System Compatibility** - Validate whether the OS (Linux, macOS, Windows) is fully supported, partially supported, or incompatible.
+3. **End-of-Life Warnings** - Optionally warn users whose Python version has reached its end of life and no longer receives security updates (built-in dates, no network access).
+4. **Package Version Logging** - Log package name, version, and release date for better debugging.
+5. **Privacy-Friendly Update Reminders** - Optionally remind users to check for updates after N days (without phoning home or checking if updates exist).
+6. **Operating System Compatibility** - Validate whether the OS (Linux, macOS, Windows) is fully supported, partially supported, or incompatible.
 
 All messages are available in English and German (plus AI-translated French, Dutch, and Spanish), selectable per-instance. See [Translations](#translations).
 
@@ -130,7 +131,8 @@ class MyAdvancedPackage:
                 'full': {'Linux', 'MacOS'},     # Fully tested
                 'partial': {'Windows'},          # Should work, less tested
                 'incompatible': set()            # No known incompatibilities
-            }
+            },
+            warn_eol=True  # Warn if the running Python has reached its end of life
         )
 ```
 
@@ -221,6 +223,7 @@ Salted in that specific version is a relatively young package that will receive 
     * `'raise'` (default): raise a `RuntimeError` — the current behaviour.
     * `'warn'`: log a warning and continue.
     * `'ignore'`: continue silently (logged at DEBUG only). You take responsibility for running in an unsupported environment.
+* `warn_eol` (optional): set to `True` to log a warning if the running Python version has reached its [end of life](https://devguide.python.org/versions/) and no longer receives security updates. Defaults to `False`. The end-of-life dates are built in, so the check works offline; a Python version newer than the installed release of this library is not reported.
 
 **System Support Behavior:**
 
@@ -288,7 +291,7 @@ logging.getLogger('compatibility').setLevel(logging.DEBUG)
 The compatibility package logs at different levels:
 * **DEBUG**: Informational messages about full platform support
 * **INFO**: Package version information and update reminders
-* **WARNING**: Running newer Python than tested, or partial platform support
+* **WARNING**: Running newer Python than tested, a Python past its end of life (with `warn_eol=True`), or partial platform support
 * **ERROR**: Incompatible Python version or operating system (also raises exceptions)
 
 ### Example Messages
@@ -302,6 +305,7 @@ INFO:compatibility:You are using my_package 1.0.0 (released: 2025-01-01)
 INFO:compatibility:Your version of my_package was released 120 days ago. Please check for updates.
 WARNING:compatibility:my_package has only partial support on Windows.
 WARNING:compatibility:You are running Python 3.16.final, but your version of my_package is only tested up to 3.15. Please check for updates.
+WARNING:compatibility:Python 3.10 reached its end of life (2026-10-01) and no longer receives security updates. Please upgrade to a newer version of Python.
 ERROR:compatibility:This version of my_package is incompatible with Windows!
 ```
 
@@ -354,6 +358,9 @@ Use `incompatible_versions` to block specific Python versions where your package
 
 ### When Users Report Bugs on Untested Python Versions
 Use `max_tested_version` to warn users when they're running your package on newer Python versions you haven't tested yet. This helps manage expectations and reduces false bug reports.
+
+### When Your Users Still Run an Unmaintained Python
+Set `warn_eol=True` to warn users whose Python version has reached its end of life. Such a version gets no security fixes anymore, even if your package still supports it. The warning is opt-in, so it never surprises users of a package that did not ask for it.
 
 ### When You Drop Support for Old Python Versions
 After dropping (for example) Python 3.9 support, use this library to give users a clear error message instead of cryptic import errors or runtime failures.

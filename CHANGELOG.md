@@ -2,6 +2,8 @@
 
 ## Upcoming
 
+* New:
+    * Opt-in warning if the running Python version has reached its end of life: set `warn_eol=True`.
 * Changed:
     * A `release_date` in the future is logged at DEBUG level after 30 days and as a warning after a year (previously: a warning after 60 days). With `nag_over_update`, a DEBUG line also names the days left until the release, as no update reminder is shown before then.
 * CI/CD:

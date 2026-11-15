@@ -73,6 +73,22 @@ class Check:
     FUTURE_WARNING_DAYS = 365
     PAST_LIMIT_YEARS = 8
 
+    # End of life of each CPython version this library can run on, from
+    # https://peps.python.org/api/release-cycle.json (retrieved 2026-11-15).
+    # A past end of life is an exact date (YYYY-MM-DD). A planned one is only
+    # known to the month (YYYY-MM) and counts as reached once that month is
+    # over, so the warning never comes early. A version missing here (newer
+    # than this table) is never reported.
+    PYTHON_EOL: dict[tuple[int, int], str] = {
+        (3, 10): '2026-10-01',
+        (3, 11): '2027-10',
+        (3, 12): '2028-10',
+        (3, 13): '2029-10',
+        (3, 14): '2030-10',
+        (3, 15): '2031-10',
+        (3, 16): '2032-10',
+    }
+
     def __init__(self,
                  package_name: str,
                  package_version: str,
@@ -81,7 +97,8 @@ class Check:
                  nag_over_update: NagOverUpdate | None = None,
                  language_messages: str = 'en',
                  system_support: SystemSupport | None = None,
-                 on_incompatible: Literal['raise', 'warn', 'ignore'] = 'raise'):
+                 on_incompatible: Literal['raise', 'warn', 'ignore'] = 'raise',
+                 warn_eol: bool = False):
         """Initialize compatibility checker and perform all validation checks.
 
         This constructor performs all compatibility checks immediately upon
@@ -111,10 +128,13 @@ class Check:
             on_incompatible: What to do when the Python version or OS is
                 incompatible: 'raise' (default, raise RuntimeError), 'warn'
                 (log a warning and continue), or 'ignore' (continue silently).
+            warn_eol: Opt in to a warning if the running Python version has
+                reached its end of life. Defaults to False.
 
         Raises:
             TypeError: If package_name, package_version, or
-                language_messages is not a string.
+                language_messages is not a string, or if warn_eol is not a
+                bool.
             ValueError: If package_name or package_version is empty, if
                 language_messages or on_incompatible is invalid, or if
                 parameters are malformed.
@@ -140,6 +160,7 @@ class Check:
         self.package_version = package_version.strip()
         self.language_messages = language_messages.strip()
         self.on_incompatible = on_incompatible
+        self.warn_eol = warn_eol
         # Create instance-local translation based on language_messages parameter
         # Must be done BEFORE __coerce_date and other methods that use self._()
         # 'auto' lets gettext choose the language from the environment
@@ -159,6 +180,8 @@ class Check:
         self.check_params()
         self.__warn_implausible_release_date()
         self.check_python_version(python_version_support)
+        if self.warn_eol:
+            self.__warn_if_eol_python()
         self.check_system(system_support)
         self.log_version_info()
         if nag_over_update:
@@ -231,6 +254,7 @@ class Check:
                 language_messages is not one of the supported languages or
                 'auto', or on_incompatible is not 'raise', 'warn', or
                 'ignore'.
+            TypeError: If warn_eol is not a bool.
         """
         # Parameters might be empty after applying .strip()
         if not self.package_name:
@@ -245,6 +269,9 @@ class Check:
         # Is the incompatibility handling mode valid?
         if self.on_incompatible not in ('raise', 'warn', 'ignore'):
             raise ValueError(self._('Invalid value for on_incompatible!'))
+        # Reject truthy non-bools such as 'no', which would enable the warning.
+        if not isinstance(self.warn_eol, bool):
+            raise TypeError(self._('Parameter warn_eol must be True or False.'))
 
     def check_python_version(self,
                              python_version_support: PythonVersionSupport | None = None
@@ -424,6 +451,28 @@ class Check:
                 self.package_name,
                 python_version_support['max_tested_version']
                 )
+
+    def __warn_if_eol_python(self) -> None:
+        """Warn if the running Python version has reached its end of life.
+
+        Looks up the running major.minor version in ``PYTHON_EOL``. A version
+        missing from the table is not reported.
+        """
+        version = (sys.version_info.major, sys.version_info.minor)
+        eol = self.PYTHON_EOL.get(version)
+        if eol is None:
+            return
+        today = datetime.date.today()
+        if len(eol) == len('YYYY-MM'):
+            # Only the month is known: reached once that month is over.
+            reached = (today.year, today.month) > (int(eol[:4]), int(eol[5:]))
+        else:
+            reached = today >= datetime.date.fromisoformat(eol)
+        if reached:
+            logger.warning(
+                self._("Python %(version)s reached its end of life (%(eol)s) and no longer receives "
+                       "security updates. Please upgrade to a newer version of Python."),
+                {'version': f"{version[0]}.{version[1]}", 'eol': eol})
 
     def check_system(self,
                      system_support: SystemSupport | None) -> None:

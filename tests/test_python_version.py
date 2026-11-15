@@ -8,7 +8,7 @@ Copyright (c) 2021-2026 Rüdiger Voigt and contributors
 Released under the Apache License 2.0
 """
 
-from datetime import date
+from datetime import date, timedelta
 import logging
 import re
 import sys
@@ -287,3 +287,85 @@ def test_on_incompatible_warn_python(caplog):
         on_incompatible='warn')
     assert check
     assert 'need at least' in caplog.text
+
+
+def _eol_warning(caplog, eol, warn_eol=True, running=(3, 99)):
+    """Run Check on a mocked interpreter `running` whose end of life in the
+    EOL table is `eol` (None: not in the table) and return the EOL warning
+    text, or None. Neither the real table nor the real interpreter is used,
+    so the result does not change with the date or the CI Python version."""
+    caplog.set_level(logging.WARNING, logger='compatibility')
+    table = {} if eol is None else {running: eol}
+    with patch.dict(compatibility.Check.PYTHON_EOL, table, clear=True), \
+            patch('sys.version_info') as mock_version:
+        mock_version.major, mock_version.minor = running
+        mock_version.releaselevel = 'final'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            warn_eol=warn_eol)
+    messages = [r.getMessage() for r in caplog.records
+                if 'end of life' in r.getMessage()]
+    assert len(messages) <= 1
+    return messages[0] if messages else None
+
+
+def _month(day):
+    """The YYYY-MM month of a date."""
+    return day.strftime('%Y-%m')
+
+
+_TODAY = date.today()
+_LAST_MONTH = _TODAY.replace(day=1) - timedelta(days=1)
+
+
+@pytest.mark.parametrize("eol, expect_warning", [
+    pytest.param(_TODAY.isoformat(), True, id='exact-date-today'),
+    pytest.param((_TODAY - timedelta(days=1)).isoformat(), True, id='exact-date-past'),
+    pytest.param((_TODAY + timedelta(days=1)).isoformat(), False, id='exact-date-future'),
+    pytest.param(_month(_LAST_MONTH), True, id='month-over'),
+    pytest.param(_month(_TODAY), False, id='month-current-not-yet'),
+    pytest.param(None, False, id='version-not-in-table'),
+])
+def test_eol_warning(caplog, eol, expect_warning):
+    """With warn_eol, a reached end of life warns; an exact date counts from
+    that day, a month-only date only once the month is over."""
+    message = _eol_warning(caplog, eol)
+    if expect_warning:
+        assert message == (
+            f'Python 3.99 reached its end of life ({eol}) and no longer receives '
+            'security updates. Please upgrade to a newer version of Python.')
+    else:
+        assert message is None
+
+
+def test_eol_warning_is_opt_in(caplog):
+    """Without warn_eol, a reached end of life is not reported."""
+    assert _eol_warning(caplog, '2000-01-01', warn_eol=False) is None
+
+
+def test_eol_warning_translated(caplog):
+    """The EOL warning is localized like every other message."""
+    caplog.set_level(logging.WARNING, logger='compatibility')
+    with patch.dict(compatibility.Check.PYTHON_EOL, {(3, 99): '2000-01-01'}, clear=True), \
+            patch('sys.version_info') as mock_version:
+        mock_version.major, mock_version.minor = 3, 99
+        mock_version.releaselevel = 'final'
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            language_messages='de',
+            warn_eol=True)
+    assert 'Python 3.99 hat das Ende seines Lebenszyklus erreicht (2000-01-01)' in caplog.text
+
+
+def test_eol_table_is_well_formed():
+    """Every entry is a (major, minor) key with a YYYY-MM-DD or YYYY-MM value
+    that parses, and the table covers the oldest supported Python."""
+    for (major, minor), eol in compatibility.Check.PYTHON_EOL.items():
+        assert isinstance(major, int) and isinstance(minor, int)
+        assert re.fullmatch(r'\d{4}-\d{2}(-\d{2})?', eol), eol
+        date.fromisoformat(eol if len(eol) == 10 else f'{eol}-01')
+    assert (3, 10) in compatibility.Check.PYTHON_EOL

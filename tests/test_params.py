@@ -75,3 +75,15 @@ def test_on_incompatible_invalid_value():
             release_date=date(2021, 1, 1),
             on_incompatible='explode')
     assert 'Invalid value for on_incompatible!' in str(excinfo.value)
+
+
+@pytest.mark.parametrize("bad_value", ['no', 1, None])
+def test_warn_eol_must_be_bool(bad_value):
+    # A truthy non-bool such as 'no' would otherwise enable the warning.
+    with pytest.raises(TypeError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            warn_eol=bad_value)
+    assert 'Parameter warn_eol must be True or False.' in str(excinfo.value)

@@ -4,7 +4,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 
 ## Project Summary
 
-**compatibility** is a zero-dependency Python library for package authors to validate runtime compatibility. It checks Python versions, OS compatibility, warns about untested versions, and prompts for updates.
+**compatibility** is a zero-dependency Python library for package authors to validate runtime compatibility. It checks Python versions, OS compatibility, warns about untested versions and (opt-in, `warn_eol`) about a Python past its end of life, and prompts for updates.
 
 **Key Facts:**
 - Language: Python 3.10+
@@ -12,7 +12,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 - Dependencies: None (uses only Python stdlib)
 - Type hints: Full PEP 484 compliance
 - Test coverage: 100% (statements and branches), enforced in CI
-- Localization: English (source) and German (native-reviewed); French and Dutch are AI-translated
+- Localization: English (source) and German (native-reviewed); French, Dutch, and Spanish are AI-translated
 
 ## Architecture
 
@@ -138,6 +138,7 @@ Before creating a new release:
    - [ ] Update version in `pyproject.toml` (`poetry version <newversion>`)
    - [ ] Update `CHANGELOG.md` with all changes since last release
    - [ ] Ensure version classifiers in `pyproject.toml` match supported Python versions
+   - [ ] Refresh `Check.PYTHON_EOL` in `compatibility/core.py` from https://peps.python.org/api/release-cycle.json and update the retrieval date in its comment
 
 2. **Translations**
    - [ ] Regenerate the template after message changes: `python compile_translations.py --extract`
