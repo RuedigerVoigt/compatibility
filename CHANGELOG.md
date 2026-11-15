@@ -1,6 +1,6 @@
 # Changelog compatibility Python library
 
-## Upcoming
+## Version 2.4.0 (2026-11-15)
 
 * New:
     * Opt-in warning if the running Python version has reached its end of life: set `warn_eol=True`.
