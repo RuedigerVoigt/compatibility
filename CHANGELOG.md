@@ -7,6 +7,7 @@
 * Changed:
     * A `release_date` in the future is logged at DEBUG level after 30 days and as a warning after a year (previously: a warning after 60 days). With `nag_over_update`, a DEBUG line also names the days left until the release, as no update reminder is shown before then.
 * CI/CD:
+    * Test against the final release of Python 3.15 instead of its release candidate.
     * Bumped GitHub Actions.
 * Packaging:
     * Raised the dev dependency floors.
