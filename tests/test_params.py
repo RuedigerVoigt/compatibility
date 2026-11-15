@@ -8,6 +8,7 @@ Released under the Apache License 2.0
 """
 
 from datetime import date
+import logging
 
 import compatibility
 import pytest
@@ -87,3 +88,33 @@ def test_warn_eol_must_be_bool(bad_value):
             release_date=date(2021, 1, 1),
             warn_eol=bad_value)
     assert 'Parameter warn_eol must be True or False.' in str(excinfo.value)
+
+
+@pytest.mark.parametrize("param", ['python_version_support', 'system_support',
+                                   'nag_over_update'])
+@pytest.mark.parametrize("falsy", [[], 0, False, ''])
+def test_falsy_non_dict_is_rejected(param, falsy):
+    """A falsy value that is not a dict is a wrong type like any other and
+    must not silently disable the check."""
+    with pytest.raises(ValueError) as excinfo:
+        compatibility.Check(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            **{param: falsy})
+    assert f'Parameter {param} must be a dictionary' in str(excinfo.value)
+
+
+@pytest.mark.parametrize("param", ['python_version_support', 'system_support',
+                                   'nag_over_update'])
+def test_empty_dict_means_not_set(param, caplog):
+    """An empty dict is accepted and behaves like None: the check is skipped."""
+    caplog.set_level(logging.DEBUG, logger='compatibility')
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date(2021, 1, 1),
+        **{param: {}})
+    # Only the version info is logged; no check produced a message.
+    assert [r.getMessage() for r in caplog.records] == [
+        'You are using test 1 (released: 2021-01-01)']

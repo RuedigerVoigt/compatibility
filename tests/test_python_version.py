@@ -369,3 +369,32 @@ def test_eol_table_is_well_formed():
         assert re.fullmatch(r'\d{4}-\d{2}(-\d{2})?', eol), eol
         date.fromisoformat(eol if len(eol) == 10 else f'{eol}-01')
     assert (3, 10) in compatibility.Check.PYTHON_EOL
+
+
+@pytest.mark.parametrize("incompatible, blocked", [
+    pytest.param(['3.12'], True, id='canonical'),
+    pytest.param(['03.12'], True, id='leading-zero-major'),
+    pytest.param(['3.012'], True, id='leading-zero-minor'),
+    pytest.param(['03.12.final'], True, id='leading-zero-with-level'),
+    pytest.param(['3.12.alpha'], False, id='other-releaselevel'),
+    pytest.param(['3.11', '3.13'], False, id='other-versions'),
+])
+def test_incompatible_versions_compared_numerically(incompatible, blocked):
+    """incompatible_versions is compared as parsed numbers, like min_version
+    and max_tested_version: a string that passes validation also matches."""
+    with patch('sys.version_info') as mock_version:
+        mock_version.major, mock_version.minor = 3, 12
+        mock_version.releaselevel = 'final'
+        kwargs = dict(
+            package_name='test',
+            package_version='1',
+            release_date=date(2021, 1, 1),
+            python_version_support={
+                'min_version': '3.10',
+                'incompatible_versions': incompatible,
+                'max_tested_version': '3.15'})
+        if blocked:
+            with pytest.raises(RuntimeError):
+                compatibility.Check(**kwargs)
+        else:
+            assert compatibility.Check(**kwargs)

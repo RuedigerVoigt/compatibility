@@ -215,6 +215,8 @@ Salted in that specific version is a relatively young package that will receive 
 
 ### Optional Parameters
 
+For `python_version_support`, `nag_over_update`, and `system_support`, leaving the parameter out, passing `None`, or passing an empty dictionary `{}` all skip that check. Any other value that is not a dictionary raises a `ValueError`.
+
 * `python_version_support`: requires a dictionary with the three following keys:
     * `min_version`: a string with the number of the oldest supported version (like `'3.10'`).
     * `incompatible_versions`: a list of incompatible versions that, by default, raise the `RuntimeError` exception if they try to run your package (configurable with `on_incompatible`).

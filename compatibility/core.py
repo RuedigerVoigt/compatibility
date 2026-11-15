@@ -185,7 +185,7 @@ class Check:
             self.__warn_if_eol_python()
         self.check_system(system_support)
         self.log_version_info()
-        if nag_over_update:
+        if nag_over_update is not None:
             self.check_version_age(nag_over_update)
 
     def __coerce_date(
@@ -290,45 +290,48 @@ class Check:
 
         Args:
             python_version_support: Optional dict with keys 'min_version',
-                'max_tested_version', and 'incompatible_versions'. If None,
-                no version checking is performed.
+                'max_tested_version', and 'incompatible_versions'. If None
+                or an empty dict, no version checking is performed.
 
         Raises:
-            ValueError: If python_version_support is not a dict, is malformed,
-                or contains invalid version strings.
+            ValueError: If python_version_support is neither None nor a dict
+                (also if it is falsy, such as [] or 0), is malformed, or
+                contains invalid version strings.
             err.ParameterContradiction: If 'min_version' is higher than
                 'max_tested_version'.
             RuntimeError: If running Python version is below minimum or is
                 in the incompatible versions list (and on_incompatible is
                 'raise').
         """
-        if not python_version_support:
-            # Setting python_version_support is not required
+        # Setting python_version_support is not required. Check for None
+        # explicitly: a falsy non-dict such as [] must not skip the type check.
+        if python_version_support is None:
             return None
         if not isinstance(python_version_support, dict):
             raise ValueError(
                 self._('Parameter python_version_support must be a dictionary'))
+        if not python_version_support:
+            # An empty dict means "not set", like None.
+            return None
 
-        min_version, max_version = self.__validate_python_version_support(
+        min_version, max_version, incompatible = self.__validate_python_version_support(
             python_version_support)
 
         major = sys.version_info.major
         minor = sys.version_info.minor
         releaselevel = sys.version_info.releaselevel
-        # construct strings to search for
-        short_version = f"{major}.{minor}"
-        full_version = f"{short_version}.{releaselevel}"
+        full_version = f"{major}.{minor}.{releaselevel}"
 
         self.__enforce_version_compatibility(
-            python_version_support, major, minor, short_version, full_version,
-            min_version)
+            major, minor, releaselevel, full_version, min_version, incompatible)
         self.__warn_if_untested_version(
             python_version_support, major, minor, full_version, max_version)
         return None
 
     def __validate_python_version_support(
             self, python_version_support: PythonVersionSupport
-            ) -> tuple[tuple[int, int], tuple[int, int]]:
+            ) -> tuple[tuple[int, int], tuple[int, int],
+                       list[tuple[int, int, str | None]]]:
         """Validate the structure and version strings of python_version_support.
 
         Args:
@@ -336,8 +339,11 @@ class Check:
 
         Returns:
             Two (major, minor) tuples: the parsed ``min_version`` and
-            ``max_tested_version``. Parsing here once removes the need to
-            re-parse (and assert-guard) the strings in the comparison helpers.
+            ``max_tested_version``, and the parsed ``incompatible_versions``
+            as (major, minor, releaselevel or None) tuples. Parsing here once
+            removes the need to re-parse (and assert-guard) the strings in the
+            comparison helpers, and makes all three compare numerically (so
+            '03.12' means 3.12 everywhere).
 
         Raises:
             ValueError: If the dict has the wrong keys, if
@@ -378,11 +384,15 @@ class Check:
         if not isinstance(python_version_support['incompatible_versions'], list):
             raise ValueError(
                 self._('Value for key incompatible_versions must be a list.'))
+        incompatible: list[tuple[int, int, str | None]] = []
         for version_string in python_version_support['incompatible_versions']:
-            if not re.fullmatch(self.VERSION_REGEX, version_string):
+            match = re.fullmatch(self.VERSION_REGEX, version_string)
+            if not match:
                 raise ValueError(
                     self._('Some string in incompatible_versions cannot be parsed.')
                     )
+            incompatible.append((int(match.group('major')), int(match.group('minor')),
+                                 match.group('releaselevel')))
         min_version = (int(min_match.group('major')), int(min_match.group('minor')))
         max_version = (int(max_match.group('major')), int(max_match.group('minor')))
         # A minimum higher than the highest tested version is a contradictory
@@ -392,25 +402,26 @@ class Check:
                 self._("min_version (%(min)s) is higher than max_tested_version (%(max)s).")
                 % {'min': python_version_support['min_version'],
                    'max': python_version_support['max_tested_version']})
-        return min_version, max_version
+        return min_version, max_version, incompatible
 
     def __enforce_version_compatibility(
             self,
-            python_version_support: PythonVersionSupport,
             major: int,
             minor: int,
-            short_version: str,
+            releaselevel: str,
             full_version: str,
-            min_version: tuple[int, int]) -> None:
+            min_version: tuple[int, int],
+            incompatible: list[tuple[int, int, str | None]]) -> None:
         """Raise if the running Python is below minimum or incompatible.
 
         Args:
-            python_version_support: The validated version support dict.
             major: Major version of the running interpreter.
             minor: Minor version of the running interpreter.
-            short_version: Running version as "major.minor".
+            releaselevel: Release level of the running interpreter.
             full_version: Running version as "major.minor.releaselevel".
             min_version: Parsed (major, minor) of the minimum supported version.
+            incompatible: Parsed incompatible versions as (major, minor,
+                releaselevel) tuples; a releaselevel of None matches all.
 
         Raises:
             RuntimeError: If the running version is below 'min_version' or
@@ -426,8 +437,8 @@ class Check:
                    'running': f"Python {full_version}"}
                    )
         # Check if the running version is in the list of incompatible versions
-        incompatible = python_version_support['incompatible_versions']
-        if short_version in incompatible or full_version in incompatible:
+        if any((major, minor) == (inc_major, inc_minor) and level in (None, releaselevel)
+               for inc_major, inc_minor, level in incompatible):
             self.__handle_incompatible(
                 self._("Your version of Python is not compatible with this version of %(package)s. Please check for updates.")
                 % {'package': self.package_name}
@@ -492,19 +503,25 @@ class Check:
             system_support: Optional dict with optional keys 'full',
                 'partial', and 'incompatible'. Each value must be a set
                 containing OS names from {'Linux', 'MacOS', 'Windows'}.
-                If None, no OS checking is performed.
+                If None or an empty dict, no OS checking is performed.
 
         Raises:
-            ValueError: If system_support is malformed or contains invalid
+            ValueError: If system_support is neither None nor a dict (also if
+                it is falsy, such as False), is malformed, or contains invalid
                 keys/values.
             err.ParameterContradiction: If the same OS appears in both
                 'full' and 'partial', or 'full' and 'incompatible'.
             RuntimeError: If the current OS is in the 'incompatible' set.
         """
-        if not system_support:
+        # Check for None explicitly: a falsy non-dict such as False must not
+        # skip the type check.
+        if system_support is None:
             return None
         if not isinstance(system_support, dict):
             raise ValueError(self._('Parameter system_support must be a dictionary'))
+        if not system_support:
+            # An empty dict means "not set", like None.
+            return None
 
         self.__validate_system_support(system_support)
         self.__check_system_contradictions(system_support)
@@ -637,16 +654,21 @@ class Check:
         Args:
             nag_over_update: Dict with keys 'nag_days_after_release' (int,
                 minimum age in days before nagging) and 'nag_in_hundred'
-                (int 0-100, percentage chance of showing nag message).
+                (int 0-100, percentage chance of showing nag message). An
+                empty dict means "not set": no reminder is shown.
 
         Raises:
-            ValueError: If nag_over_update is not a dict, a key is missing, a
-                value is not an int, nag_days_after_release is negative, or
-                nag_in_hundred is not between 0 and 100.
+            ValueError: If nag_over_update is not a dict (also if it is falsy,
+                such as ''), a key is missing, a value is not an int,
+                nag_days_after_release is negative, or nag_in_hundred is not
+                between 0 and 100.
         """
         if not isinstance(nag_over_update, dict):
             raise ValueError(
                 self._('Parameter nag_over_update must be a dictionary'))
+        if not nag_over_update:
+            # An empty dict means "not set", like None.
+            return
         nag_days_after_release, nag_in_hundred = self.__validate_nag_over_update(
             nag_over_update)
         if nag_in_hundred == 0:
