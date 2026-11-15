@@ -10,11 +10,11 @@
 
 Ensure your Python package runs on the right versions, warn users about untested versions, and gracefully handle incompatible environments.
 
-Compatibility is a lightweight, zero-dependency library that helps Python package authors and library developers provide a better user experience by checking Python version compatibility, operating system compatibility (Linux, macOS, Windows), and gently reminding users to update. Uses Python's standard `gettext` for translations and follows PEP 561 (typed package). Perfect for PyPI package maintainers who want to prevent cryptic errors and provide helpful guidance to users.
+Compatibility is a lightweight, zero-dependency library that helps Python package authors and library developers provide a better user experience by checking Python version compatibility, operating system compatibility (Linux, macOS, Windows), and gently reminding users to update. Uses Python's standard `gettext` for translations and follows PEP 561 (typed package). Perfect for PyPI package maintainers who want to replace cryptic errors with helpful guidance to users.
 
 ## Why Use This Library?
 
-- **Prevent cryptic runtime errors** - Catch incompatible Python versions before they cause problems
+- **Clear messages instead of cryptic errors** - Tell users when they run your package on an incompatible Python version
 - **Zero dependencies** - Uses only Python's standard library
 - **Fully typed** - Complete type hints (PEP 484) for better IDE support
 - **Multilingual** - Built-in English and German messages, plus AI-translated French, Dutch, and Spanish
@@ -98,6 +98,14 @@ class MyPackage:
                 'max_tested_version': '3.15'
             }
         )
+
+MyPackage()  # The check runs when the class is instantiated
+```
+
+Output:
+
+```text
+INFO:compatibility:You are using my_package 1.0.0 (released: 2025-01-01)
 ```
 
 ### Extended Example
@@ -119,7 +127,7 @@ class MyAdvancedPackage:
             release_date=date(2025, 1, 15),
             python_version_support={
                 'min_version': '3.10',
-                'incompatible_versions': ['3.9'],
+                'incompatible_versions': ['3.12'],  # e.g. a version with a known bug
                 'max_tested_version': '3.15'
             },
             nag_over_update={
@@ -153,7 +161,7 @@ class MyClass:
         compatibility.Check(...)  # Runs when instantiated, after logging is configured
 ```
 
-**Why?** If you call it in `__init__.py`, it runs immediately on import before users can configure their logging levels. This means users might see unwanted DEBUG messages. Calling it in the class constructor lets users set up logging first.
+**Why?** If you call it in `__init__.py`, it runs immediately on import, usually before the application has configured logging. Its messages are then lost: the `compatibility` logger has no handler of its own, so nothing is shown until logging is set up. Calling it in the class constructor lets users set up logging first. It also keeps your package importable on an incompatible system (for example for documentation tools), as the `RuntimeError` is only raised when your class is used.
 
 ### Complete Example
 
@@ -250,9 +258,14 @@ However, `min_version` and `max_tested_version` ignore the release level part.
 
 ## Avoid running your package with an incompatible version of Python
 
-In the `pyproject.toml` file of your package you can use the [python_requires](https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires) parameter (or the `python` field in Poetry's `[tool.poetry.dependencies]`) to tell `pip` about incompatible versions of the interpreter. This should block installation on incompatible systems. However, users can circumvent this by setting the flag `--python-version`. More likely is a system upgrade that installs an incompatible version with the system's package manager.
+In the `pyproject.toml` file of your package, set [`requires-python`](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#python-requires) in the `[project]` table (for example `requires-python = ">=3.10"`) to tell `pip` about the supported versions of the interpreter. This blocks installation on incompatible systems. However, users can circumvent this with pip's `--ignore-requires-python` flag. More likely is a system upgrade that replaces the interpreter with an incompatible version through the system's package manager.
 
 If you define incompatible versions while initializing the `compatibility` package, you add another layer of control. Even if your user ended up with an incompatible interpreter, that will trigger a `RuntimeError` exception once the user tries to run your package.
+
+This works only if Python gets as far as running the check:
+
+* `compatibility` itself runs on Python 3.10 or newer. On an older interpreter it cannot import, so it cannot show any message.
+* Your package's modules are imported before your constructor runs. If one of them uses syntax or a feature that the running Python lacks, the user gets a `SyntaxError` or `ImportError` before the check. For example, `except*` and `typing.Self` need Python 3.11 and `class C[T]:` needs Python 3.12.
 
 ## Logging
 
@@ -314,7 +327,7 @@ An incompatible Python version (below `min_version`, or listed in
 `on_incompatible='raise'`, additionally raises `RuntimeError`:
 
 ```text
-ERROR:compatibility:You use Python 3.9.final, but need at least Python 3.10 to run my_package.
+ERROR:compatibility:You use Python 3.10.final, but need at least Python 3.11 to run my_package.
 ```
 
 The same messages appear translated when you select another language (for
@@ -351,7 +364,7 @@ The `compatibility` package may raise the following exceptions:
 ## Use Cases
 
 ### When Your Package Requires Specific Python Versions
-Use `min_version` to prevent your package from running on older Python versions that lack required features (like match statements, structural pattern matching, or newer typing features).
+Use `min_version` to stop your package from running on older Python versions that lack features it relies on at runtime, for example a standard library function or behavior added in a later version. A check in your constructor cannot catch syntax your modules use, as that fails on import (see [Avoid running your package with an incompatible version of Python](#avoid-running-your-package-with-an-incompatible-version-of-python)).
 
 ### When You Know Specific Python Versions Are Broken
 Use `incompatible_versions` to block specific Python versions where your package has known issues (e.g., bugs in Python itself, or dependencies that break on certain versions).
@@ -363,7 +376,7 @@ Use `max_tested_version` to warn users when they're running your package on newe
 Set `warn_eol=True` to warn users whose Python version has reached its end of life. Such a version gets no security fixes anymore, even if your package still supports it. The warning is opt-in, so it never surprises users of a package that did not ask for it.
 
 ### When You Drop Support for Old Python Versions
-After dropping (for example) Python 3.9 support, use this library to give users a clear error message instead of cryptic import errors or runtime failures.
+After dropping (for example) Python 3.10 support, set `min_version` to `'3.11'`. Users who still end up on 3.10 get a clear error message instead of a cryptic runtime failure, as long as your package still imports on 3.10.
 
 ### When Your Package Only Works on Certain Operating Systems
 Use `system_support` to declare which operating systems (Linux, macOS, Windows) are fully supported, partially supported, or incompatible. For example, if your package uses Linux-specific system calls.

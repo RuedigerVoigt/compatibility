@@ -8,6 +8,8 @@
     * A `release_date` in the future is logged at DEBUG level after 30 days and as a warning after a year (previously: a warning after 60 days). With `nag_over_update`, a DEBUG line also names the days left until the release, as no update reminder is shown before then.
 * Fixed:
     * A `datetime.datetime` as `release_date` no longer raises a `TypeError`; its time is dropped.
+* Documentation:
+    * Corrected the README: `requires-python` instead of `python_requires`, what a check in the constructor cannot catch, why `Check` belongs in a constructor, and a Quick Start that actually runs.
 * CI/CD:
     * Test against the final release of Python 3.15 instead of its release candidate.
     * Bumped GitHub Actions.
