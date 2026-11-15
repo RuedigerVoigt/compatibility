@@ -7,7 +7,7 @@ build-backend = "poetry.core.masonry.api"
 [project]
 name = "compatibility"
 version = "2.3.0"
-description = "A library that checks whether the running version of Python is compatible and tested. Remind the user to check for updates of the library."
+description = "A library that checks whether the running version of Python is compatible and tested. Can remind the user to check for updates of the library."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
@@ -97,9 +97,7 @@ line-length = 127
 
 [tool.ruff.lint]
 # pyflakes (F), pycodestyle errors + warnings (E/W), flake8-bugbear (B), and
-# mccabe complexity (C901). Replaces the previous flake8 setup; unlike the old
-# flake8 job -- which ran the complexity check with --exit-zero so it never
-# failed -- every selected rule is now actually enforced.
+# mccabe complexity (C901).
 select = ["E", "F", "W", "B", "C901"]
 
 [tool.ruff.lint.mccabe]
