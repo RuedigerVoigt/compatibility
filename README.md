@@ -26,12 +26,17 @@ Compatibility is a lightweight, zero-dependency library that helps Python packag
 ## Table of Contents
 
 - [What It Does](#what-it-does)
+- [What It Does Not Do](#what-it-does-not-do)
 - [Key Features](#key-features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Detailed Usage](#detailed-usage)
   - [⚠️ Important: Where to Call Compatibility](#️-important-where-to-call-compatibility)
   - [Complete Example](#complete-example)
+- [Recipes](#recipes)
+  - [Command-Line Tool: Configure Logging First](#command-line-tool-configure-logging-first)
+  - [Warn Instead of Raising](#warn-instead-of-raising)
+  - [Typed Configuration](#typed-configuration)
 - [Parameters](#parameters)
   - [Required Parameters](#required-parameters)
   - [Optional Parameters](#optional-parameters)
@@ -51,6 +56,14 @@ Compatibility is a lightweight, zero-dependency library that helps Python packag
 6. **Operating System Compatibility** - Validate whether the OS (Linux, macOS, Windows) is fully supported, partially supported, or incompatible.
 
 All messages are available in English and German (plus AI-translated French, Dutch, and Spanish), selectable per-instance. See [Translations](#translations).
+
+## What It Does Not Do
+
+- **No update lookup** - The update reminder only counts the days since your release date. It never contacts PyPI or any other server, so it cannot tell whether a newer version exists.
+- **No dependency checks** - It checks the Python interpreter and the operating system, not the versions of other installed packages. Declare those as dependencies in your `pyproject.toml`, so `pip` resolves them.
+- **No patch versions** - Python versions are matched on major and minor version, optionally with the release level (like `'3.12'` or `'3.12.beta'`). You cannot target a single patch release such as 3.12.1.
+- **No OS versions or distributions** - Operating systems are only distinguished as Linux, MacOS, and Windows.
+- **No protection before your code is imported** - The check runs in your constructor. An error while Python imports your modules comes first (see [Avoid running your package with an incompatible version of Python](#avoid-running-your-package-with-an-incompatible-version-of-python)).
 
 ## Key Features
 
@@ -78,6 +91,7 @@ logging.basicConfig(level=logging.INFO)
 
 Here's a minimal example to get started:
 
+<!-- tested -->
 ```python
 from datetime import date
 import logging
@@ -112,6 +126,7 @@ INFO:compatibility:You are using my_package 1.0.0 (released: 2025-01-01)
 
 Here's a more complete example using all optional features:
 
+<!-- tested -->
 ```python
 from datetime import date
 import logging
@@ -127,7 +142,7 @@ class MyAdvancedPackage:
             release_date=date(2025, 1, 15),
             python_version_support={
                 'min_version': '3.10',
-                'incompatible_versions': ['3.12'],  # e.g. a version with a known bug
+                'incompatible_versions': ['3.13.alpha'],  # e.g. a pre-release with a known bug
                 'max_tested_version': '3.15'
             },
             nag_over_update={
@@ -142,6 +157,8 @@ class MyAdvancedPackage:
             },
             warn_eol=True  # Warn if the running Python has reached its end of life
         )
+
+MyAdvancedPackage()
 ```
 
 ## Detailed Usage
@@ -204,6 +221,120 @@ class Salted:
 ```
 These settings ensure the package runs on Python 3.10 or higher, with testing confirmed through Python 3.15.
 Salted in that specific version is a relatively young package that will receive frequent updates. So beginning a month after the release this will nag the user over looking for an update every second time - provided the user activated logging.
+
+## Recipes
+
+The test suite runs every example in this section, as well as the Quick Start and the Extended Example.
+
+### Command-Line Tool: Configure Logging First
+
+In a command-line tool, configure logging first and create the class that runs the check afterwards. Otherwise the messages are lost:
+
+<!-- tested -->
+```python
+import argparse
+from datetime import date
+import logging
+
+import compatibility
+
+
+class MyTool:
+    def __init__(self):
+        compatibility.Check(
+            package_name='my_tool',
+            package_version='1.0.0',
+            release_date=date(2025, 1, 1))
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(prog='my_tool')
+    parser.add_argument('--verbose', action='store_true')
+    args = parser.parse_args(argv)
+    # Configure logging before anything creates MyTool:
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    MyTool()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+Output:
+
+```text
+INFO:compatibility:You are using my_tool 1.0.0 (released: 2025-01-01)
+```
+
+### Warn Instead of Raising
+
+By default an incompatible Python version or operating system raises `RuntimeError`. With `on_incompatible='warn'` it only logs a warning, and your package keeps running. Use this if your users should decide whether to continue:
+
+<!-- tested -->
+```python
+from datetime import date
+import logging
+
+import compatibility
+
+logging.basicConfig(level=logging.INFO)
+
+
+class MyPackage:
+    def __init__(self):
+        compatibility.Check(
+            package_name='my_package',
+            package_version='1.0.0',
+            release_date=date(2025, 1, 1),
+            python_version_support={
+                'min_version': '3.10',
+                'incompatible_versions': [],
+                'max_tested_version': '3.15'},
+            system_support={'full': {'Linux', 'MacOS', 'Windows'}},
+            on_incompatible='warn')
+
+
+MyPackage()
+```
+
+With `on_incompatible='ignore'` the message is only logged at DEBUG level.
+
+### Typed Configuration
+
+The parameter dictionaries have matching `TypedDict` types: `PythonVersionSupport`, `SystemSupport`, and `NagOverUpdate`. Annotate your configuration with them, and a type checker such as mypy reports a misspelled or missing key before your code runs:
+
+<!-- tested -->
+```python
+from datetime import date
+import logging
+
+import compatibility
+from compatibility import NagOverUpdate, PythonVersionSupport, SystemSupport
+
+logging.basicConfig(level=logging.INFO)
+
+PYTHON_SUPPORT: PythonVersionSupport = {
+    'min_version': '3.10',
+    'incompatible_versions': [],
+    'max_tested_version': '3.15',
+}
+SYSTEM_SUPPORT: SystemSupport = {'full': {'Linux', 'MacOS', 'Windows'}}
+NAG: NagOverUpdate = {'nag_days_after_release': 90, 'nag_in_hundred': 25}
+
+
+class MyPackage:
+    def __init__(self) -> None:
+        compatibility.Check(
+            package_name='my_package',
+            package_version='1.0.0',
+            release_date=date(2025, 1, 1),
+            python_version_support=PYTHON_SUPPORT,
+            system_support=SYSTEM_SUPPORT,
+            nag_over_update=NAG)
+
+
+MyPackage()
+```
 
 ## Parameters
 

@@ -13,6 +13,8 @@
     * An operating system listed in both `partial` and `incompatible` of `system_support` now raises `ParameterContradiction`, like the other overlaps. Previously the partial support won, so the system was not blocked.
 * Documentation:
     * Corrected the README: `requires-python` instead of `python_requires`, what a check in the constructor cannot catch, why `Check` belongs in a constructor, and a Quick Start that actually runs.
+    * Added a "What It Does Not Do" section and recipes for a command-line tool, warning instead of raising, and typed configuration.
+    * The test suite now runs the README examples and compares their output.
 * CI/CD:
     * Test against the final release of Python 3.15 instead of its release candidate.
     * Bumped GitHub Actions.

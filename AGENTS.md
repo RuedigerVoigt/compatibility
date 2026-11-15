@@ -27,7 +27,7 @@ Instructions for AI agents working with the **compatibility** Python package.
 - `pyproject.toml` - Version number (single source of truth, Poetry managed)
 - `compatibility/err.py` - Custom exceptions (`BadDate`, `BadDateType`, `ParameterContradiction`)
 - `compatibility/__init__.py` - Package entry point (exposes `Check` class and `err` module)
-- `tests/test_*.py` - Test suite split by topic (`test_params`, `test_translations`, `test_release_date`, `test_python_version`, `test_system`, `test_version_age`, `test_package`); 100% coverage
+- `tests/test_*.py` - Test suite split by topic (`test_params`, `test_translations`, `test_release_date`, `test_python_version`, `test_system`, `test_version_age`, `test_package`, `test_readme`); 100% coverage. `test_readme` runs every README `python` block marked with a `<!-- tested -->` line, so keep marked examples runnable.
 - `tests/conftest.py` - Compiles the `.mo` catalogs before the test session
 - `compatibility/locales/` - Translation files (.po/.mo) packaged with distribution
 
