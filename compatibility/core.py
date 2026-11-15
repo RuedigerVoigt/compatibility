@@ -565,8 +565,8 @@ class Check:
             system_support: The system support dictionary to check.
 
         Raises:
-            err.ParameterContradiction: If an OS appears in both 'full' and
-                'partial', or in both 'full' and 'incompatible'.
+            err.ParameterContradiction: If an OS appears in more than one of
+                'full', 'partial', and 'incompatible'.
         """
         if 'full' in system_support and 'partial' in system_support:
             if system_support['full'] & system_support['partial']:
@@ -578,6 +578,11 @@ class Check:
             if system_support['full'] & system_support['incompatible']:
                 raise err.ParameterContradiction(
                     self._("Contradiction: System cannot have full support AND be incompatible!"))
+
+        if 'partial' in system_support and 'incompatible' in system_support:
+            if system_support['partial'] & system_support['incompatible']:
+                raise err.ParameterContradiction(
+                    self._("Contradiction: System cannot be partially supported AND be incompatible!"))
 
     def __classify_running_system(self,
                                   system_support: SystemSupport,

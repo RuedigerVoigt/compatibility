@@ -201,6 +201,30 @@ def test_check_system_CONTRADICTIONS():
                 )
         assert 'fully AND only partially supported' in str(excinfo.value)
 
+        # Cannot be partially supported and incompatible. Before this was
+        # rejected, the partial branch won and the OS was not blocked.
+        with pytest.raises(err.ParameterContradiction) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'partial': {'Windows'},
+                                'incompatible': {'Windows'}}
+                )
+        assert 'partially supported AND be incompatible' in str(excinfo.value)
+
+        # The overlap is a contradiction even if it is not the running OS
+        with pytest.raises(err.ParameterContradiction) as excinfo:
+            compatibility.Check(
+                package_name='test',
+                package_version='1',
+                release_date=date(2021, 1, 1),
+                system_support={'full': {'Windows'},
+                                'partial': {'Linux'},
+                                'incompatible': {'Linux', 'MacOS'}}
+                )
+        assert 'partially supported AND be incompatible' in str(excinfo.value)
+
 
 def test_check_system_no_contradictions():
     """Test that non-overlapping system sets work correctly."""

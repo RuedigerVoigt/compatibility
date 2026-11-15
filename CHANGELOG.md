@@ -10,6 +10,7 @@
     * A `datetime.datetime` as `release_date` no longer raises a `TypeError`; its time is dropped.
     * A falsy value that is not a dictionary (such as `[]`, `0`, `False`, or `''`) for `python_version_support`, `nag_over_update`, or `system_support` now raises a `ValueError` instead of silently skipping the check. `None` and an empty dictionary still skip it.
     * `incompatible_versions` is compared numerically, like `min_version` and `max_tested_version`, so a version written with a leading zero (such as `'03.12'`) now matches.
+    * An operating system listed in both `partial` and `incompatible` of `system_support` now raises `ParameterContradiction`, like the other overlaps. Previously the partial support won, so the system was not blocked.
 * Documentation:
     * Corrected the README: `requires-python` instead of `python_requires`, what a check in the constructor cannot catch, why `Check` belongs in a constructor, and a Quick Start that actually runs.
 * CI/CD:

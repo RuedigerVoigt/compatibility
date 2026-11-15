@@ -110,6 +110,9 @@ msgstr "Contradicción: un sistema no puede tener simultáneamente compatibilida
 msgid "Contradiction: System cannot have full support AND be incompatible!"
 msgstr "¡Contradicción: un sistema no puede tener compatibilidad total Y ser incompatible!"
 
+msgid "Contradiction: System cannot be partially supported AND be incompatible!"
+msgstr "¡Contradicción: un sistema no puede tener compatibilidad parcial Y ser incompatible!"
+
 #: compatibility/core.py:434
 msgid "%s fully supports %s."
 msgstr "%s es totalmente compatible con %s."

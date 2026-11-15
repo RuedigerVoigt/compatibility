@@ -110,6 +110,9 @@ msgstr "Tegenstrijdigheid: een systeem kan niet tegelijk volledig EN slechts ged
 msgid "Contradiction: System cannot have full support AND be incompatible!"
 msgstr "Tegenstrijdigheid: een systeem kan niet volledig worden ondersteund EN incompatibel zijn!"
 
+msgid "Contradiction: System cannot be partially supported AND be incompatible!"
+msgstr "Tegenstrijdigheid: een systeem kan niet gedeeltelijk worden ondersteund EN incompatibel zijn!"
+
 #: compatibility/core.py:434
 msgid "%s fully supports %s."
 msgstr "%s ondersteunt %s volledig."

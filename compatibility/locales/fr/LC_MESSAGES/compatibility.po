@@ -110,6 +110,9 @@ msgstr "Contradiction : un système ne peut pas être à la fois entièrement ET
 msgid "Contradiction: System cannot have full support AND be incompatible!"
 msgstr "Contradiction : un système ne peut pas être entièrement pris en charge ET incompatible !"
 
+msgid "Contradiction: System cannot be partially supported AND be incompatible!"
+msgstr "Contradiction : un système ne peut pas être partiellement pris en charge ET incompatible !"
+
 #: compatibility/core.py:434
 msgid "%s fully supports %s."
 msgstr "%s prend entièrement en charge %s."

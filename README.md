@@ -229,6 +229,8 @@ For `python_version_support`, `nag_over_update`, and `system_support`, leaving t
     * `full`: The set of operating systems that are tested on production level.
     * `partial`: The set of systems that should work, but are not as rigorously tested as those with full support. A system found running here logs a warning.
     * `incompatible`: The set of systems of which you know they will fail to run the code properly. By default, if an OS in this set tries to run the code, this will yield a `RuntimeError` exception (configurable with `on_incompatible`).
+
+    An operating system may appear in only one of the three sets; listing it in two raises `ParameterContradiction`.
 * `on_incompatible` (optional): what to do when the running Python version or operating system is incompatible. One of:
     * `'raise'` (default): raise a `RuntimeError` — the current behaviour.
     * `'warn'`: log a warning and continue.
