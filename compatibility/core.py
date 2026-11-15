@@ -63,11 +63,14 @@ class Check:
     VERSION_REGEX = re.compile(
         r"(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<releaselevel>\b(alpha|beta|candidate|final)\b))?")
 
-    # Plausibility bounds for release_date. A date well into the future is
-    # almost always a typo (e.g. a wrong year); a very old date suggests
-    # release_date was never updated. Both only warn -- a near-future date is
-    # legitimate while developing toward a planned release.
-    FUTURE_LIMIT_DAYS = 60
+    # Plausibility bounds for release_date. A date more than FUTURE_LIMIT_DAYS
+    # ahead is logged at DEBUG level, as it is legitimate while developing
+    # toward a planned release. A date more than FUTURE_WARNING_DAYS ahead is
+    # almost always a typo (e.g. a wrong year) and logs a warning, as does a
+    # very old date, which suggests release_date was never updated. None of
+    # them raise.
+    FUTURE_LIMIT_DAYS = 30
+    FUTURE_WARNING_DAYS = 365
     PAST_LIMIT_YEARS = 8
 
     def __init__(self,
@@ -196,15 +199,20 @@ class Check:
     def __warn_implausible_release_date(self) -> None:
         """Warn (never raise) if release_date is implausibly far off.
 
-        A date more than ``FUTURE_LIMIT_DAYS`` ahead is almost always a typo
+        A date more than ``FUTURE_WARNING_DAYS`` ahead is almost always a typo
         (e.g. a wrong year), and a date more than ``PAST_LIMIT_YEARS`` old
-        suggests release_date was not updated. Neither is fatal: a near-future
-        date is legitimate while developing toward a planned release, so both
-        cases only log a warning and leave the date usable.
+        suggests release_date was not updated: both log a warning. A date more
+        than ``FUTURE_LIMIT_DAYS`` ahead is legitimate while developing toward
+        a planned release, so it is only logged at DEBUG level. None of these
+        cases is fatal; the date stays usable.
         """
         days_from_today = (self.release_date - datetime.date.today()).days
-        if days_from_today > self.FUTURE_LIMIT_DAYS:
+        if days_from_today > self.FUTURE_WARNING_DAYS:
             logger.warning(
+                self._("The release_date %s is more than %s days in the future. Please check it is correct."),
+                self.release_date, self.FUTURE_WARNING_DAYS)
+        elif days_from_today > self.FUTURE_LIMIT_DAYS:
+            logger.debug(
                 self._("The release_date %s is more than %s days in the future. Please check it is correct."),
                 self.release_date, self.FUTURE_LIMIT_DAYS)
         elif days_from_today < -(self.PAST_LIMIT_YEARS * 365):

@@ -2,8 +2,8 @@
 
 ## Upcoming
 
-* New:
-    * When `nag_over_update` is set and `release_date` is in the future, the update reminder is skipped (as before), but this is now logged at DEBUG level with the release date and the number of days remaining. Previously the skip was silent.
+* Changed:
+    * A `release_date` in the future is logged at DEBUG level after 30 days and as a warning after a year (previously: a warning after 60 days). With `nag_over_update`, a DEBUG line also names the days left until the release, as no update reminder is shown before then.
 
 ## Version 2.3.0 (2026-09-23)
 

@@ -58,28 +58,37 @@ def test_release_date():
             release_date='2021-13-01')
 
 
+def _future_date_records(caplog, days_ahead):
+    """Run Check with a release_date days_ahead in the future and return the
+    log records of the plausibility check."""
+    caplog.set_level(logging.DEBUG, logger='compatibility')
+    compatibility.Check(
+        package_name='test',
+        package_version='1',
+        release_date=date.today() + timedelta(days=days_ahead))
+    return [r for r in caplog.records if 'in the future' in r.getMessage()]
+
+
 def test_release_date_far_future_warns(caplog):
-    """A release_date more than 60 days ahead is almost certainly a typo and
+    """A release_date more than a year ahead is almost certainly a typo and
     should log a warning (but not raise)."""
-    caplog.set_level(logging.WARNING)
-    far_future = date.today() + timedelta(days=61)
-    compatibility.Check(
-        package_name='test',
-        package_version='1',
-        release_date=far_future)
-    assert 'in the future' in caplog.text
+    records = _future_date_records(caplog, 366)
+    assert [r.levelno for r in records] == [logging.WARNING]
+    assert 'more than 365 days' in records[0].getMessage()
 
 
-def test_release_date_near_future_no_warning(caplog):
-    """A release_date within 60 days ahead (developing toward a planned
-    release) must not warn."""
-    caplog.set_level(logging.WARNING)
-    near_future = date.today() + timedelta(days=30)
-    compatibility.Check(
-        package_name='test',
-        package_version='1',
-        release_date=near_future)
-    assert 'in the future' not in caplog.text
+@pytest.mark.parametrize("days_ahead", [31, 365])
+def test_release_date_future_logs_debug(caplog, days_ahead):
+    """A release_date more than 30 days but at most a year ahead (developing
+    toward a planned release) is only logged at DEBUG level."""
+    records = _future_date_records(caplog, days_ahead)
+    assert [r.levelno for r in records] == [logging.DEBUG]
+    assert 'more than 30 days' in records[0].getMessage()
+
+
+def test_release_date_near_future_not_logged(caplog):
+    """A release_date within 30 days ahead is not logged at all."""
+    assert _future_date_records(caplog, 30) == []
 
 
 def test_release_date_far_past_warns(caplog):
